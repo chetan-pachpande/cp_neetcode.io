@@ -44,82 +44,101 @@
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <!-- Largest Rectangle in Histogram -->
-            <div class="card p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900">Largest Rectangle in Histogram</h2>
-                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">LeetCode 84</span>
-                </div>
-                <p class="text-gray-600 mb-4">
-                    Visualize the monotonic stack algorithm that finds the largest rectangle area in a histogram in O(n) time.
-                </p>
-                <div class="mb-4">
-                    <div class="flex flex-wrap gap-2">
-                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Stack</span>
-                        <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Array</span>
-                        <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">Dynamic Programming</span>
+        <main class="space-y-16">
+            <!-- Binary Search Category -->
+            <section id="binary-search">
+                <h2 class="text-3xl font-bold text-white mb-6">🔍 Binary Search</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <!-- Find Minimum in Rotated Sorted Array -->
+                    <div class="card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-2xl font-bold text-gray-900">Find Min in Rotated Sorted Array</h3>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">LeetCode 153</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">
+                            Binary Search on a rotated sorted array to find the minimum in O(log n) time.
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                <span>Time: O(log n)</span> • <span>Space: O(1)</span>
+                            </div>
+                            <a href="find_minimum_rotated_sorted_array.html" class="btn text-white px-6 py-2 rounded-lg font-semibold">
+                                View Demo
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-500">
-                        <span>Time: O(n)</span> • <span>Space: O(n)</span>
-                    </div>
-                    <a href="largest_rectangle_in_histogram.html" class="btn text-white px-6 py-2 rounded-lg font-semibold">
-                        View Demo
-                    </a>
-                </div>
-            </div>
+            </section>
 
-            <!-- Find Minimum in Rotated Sorted Array -->
-            <div class="card p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900">Find Minimum in Rotated Sorted Array</h2>
-                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">LeetCode 153</span>
-                </div>
-                <p class="text-gray-600 mb-4">
-                    Visualize binary search on a rotated sorted array to find the minimum element in O(log n) time.
-                </p>
-                <div class="mb-4">
-                    <div class="flex flex-wrap gap-2">
-                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Binary Search</span>
-                        <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Array</span>
-                        <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded">Divide & Conquer</span>
+            <!-- Stack Category -->
+            <section id="stack">
+                <h2 class="text-3xl font-bold text-white mb-6">📚 Stack & Monotonic Stack</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <!-- Largest Rectangle in Histogram -->
+                    <div class="card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-2xl font-bold text-gray-900">Largest Rectangle in Histogram</h3>
+                            <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">LeetCode 84</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">
+                            Monotonic stack algorithm to compute the largest rectangle area in a histogram in linear time.
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                <span>Time: O(n)</span> • <span>Space: O(n)</span>
+                            </div>
+                            <a href="largest_rectangle_in_histogram.html" class="btn text-white px-6 py-2 rounded-lg font-semibold">
+                                View Demo
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-500">
-                        <span>Time: O(log n)</span> • <span>Space: O(1)</span>
-                    </div>
-                    <a href="find_minimum_rotated_sorted_array.html" class="btn text-white px-6 py-2 rounded-lg font-semibold">
-                        View Demo
-                    </a>
-                </div>
-            </div>
+            </section>
 
-            <div class="card p-6 opacity-50">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900">Coming Soon</h2>
-                    <span class="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded">TBD</span>
-                </div>
-                <p class="text-gray-600 mb-4">
-                    More algorithm visualizations coming soon. Stay tuned!
-                </p>
-                <div class="mb-4">
-                    <div class="flex flex-wrap gap-2">
-                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">TBD</span>
+            <!-- Greedy Category -->
+            <section id="greedy">
+                <h2 class="text-3xl font-bold text-white mb-6">🤝 Greedy & Simulation</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <!-- Car Fleet -->
+                    <div class="card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-2xl font-bold text-gray-900">Car Fleet</h3>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">LeetCode 853</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">
+                            Greedy stack-based approach to determine how many car fleets will arrive at the destination.
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                <span>Time: O(n log n)</span> • <span>Space: O(n)</span>
+                            </div>
+                            <a href="car_fleet.html" class="btn text-white px-6 py-2 rounded-lg font-semibold">
+                                View Demo
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-500">
-                        <span>Coming Soon</span>
+            </section>
+
+            <!-- Coming Soon Placeholder -->
+            <section id="coming-soon">
+                <h2 class="text-3xl font-bold text-white mb-6">✨ More Categories Coming Soon</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto opacity-50">
+                    <div class="card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-2xl font-bold text-gray-900">Coming Soon</h3>
+                            <span class="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded">TBD</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">
+                            More visualizations across NeetCode categories will be added here.
+                        </p>
+                        <button disabled class="bg-gray-300 text-gray-500 px-6 py-2 rounded-lg font-semibold cursor-not-allowed">
+                            Stay Tuned
+                        </button>
                     </div>
-                    <button disabled class="bg-gray-300 text-gray-500 px-6 py-2 rounded-lg font-semibold cursor-not-allowed">
-                        Soon
-                    </button>
                 </div>
-            </div>
-        </div>
+            </section>
+        </main>
 
         <footer class="text-center mt-16 text-blue-100">
             <p class="text-sm">

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 853: Car Fleet Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .highlight-code {
+            background-color: #fef08a; /* yellow-200 */
+            color: #1f2937; /* gray-800 */
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+        .highlight-flow {
+            stroke: #fbbf24; /* amber-400 */
+            stroke-width: 4px;
+            transition: all 0.3s ease-in-out;
+        }
+        .car {
+            transition: left 0.05s linear;
+        }
+        .code-container {
+            counter-reset: line;
+        }
+        .code-line::before {
+            counter-increment: line;
+            content: counter(line);
+            display: inline-block;
+            width: 2em;
+            padding-right: 1em;
+            text-align: right;
+            color: #6b7280; /* gray-500 */
+        }
+    </style>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+<body class="bg-gray-900 text-gray-200">
+    <div class="container mx-auto p-4">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl font-bold text-white">LeetCode 853: Car Fleet</h1>
+            <p class="text-lg text-gray-400 mt-2">An interactive visualizer for understanding the car fleet algorithm.</p>
+        </header>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+
+            <!-- Column 1: Guided Explanation -->
+            <div class="w-full lg:w-1/2 bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Algorithm Explanation</h2>
+
+                <!-- A. Dynamic Diagram (Flowchart) -->
+                <div class="mb-6">
+                    <h3 class="text-xl font-medium mb-2 text-gray-300">Flowchart</h3>
+                    <svg id="flowchart" viewBox="0 0 400 500" class="bg-gray-900 rounded-md w-full">
+                        <!-- Nodes -->
+                        <g id="flow-start" class="flow-node">
+                            <rect x="150" y="10" width="100" height="40" rx="20" fill="#1f2937" stroke="#4b5563"/>
+                            <text x="200" y="35" font-size="12" fill="white" text-anchor="middle">Start</text>
+                        </g>
+                        <g id="flow-combine" class="flow-node">
+                           <rect x="100" y="80" width="200" height="50" rx="10" fill="#1f2937" stroke="#4b5563"/>
+                           <text x="200" y="100" font-size="12" fill="white" text-anchor="middle">Combine position & speed</text>
+                           <text x="200" y="115" font-size="12" fill="white" text-anchor="middle">into a single 'cars' array</text>
+                        </g>
+                        <g id="flow-sort" class="flow-node">
+                            <rect x="100" y="160" width="200" height="50" rx="10" fill="#1f2937" stroke="#4b5563"/>
+                            <text x="200" y="185" font-size="12" fill="white" text-anchor="middle">Sort cars by position (descending)</text>
+                        </g>
+                        <g id="flow-stack" class="flow-node">
+                            <rect x="125" y="240" width="150" height="40" rx="10" fill="#1f2937" stroke="#4b5563"/>
+                            <text x="200" y="265" font-size="12" fill="white" text-anchor="middle">Initialize empty stack</text>
+                        </g>
+                        <g id="flow-loop" class="flow-node">
+                            <rect x="75" y="310" width="250" height="130" rx="10" fill="#1f2937" stroke="#4b5563"/>
+                            <text x="200" y="330" font-size="12" fill="white" text-anchor="middle">For each car (closest to target first):</text>
+                            <text x="200" y="355" font-size="12" fill="#a5f3fc" text-anchor="middle">time = (target - pos) / speed</text>
+                            <text x="200" y="380" font-size="12" fill="#fde047" text-anchor="middle">If stack is empty OR time > stack.peek():</text>
+                            <text x="200" y="400" font-size="12" fill="#bef264" text-anchor="middle">  Push time to stack (New Fleet)</text>
+                            <text x="200" y="420" font-size="12" fill="#fda4af" text-anchor="middle">Else: Do nothing (Car joins fleet)</text>
+                        </g>
+                        <g id="flow-end" class="flow-node">
+                           <rect x="150" y="450" width="100" height="40" rx="20" fill="#1f2937" stroke="#4b5563"/>
+                           <text x="200" y="475" font-size="12" fill="white" text-anchor="middle">Return stack.size</text>
+                        </g>
+                        <!-- Arrows -->
+                        <path d="M 200 50 V 80" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+                        <path d="M 200 130 V 160" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+                        <path d="M 200 210 V 240" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+                        <path d="M 200 280 V 310" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+                        <path d="M 200 440 V 450" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                              <path d="M 0 0 L 10 5 L 0 10 z" fill="#4b5563" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+
+                <!-- B. Step-by-Step Implementation -->
+                <div class="relative">
+                    <h3 class="text-xl font-medium mb-2 text-gray-300">Implementation Steps</h3>
+                    <div id="explanation-text" class="text-gray-300 mb-4 min-h-[100px]"></div>
+                    <pre class="bg-gray-900 rounded-md p-4 text-sm overflow-x-auto"><code id="code-snippet" class="language-java code-container"></code></pre>
+                    <div class="flex justify-between mt-4">
+                        <button id="prev-step" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                        <button id="next-step" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: Live Visualization -->
+            <div class="w-full lg:w-1/2 bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Live Visualization</h2>
+
+                <!-- A. Interactive Controls -->
+                <div id="controls" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                     <div>
+                        <label for="target-input" class="block text-sm font-medium text-gray-400">Target</label>
+                        <input type="text" id="target-input" value="10" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                     </div>
+                     <div>
+                        <label for="position-input" class="block text-sm font-medium text-gray-400">Positions (comma-separated)</label>
+                        <input type="text" id="position-input" value="4,1,0,7" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                     </div>
+                      <div>
+                        <label for="speed-input" class="block text-sm font-medium text-gray-400">Speeds (comma-separated)</label>
+                        <input type="text" id="speed-input" value="2,2,1,1" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                     </div>
+                    <div class="flex items-end gap-2">
+                        <button id="run-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition">Run</button>
+                         <button id="reset-button" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">Reset</button>
+                    </div>
+                </div>

@@ -266,6 +266,9 @@
         // Category button
         const btn = document.createElement('button');
         btn.className = 'flex justify-between items-center w-full px-6 py-4 text-left text-lg font-medium text-gray-900 hover:bg-gray-50 transition';
+        btn.setAttribute('aria-expanded', 'false');
+        const listId = `list-${slug}`;
+        btn.setAttribute('aria-controls', listId);
         btn.innerHTML = `
           <span>${formatTitle(slug)} (${problems.length})</span>
           <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200 icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -275,6 +278,7 @@
         // Problems list
         const listEl = document.createElement('ul');
         listEl.className = 'ml-6 mt-2 space-y-1 hidden';
+        listEl.id = listId;
         problems.forEach(([file, title]) => {
           const li = document.createElement('li');
           const link = document.createElement('a');
@@ -294,9 +298,11 @@
         // Toggle on click
         // toggle list and rotate icon on click
         btn.addEventListener('click', () => {
+          const isExpanded = listEl.classList.contains('hidden');
           listEl.classList.toggle('hidden');
           const icon = btn.querySelector('.icon');
           if (icon) icon.classList.toggle('rotate-90');
+          btn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
         });
         item.append(btn, listEl);
         tree.appendChild(item);

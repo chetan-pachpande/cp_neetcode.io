@@ -398,20 +398,39 @@
         ['reverse_integer.html','Reverse Integer | LC 7'],
       ],
     };
-    document.addEventListener('DOMContentLoaded', ()=>{
-      Object.entries(CATEGORIES).forEach(([slug,list])=>{
-        const sec=document.getElementById(slug);
-        if(!sec) return;
-        const grid=document.createElement('div');
-        grid.className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12';
-        list.forEach(([file,title])=>{
-          const a=document.createElement('a');
-          a.href=`categories/${slug}/${file}`;
-          a.className='card p-6 text-center';
-          a.innerHTML=`<h3 class="text-xl font-semibold">${title}</h3>`;
-          grid.appendChild(a);
+    document.addEventListener('DOMContentLoaded', () => {
+      // Expand/collapse category problem lists on click
+      document.querySelectorAll('#categories a.card').forEach(a => {
+        a.classList.add('cursor-pointer');
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          const slug = a.getAttribute('href').slice(1);
+          const sec = document.getElementById(slug);
+          if (!sec) return;
+          // Locate or create the problem grid
+          let grid = sec.querySelector('[data-grid]');
+          if (!grid) {
+            const list = CATEGORIES[slug];
+            grid = document.createElement('div');
+            grid.setAttribute('data-grid', slug);
+            grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12 hidden';
+            list.forEach(([file, title]) => {
+              const link = document.createElement('a');
+              link.href = `categories/${slug}/${file}`;
+              link.className = 'card p-6 text-center';
+              link.innerHTML = `<h3 class="text-xl font-semibold">${title}</h3>`;
+              grid.appendChild(link);
+            });
+            sec.appendChild(grid);
+          }
+          // Collapse other grids
+          document.querySelectorAll('main section [data-grid]').forEach(g => {
+            if (g !== grid) g.classList.add('hidden');
+          });
+          // Toggle this grid
+          grid.classList.toggle('hidden');
+          sec.scrollIntoView({ behavior: 'smooth' });
         });
-        sec.appendChild(grid);
       });
     });
     </script>

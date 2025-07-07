@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 153: Find Minimum in Rotated Sorted Array</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .array-element {
+            font-size: 16px;
+            font-weight: 600;
+            text-anchor: middle;
+            transition: all 0.3s ease-in-out;
+        }
+        .state-box {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            background-color: #f9fafb;
+            border-radius: 0.375rem;
+            font-family: monospace;
+            text-align: center;
+        }
+        .log-container {
+            height: 150px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        .visualization-panel {
+            min-height: 350px;
+        }
+        .rotation-point {
+            stroke: #ef4444;
+            stroke-width: 3;
+            fill: none;
+            stroke-dasharray: 5,5;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Find Minimum in Rotated Sorted Array</h1>
+            <p class="text-lg text-gray-600 mt-2">Binary Search on Rotated Array</p>
+        </header>
+        <div class="text-center text-sm text-gray-500 mb-8">
+            Idea By: Chetan Pachpande | Executed By: Gemini
+        </div>
+
+        <div id="problem-card" class="card mb-8">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Given the sorted rotated array `nums` of unique elements, return the minimum element of this array.</p>
+                <p>You must write an algorithm that runs in O(log n) time.</p>
+                <div class="my-4">
+                    <h3 class="text-lg font-semibold mb-2">Examples</h3>
+                    <div class="bg-gray-100 p-3 rounded-lg border border-gray-200 text-sm space-y-2">
+                        <p><strong>Example 1:</strong> [3,4,5,1,2] → Output: 1</p>
+                        <p><strong>Example 2:</strong> [4,5,6,7,0,1,2] → Output: 0</p>
+                        <p><strong>Example 3:</strong> [11,13,15,17] → Output: 11</p>
+                    </div>
+                </div>
+                <div class="my-4">
+                    <h3 class="text-lg font-semibold mb-2">Complexity Analysis</h3>
+                    <div class="bg-gray-100 p-3 rounded-lg border border-gray-200 text-sm">
+                        <p><strong>Time Complexity:</strong> O(log N)</p>
+                        <p class="text-gray-600 ml-4">Binary search reduces the search space by half at each step.</p>
+                        <p class="mt-2"><strong>Space Complexity:</strong> O(1)</p>
+                        <p class="text-gray-600 ml-4">Only using a constant amount of extra space.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+            <div class="lg:col-span-2 flex flex-col gap-8">
+                
+                <div id="intuition-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+                    <div class="space-y-4 text-gray-700">
+                        <p>The key insight is that in a rotated sorted array, one half will always be properly sorted while the other half contains the rotation point (and thus the minimum).</p>
+                        <p>We can use binary search by comparing the middle element with the rightmost element:</p>
+                        <ul class="list-disc pl-6 space-y-1">
+                            <li>If <code>nums[mid] > nums[right]</code>, the minimum is in the right half</li>
+                            <li>If <code>nums[mid] ≤ nums[right]</code>, the minimum is in the left half (including mid)</li>
+                        </ul>
+                        <p>This approach efficiently narrows down the search space to find the pivot point where the array was rotated.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <div class="flex justify-between mt-6">
+                        <button id="prev-step-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                        <button id="next-step-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-3 flex flex-col gap-8">
+                
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization & Controls</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-3">
+                            <label for="array-input" class="block text-sm font-medium text-gray-700">Rotated Array (comma-separated)</label>
+                            <input type="text" id="array-input" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" value="4,5,6,7,0,1,2">
+                        </div>
+                    </div>
+                    <button id="run-btn" class="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-semibold">Run Visualization</button>
+                    
+                    <div class="visualization-panel border-2 border-gray-200 rounded-lg bg-gray-50 flex-grow mt-4">
+                        <svg id="canvas" width="100%" height="100%"></svg>
+                    </div>
+
+                    <div class="mt-4">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-800 text-center">Algorithm State</h3>
+                        <div id="state-display" class="grid grid-cols-2 lg:grid-cols-4 gap-3 text-center"></div>
+                    </div>
+                     
+                    <div class="mt-6 pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-3 text-center text-gray-800">Execution Controls</h3>
+                        <div class="flex justify-center items-center gap-8">
+                            <button id="step-backward-btn" class="control-btn" title="Step Backward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                            </button>
+                            <button id="play-pause-btn" class="control-btn !w-16 !h-16 bg-blue-600 text-white hover:bg-blue-700" title="Run/Pause">
+                                <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="hidden"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                            </button>
+                            <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-8 space-y-8">
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Log of Step Execution</h2>
+                <div id="log-container" class="log-container"></div>
+            </div>
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Algorithm Flowchart</h2>
+                <div class="w-full flex justify-center">
+                    <pre class="mermaid" id="flowchart-definition">
+graph TD
+    A["Start: left=0, right=n-1"] --> B{"left < right"};
+    B -- Yes --> C["mid = (left + right) / 2"];
+    C --> D{"nums[mid] > nums[right]"};
+    D -- Yes --> E["Minimum in right half<br>left = mid + 1"];
+    D -- No --> F["Minimum in left half<br>right = mid"];
+    E --> B;
+    F --> B;
+    B -- No --> G["Return nums[left]"];
+    G --> H["End"];
+                    </pre>
+                </div>
+            </div>
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Commented Java Code</h2>
+                <div id="commented-code-container" class="bg-gray-100 p-4 rounded-md">
+                    <pre><code class="language-java"></code></pre>
+                </div>
+            </div>
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Full Explanation Script (for Narration)</h2>
+                    <button id="narrate-btn" class="p-2 rounded-full hover:bg-gray-200 transition" title="Narrate full explanation">
+                        <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                        <svg id="stop-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 10h6" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="narration-script" class="text-gray-700 space-y-2">
+                    <!-- Script will be injected here by JS -->
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- MERMAID INITIALIZATION ---
+        mermaid.initialize({ startOnLoad: true, theme: 'base' });
+
+        // --- DOM ELEMENTS ---
+        const arrayInput = document.getElementById('array-input');
+        const runBtn = document.getElementById('run-btn');
+        const canvas = document.getElementById('canvas');
+        const stateDisplay = document.getElementById('state-display');
+        const logContainer = document.getElementById('log-container');
+        const codeStepsContainer = document.getElementById('code-steps-container');
+        const commentedCodeContainer = document.getElementById('commented-code-container');
+        const prevStepBtn = document.getElementById('prev-step-btn');
+        const nextStepBtn = document.getElementById('next-step-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const stepForwardBtn = document.getElementById('step-forward-btn');
+        const stepBackwardBtn = document.getElementById('step-backward-btn');
+        const narrateBtn = document.getElementById('narrate-btn');
+        const speakerIcon = document.getElementById('speaker-icon');
+        const stopIcon = document.getElementById('stop-icon');
+        const narrationScriptContainer = document.getElementById('narration-script');
+
+        // --- GLOBAL STATE ---
+        let stateHistory = [];
+        let currentStateIndex = -1;
+        let isPlaying = false;
+        let animationInterval = null;
+
+        // --- CODE STEPS DEFINITION ---
+        const codeSteps = [
+            { id: 'A', title: 'Step 1: Initialize Pointers', explanation: 'Set left pointer to 0 and right pointer to the last index of the array.', code: `int left = 0;\nint right = nums.length - 1;` },
+            { id: 'B', title: 'Step 2: Binary Search Loop', explanation: 'Continue searching while left is less than right. When they meet, we\'ve found the minimum.', code: `while (left < right) {` },
+            { id: 'C', title: 'Step 3: Calculate Mid', explanation: 'Find the middle index to divide the array into two halves for comparison.', code: `    int mid = left + (right - left) / 2;` },
+            { id: 'D', title: 'Step 4: Compare Mid with Right', explanation: 'Compare the middle element with the rightmost element to determine which half contains the minimum.', code: `    if (nums[mid] > nums[right]) {` },
+            { id: 'E', title: 'Step 5A: Search Right Half', explanation: 'If mid > right, the minimum must be in the right half. Move left pointer to mid + 1.', code: `        left = mid + 1;` },
+            { id: 'F', title: 'Step 5B: Search Left Half', explanation: 'If mid ≤ right, the minimum could be at mid or in the left half. Move right pointer to mid.', code: `    } else {\n        right = mid;\n    }` },
+            { id: 'G', title: 'Step 6: Return Result', explanation: 'When left equals right, we\'ve found the minimum element at that position.', code: `}\nreturn nums[left];` }
+        ];
+
+        function setupCode() {
+            codeStepsContainer.innerHTML = codeSteps.map((step) => `
+                <div id="code-step-${step.id}" class="code-step-item hidden">
+                    <h3 class="text-lg font-semibold mb-2">${step.title}</h3>
+                    <p class="text-sm text-gray-600 mb-3">${step.explanation}</p>
+                    <pre class="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto"><code class="language-java">${step.code}</code></pre>
+                </div>
+            `).join('');
+
+            const fullCode = `class Solution {
+    public int findMin(int[] nums) {
+        // Step 1: Initialize Pointers
+        int left = 0;
+        int right = nums.length - 1;
+        
+        // Step 2: Binary Search Loop
+        while (left < right) {
+            // Step 3: Calculate Mid
+            int mid = left + (right - left) / 2;
+            
+            // Step 4: Compare Mid with Right
+            if (nums[mid] > nums[right]) {
+                // Step 5A: Search Right Half
+                // Minimum is in the right half
+                left = mid + 1;
+            } else {
+                // Step 5B: Search Left Half
+                // Minimum is in the left half (including mid)
+                right = mid;
+            }
+        }
+        
+        // Step 6: Return Result
+        return nums[left];
+    }
+}`;
+            commentedCodeContainer.querySelector('code').textContent = fullCode;
+            
+            const narrationText = `
+                <p><strong>Problem Description:</strong> We have a sorted array that has been rotated at some pivot point. We need to find the minimum element in O(log n) time using binary search.</p>
+                <p><strong>Key Insight:</strong> In a rotated sorted array, one half will always be properly sorted while the other half contains the rotation point and thus the minimum element.</p>
+                <p><strong>Algorithm Strategy:</strong> We use binary search by comparing the middle element with the rightmost element. If nums[mid] is greater than nums[right], the minimum must be in the right half. Otherwise, the minimum is in the left half including the middle element.</p>
+                <p><strong>Time Complexity:</strong> O(log n) because we eliminate half of the search space in each iteration, just like standard binary search.</p>
+                <p><strong>Space Complexity:</strong> O(1) as we only use a constant amount of extra space for the pointers.</p>
+            `;
+            narrationScriptContainer.innerHTML = narrationText;
+        }
+
+        function updateCodeStepDisplay(stepId) {
+            document.querySelectorAll('.code-step-item').forEach(item => item.classList.add('hidden'));
+            const activeStep = document.getElementById(`code-step-${stepId}`);
+            if (activeStep) {
+                activeStep.classList.remove('hidden');
+            }
+        }
+        
+        prevStepBtn.addEventListener('click', () => stepBackward());
+        nextStepBtn.addEventListener('click', () => stepForward());
+
+        function runVisualization() {
+            stopAnimation();
+            const nums = arrayInput.value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+            
+            if (nums.length === 0) return;
+
+            stateHistory = [];
+            currentStateIndex = -1;
+            
+            let left = 0;
+            let right = nums.length - 1;
+            
+            stateHistory.push({ 
+                left, right, mid: null, nums: [...nums], 
+                message: `Initializing: left=${left}, right=${right}`, 
+                stepId: 'A' 
+            });
+
+            while (left < right) {
+                stateHistory.push({ 
+                    left, right, mid: null, nums: [...nums], 
+                    message: `Checking condition: left(${left}) < right(${right}) = ${left < right}`, 
+                    stepId: 'B' 
+                });
+
+                const mid = Math.floor(left + (right - left) / 2);
+                stateHistory.push({ 
+                    left, right, mid, nums: [...nums], 
+                    message: `Calculating mid: (${left} + ${right}) / 2 = ${mid}`, 
+                    stepId: 'C' 
+                });
+
+                stateHistory.push({ 
+                    left, right, mid, nums: [...nums], 
+                    message: `Comparing: nums[${mid}] = ${nums[mid]} > nums[${right}] = ${nums[right]} ?`, 
+                    stepId: 'D' 
+                });
+
+                if (nums[mid] > nums[right]) {
+                    left = mid + 1;
+                    stateHistory.push({ 
+                        left, right, mid, nums: [...nums], 
+                        message: `nums[${mid}] > nums[${right}], so minimum is in right half. Setting left = ${left}`, 
+                        stepId: 'E' 
+                    });
+                } else {
+                    right = mid;
+                    stateHistory.push({ 
+                        left, right, mid, nums: [...nums], 
+                        message: `nums[${mid}] ≤ nums[${right}], so minimum is in left half. Setting right = ${right}`, 
+                        stepId: 'F' 
+                    });
+                }
+            }
+            
+            stateHistory.push({ 
+                left, right, mid: null, nums: [...nums], 
+                message: `Found minimum: nums[${left}] = ${nums[left]}`, 
+                stepId: 'G' 
+            });
+            
+            if (stateHistory.length > 0) {
+                currentStateIndex = 0;
+                renderState(stateHistory[0]);
+            }
+        }
+
+        function renderState(state) {
+            if (!state) return;
+            
+            const { left, right, mid, nums, message, stepId } = state;
+
+            canvas.innerHTML = '';
+            const svgWidth = canvas.clientWidth;
+            const svgHeight = canvas.clientHeight;
+            const padding = { top: 40, right: 40, bottom: 80, left: 40 };
+            const chartWidth = svgWidth - padding.left - padding.right;
+            const chartHeight = svgHeight - padding.top - padding.bottom;
+
+            const elementWidth = chartWidth / nums.length;
+            const elementHeight = 60;
+            const y = padding.top + (chartHeight - elementHeight) / 2;
+
+            // Draw array elements
+            nums.forEach((num, index) => {
+                const x = padding.left + index * elementWidth;
+                
+                // Determine color based on current state
+                let color = '#e5e7eb'; // gray-200 (default)
+                let textColor = '#374151'; // gray-700
+                
+                if (index === left && index === right) {
+                    color = '#10b981'; // green-500 (found minimum)
+                    textColor = 'white';
+                } else if (index === left) {
+                    color = '#3b82f6'; // blue-500 (left pointer)
+                    textColor = 'white';
+                } else if (index === right) {
+                    color = '#ef4444'; // red-500 (right pointer)
+                    textColor = 'white';
+                } else if (index === mid) {
+                    color = '#f59e0b'; // amber-500 (mid pointer)
+                    textColor = 'white';
+                } else if (left <= index && index <= right) {
+                    color = '#d1d5db'; // gray-300 (search space)
+                }
+
+                // Draw rectangle
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', x + 2);
+                rect.setAttribute('y', y);
+                rect.setAttribute('width', elementWidth - 4);
+                rect.setAttribute('height', elementHeight);
+                rect.setAttribute('fill', color);
+                rect.setAttribute('stroke', '#9ca3af');
+                rect.setAttribute('stroke-width', '1');
+                rect.setAttribute('rx', '8');
+                canvas.appendChild(rect);
+
+                // Draw number
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', x + elementWidth / 2);
+                text.setAttribute('y', y + elementHeight / 2 + 6);
+                text.setAttribute('fill', textColor);
+                text.setAttribute('font-size', '18');
+                text.setAttribute('font-weight', '600');
+                text.setAttribute('text-anchor', 'middle');
+                text.textContent = num;
+                canvas.appendChild(text);
+
+                // Draw index below
+                const indexText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                indexText.setAttribute('x', x + elementWidth / 2);
+                indexText.setAttribute('y', y + elementHeight + 20);
+                indexText.setAttribute('fill', '#6b7280');
+                indexText.setAttribute('font-size', '12');
+                indexText.setAttribute('text-anchor', 'middle');
+                indexText.textContent = index;
+                canvas.appendChild(indexText);
+            });
+
+            // Draw pointers with labels
+            const pointers = [];
+            if (left !== null) pointers.push({ index: left, label: 'L', color: '#3b82f6' });
+            if (right !== null) pointers.push({ index: right, label: 'R', color: '#ef4444' });
+            if (mid !== null) pointers.push({ index: mid, label: 'M', color: '#f59e0b' });
+
+            pointers.forEach((pointer, i) => {
+                const x = padding.left + pointer.index * elementWidth + elementWidth / 2;
+                const labelY = y - 15 - (i * 20);
+                
+                // Draw pointer line
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x);
+                line.setAttribute('y1', labelY + 10);
+                line.setAttribute('x2', x);
+                line.setAttribute('y2', y - 5);
+                line.setAttribute('stroke', pointer.color);
+                line.setAttribute('stroke-width', '2');
+                line.setAttribute('marker-end', 'url(#arrowhead)');
+                canvas.appendChild(line);
+
+                // Draw label
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', x);
+                label.setAttribute('y', labelY);
+                label.setAttribute('fill', pointer.color);
+                label.setAttribute('font-size', '14');
+                label.setAttribute('font-weight', '700');
+                label.setAttribute('text-anchor', 'middle');
+                label.textContent = pointer.label;
+                canvas.appendChild(label);
+            });
+
+            // Add arrowhead marker
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker.setAttribute('id', 'arrowhead');
+            marker.setAttribute('markerWidth', '10');
+            marker.setAttribute('markerHeight', '7');
+            marker.setAttribute('refX', '9');
+            marker.setAttribute('refY', '3.5');
+            marker.setAttribute('orient', 'auto');
+            
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+            polygon.setAttribute('fill', '#374151');
+            marker.appendChild(polygon);
+            defs.appendChild(marker);
+            canvas.appendChild(defs);
+            
+            // Update state display
+            stateDisplay.innerHTML = `
+                <div class="state-box"><div class="text-sm text-gray-500">Left</div><code class="text-lg font-bold text-blue-600">${left}</code></div>
+                <div class="state-box"><div class="text-sm text-gray-500">Right</div><code class="text-lg font-bold text-red-600">${right}</code></div>
+                <div class="state-box"><div class="text-sm text-gray-500">Mid</div><code class="text-lg font-bold text-amber-600">${mid ?? '-'}</code></div>
+                <div class="state-box"><div class="text-sm text-gray-500">Search Space</div><code class="text-lg font-bold text-purple-600">${right - left + 1}</code></div>
+            `;
+
+            log(message);
+            updateCodeStepDisplay(stepId);
+        }
+
+        function log(message) {
+            if (currentStateIndex <= 0) {
+                logContainer.innerHTML = '';
+            }
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `&gt; ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function stepForward() {
+            if (currentStateIndex < stateHistory.length - 1) {
+                currentStateIndex++;
+                renderState(stateHistory[currentStateIndex]);
+            } else {
+                stopAnimation();
+            }
+        }
+
+        function stepBackward() {
+            if (currentStateIndex > 0) {
+                currentStateIndex--;
+                renderState(stateHistory[currentStateIndex]);
+            }
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        }
+
+        function startAnimation() {
+            if (currentStateIndex >= stateHistory.length - 1) {
+                runVisualization();
+            }
+            isPlaying = true;
+            playIcon.classList.add('hidden');
+            pauseIcon.classList.remove('hidden');
+            animationInterval = setInterval(stepForward, 1000);
+        }
+
+        function stopAnimation() {
+            isPlaying = false;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            clearInterval(animationInterval);
+        }
+
+        function toggleNarration() {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                speakerIcon.classList.remove('hidden');
+                stopIcon.classList.add('hidden');
+            } else {
+                const scriptText = narrationScriptContainer.innerText;
+                const utterance = new SpeechSynthesisUtterance(scriptText);
+                utterance.onstart = () => {
+                    speakerIcon.classList.add('hidden');
+                    stopIcon.classList.remove('hidden');
+                };
+                utterance.onend = () => {
+                    speakerIcon.classList.remove('hidden');
+                    stopIcon.classList.add('hidden');
+                };
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+        
+        runBtn.addEventListener('click', runVisualization);
+        stepForwardBtn.addEventListener('click', stepForward);
+        stepBackwardBtn.addEventListener('click', stepBackward);
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        narrateBtn.addEventListener('click', toggleNarration);
+        
+        setupCode();
+        runVisualization();
+    });
+    </script>
+</body>
+</html>

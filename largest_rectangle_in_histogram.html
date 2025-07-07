@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 84: Largest Rectangle in Histogram</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb; /* gray-50 */
+            border-color: #9ca3af; /* gray-400 */
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .bar-pointer {
+            font-size: 14px;
+            font-weight: 700;
+            text-anchor: middle;
+            transition: all 0.3s ease-in-out;
+        }
+        .highlight-rect {
+            transition: all 0.3s ease-in-out;
+            fill: #fb923c; /* orange-400 */
+            opacity: 0.5;
+        }
+        .state-box {
+             padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            background-color: #f9fafb;
+            border-radius: 0.375rem;
+            font-family: monospace;
+            text-align: center;
+        }
+        .log-container {
+            height: 150px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+        }
+        .visualization-panel {
+            min-height: 450px;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Largest Rectangle in Histogram</h1>
+            <p class="text-lg text-gray-600 mt-2">An Interactive Visual Explainer</p>
+        </header>
+        <div class="text-center text-sm text-gray-500 mb-8">
+            Idea By: Chetan Pachpande | Executed By: Gemini
+        </div>
+
+        <div id="problem-card" class="card mb-8">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>You are given an array of integers `heights` where `heights[i]` represents the height of a bar. The width of each bar is 1.</p>
+                <p>Return the area of the largest rectangle that can be formed among the bars.</p>
+                <div class="my-4">
+                    <h3 class="text-lg font-semibold mb-2">Complexity Analysis</h3>
+                    <div class="bg-gray-100 p-3 rounded-lg border border-gray-200 text-sm">
+                        <p><strong>Time Complexity:</strong> O(N)</p>
+                        <p class="text-gray-600 ml-4">Each index is pushed onto and popped from the stack at most once.</p>
+                        <p class="mt-2"><strong>Space Complexity:</strong> O(N)</p>
+                        <p class="text-gray-600 ml-4">In the worst case (a strictly increasing sequence of heights), the stack could hold all N indices.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+            <div class="lg:col-span-2 flex flex-col gap-8">
+                
+                <div id="intuition-card" class="card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Intuition</h2>
+                    </div>
+                    <div class="space-y-4 text-gray-700">
+                        <p>The core idea is that for any given bar, the largest rectangle it can be part of is limited by the nearest shorter bars to its left and right.</p>
+                        <p>Finding these boundaries for every bar naively would be slow (O(n²)). A **monotonic increasing stack** provides an efficient O(n) solution. The stack stores the indices of bars in increasing order of their height.</p>
+                        <p>When we encounter a bar that is shorter than the one at the top of the stack, we know we've found the "right boundary" for the bar on the stack. We can then pop it, calculate its potential area, and update our maximum. The "left boundary" is the next element remaining on the stack.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <div class="flex justify-between mt-6">
+                        <button id="prev-step-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                        <button id="next-step-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-3 flex flex-col gap-8">
+                
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization & Controls</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-3">
+                            <label for="heights-input" class="block text-sm font-medium text-gray-700">heights (comma-separated)</label>
+                            <input type="text" id="heights-input" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" value="2,1,5,6,2,3">
+                        </div>
+                    </div>
+                     <button id="run-btn" class="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-semibold">Run Visualization</button>
+                    
+                    <div class="visualization-panel border-2 border-gray-200 rounded-lg bg-gray-50 flex-grow mt-4">
+                        <svg id="canvas" width="100%" height="100%"></svg>
+                    </div>
+
+                    <div class="mt-4">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-800 text-center">Algorithm State</h3>
+                        <div id="state-display" class="grid grid-cols-2 lg:grid-cols-5 gap-3 text-center"></div>
+                         <div class="mt-3 text-center">
+                            <span class="block text-sm font-medium text-gray-500">Width Calculation</span>
+                            <div id="width-formula-display" class="mt-1 font-mono text-sm p-2 bg-white rounded-md border min-h-[36px] flex items-center justify-center">
+                                width = ?
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span class="block text-sm text-center font-medium text-gray-500">Stack (stores indices)</span>
+                            <div id="stack-display" class="mt-1 text-center font-mono text-lg p-2 bg-white rounded-md border h-10 flex items-center justify-center"></div>
+                        </div>
+                    </div>
+                     
+                     <div class="mt-6 pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-3 text-center text-gray-800">Execution Controls</h3>
+                        <div class="flex justify-center items-center gap-8">
+                            <button id="step-backward-btn" class="control-btn" title="Step Backward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                            </button>
+                            <button id="play-pause-btn" class="control-btn !w-16 !h-16 bg-blue-600 text-white hover:bg-blue-700" title="Run/Pause">
+                                <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="hidden"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                            </button>
+                            <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-8 space-y-8">
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Log of Step Execution</h2>
+                <div id="log-container" class="log-container"></div>
+            </div>
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Algorithm Flowchart</h2>
+                <div class="w-full flex justify-center">
+                    <pre class="mermaid" id="flowchart-definition">
+graph TD
+    A["Start"] --> B["Initialize maxArea=0, stack"];
+    B --> C{"Loop i from 0 to n (inclusive)"};
+    C -- Loop --> D["currentHeight = (i==n) ? 0 : heights[i]"];
+    D --> E{"while !stack.isEmpty() AND<br>currentHeight < heights[stack.peek()]"};
+    E -- Yes --> F["Pop from stack"];
+    F --> G["Calculate height and width"];
+    G --> H["Update maxArea"];
+    H --> E;
+    E -- No --> I["Push i onto stack"];
+    I --> C;
+    C -- Loop ends --> J["Return maxArea"];
+    J --> K["End"];
+                    </pre>
+                </div>
+            </div>
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Commented Java Code</h2>
+                <div id="commented-code-container" class="bg-gray-100 p-4 rounded-md">
+                    <pre><code class="language-java"></code></pre>
+                </div>
+            </div>
+            <div class="card">
+                 <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Full Explanation Script (for Narration)</h2>
+                    <button id="narrate-btn" class="p-2 rounded-full hover:bg-gray-200 transition" title="Narrate full explanation">
+                        <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                         <svg id="stop-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 10h6" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="narration-script" class="text-gray-700 space-y-2">
+                    <!-- Script will be injected here by JS -->
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- MERMAID INITIALIZATION ---
+        mermaid.initialize({ startOnLoad: true, theme: 'base' });
+
+        // --- DOM ELEMENTS ---
+        const heightsInput = document.getElementById('heights-input');
+        const runBtn = document.getElementById('run-btn');
+        const canvas = document.getElementById('canvas');
+        const stateDisplay = document.getElementById('state-display');
+        const stackDisplayEl = document.getElementById('stack-display');
+        const widthFormulaDisplayEl = document.getElementById('width-formula-display');
+        const logContainer = document.getElementById('log-container');
+        const codeStepsContainer = document.getElementById('code-steps-container');
+        const commentedCodeContainer = document.getElementById('commented-code-container');
+        const prevStepBtn = document.getElementById('prev-step-btn');
+        const nextStepBtn = document.getElementById('next-step-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const stepForwardBtn = document.getElementById('step-forward-btn');
+        const stepBackwardBtn = document.getElementById('step-backward-btn');
+        const narrateBtn = document.getElementById('narrate-btn');
+        const speakerIcon = document.getElementById('speaker-icon');
+        const stopIcon = document.getElementById('stop-icon');
+        const narrationScriptContainer = document.getElementById('narration-script');
+
+        // --- GLOBAL STATE ---
+        let stateHistory = [];
+        let currentStateIndex = -1;
+        let isPlaying = false;
+        let animationInterval = null;
+
+        // --- CODE STEPS DEFINITION ---
+        const codeSteps = [
+            { id: 'B', title: 'Step 1: Initialization', explanation: 'Initialize `maxArea` to 0 and create an empty stack to store indices of the bars.', code: `int maxArea = 0;\nStack<Integer> stack = new Stack<>();` },
+            { id: 'C', title: 'Step 2: Iterate Through Bars', explanation: 'Loop through each bar from left to right. We loop up to `n` (inclusive) to handle remaining elements in the stack at the end, using a "sentinel" height of 0.', code: `for (int i = 0; i <= n; i++) {` },
+            { id: 'E', title: 'Step 3: Process Stack', explanation: 'As long as the stack is not empty and the current bar\'s height is less than the height of the bar at the index on top of the stack, we have found the right boundary for the bar on the stack.', code: `while (!stack.isEmpty() && currentHeight < heights[stack.peek()]) {` },
+            { id: 'F', title: 'Step 4: Pop and Calculate Area', explanation: 'Pop the index from the stack. The height of the rectangle is the height of this popped bar.', code: `    int height = heights[stack.pop()];` },
+            { id: 'G', title: 'Step 5: Determine Width', explanation: 'The width is the distance from the current index `i` (the right boundary) to the new top of the stack (the left boundary). If the stack becomes empty, the width extends all the way to the start.', code: `    int width = stack.isEmpty() ? i : i - stack.peek() - 1;` },
+            { id: 'H', title: 'Step 6: Update Max Area', explanation: 'Calculate the area with the popped height and determined width, and update `maxArea` if this new area is larger.', code: `    maxArea = Math.max(maxArea, height * width);` },
+            { id: 'I', title: 'Step 7: Push to Stack', explanation: 'Push the current index `i` onto the stack. This maintains the monotonic (increasing) property of the stack.', code: `    stack.push(i);\n}` },
+            { id: 'J', title: 'Step 8: Return Result', explanation: 'After the loop completes, `maxArea` will hold the largest rectangle area found.', code: `return maxArea;` }
+        ];
+
+        function setupCode() {
+            codeStepsContainer.innerHTML = codeSteps.map((step) => `
+                <div id="code-step-${step.id}" class="code-step-item hidden">
+                    <h3 class="text-lg font-semibold mb-2">${step.title}</h3>
+                    <p class="text-sm text-gray-600 mb-3">${step.explanation}</p>
+                    <pre class="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto"><code class="language-java">${step.code}</code></pre>
+                </div>
+            `).join('');
+
+            const fullCode = `import java.util.Stack;
+
+class Solution {
+    public int largestRectangleArea(int[] heights) {
+        // Step 1: Initialization
+        int maxArea = 0;
+        Stack<Integer> stack = new Stack<>();
+        int n = heights.length;
+        
+        // Step 2: Iterate Through Bars
+        for (int i = 0; i <= n; i++) {
+            int currentHeight = (i == n) ? 0 : heights[i];
+            
+            // Step 3: Process Stack
+            while (!stack.isEmpty() && currentHeight < heights[stack.peek()]) {
+                // Step 4: Pop and Calculate Area
+                int height = heights[stack.pop()];
+                
+                // Step 5: Determine Width
+                int width = stack.isEmpty() ? i : i - stack.peek() - 1;
+                
+                // Step 6: Update Max Area
+                maxArea = Math.max(maxArea, height * width);
+            }
+
+            // Step 7: Push to Stack
+            stack.push(i);
+        }
+        
+        // Step 8: Return Result
+        return maxArea;
+    }
+}`;
+            commentedCodeContainer.querySelector('code').textContent = fullCode;
+            
+            const narrationText = `
+                <p><strong>Problem Description:</strong> You are given an array of integers 'heights' where heights at index i represents the height of a bar. The width of each bar is 1. Return the area of the largest rectangle that can be formed among the bars.</p>
+                <p><strong>Complexity Analysis:</strong> The time complexity for this solution is O of N, because each index is pushed and popped from the stack at most once. The space complexity is also O of N, as the stack could hold all N indices in the worst-case scenario of an increasing sequence.</p>
+                <p><strong>Intuition:</strong> The core idea is that for any given bar, the largest rectangle it can be part of is limited by the nearest shorter bars to its left and right. Finding these boundaries for every bar naively would be slow. A monotonic increasing stack provides an efficient, linear time solution. The stack stores the indices of bars in increasing order of their height. When we encounter a bar that is shorter than the one at the top of the stack, we know we've found the 'right boundary' for the bar on the stack. We can then pop it, calculate its potential area, and update our maximum. The 'left boundary' is the next element remaining on the stack.</p>
+                <p><strong>Code Logic:</strong> The algorithm works by first initializing a maxArea to zero and an empty stack. It then iterates through each bar, including a final sentinel bar of height zero to clear the stack. In each iteration, it checks if the current bar is shorter than the bar at the top of the stack. If it is, it pops from the stack and calculates the area for the popped bar. The height is the height of the popped bar, and the width is the distance from the current index to the new top of the stack. This area is used to update the maxArea. Finally, the current bar's index is pushed onto the stack. After the loop, the calculated maxArea is returned.</p>
+            `;
+            narrationScriptContainer.innerHTML = narrationText;
+        }
+
+        function updateCodeStepDisplay(stepId) {
+            document.querySelectorAll('.code-step-item').forEach(item => item.classList.add('hidden'));
+            const activeStep = document.getElementById(`code-step-${stepId}`);
+            if (activeStep) {
+                activeStep.classList.remove('hidden');
+            }
+        }
+        
+        prevStepBtn.addEventListener('click', () => stepBackward());
+        nextStepBtn.addEventListener('click', () => stepForward());
+
+        function runVisualization() {
+            stopAnimation();
+            const heights = heightsInput.value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+            
+            if (heights.length === 0) return;
+
+            stateHistory = [];
+            currentStateIndex = -1;
+            
+            let maxArea = 0;
+            const stack = [];
+            const n = heights.length;
+            
+            stateHistory.push({ i: -1, stack: [], maxArea, message: "Initializing maxArea and stack.", stepId: 'B' });
+
+            for (let i = 0; i <= n; i++) {
+                const currentHeight = (i === n) ? 0 : heights[i];
+                stateHistory.push({ i, stack: [...stack], maxArea, currentHeight, message: `Processing index ${i}. Current height = ${currentHeight}.`, stepId: 'C' });
+
+                while (stack.length > 0 && currentHeight < heights[stack[stack.length - 1]]) {
+                    const topOfStackHeight = heights[stack[stack.length - 1]];
+                    stateHistory.push({ i, stack: [...stack], maxArea, currentHeight, message: `Current height (${currentHeight}) < height at stack top (${topOfStackHeight}). Popping from stack.`, stepId: 'E' });
+                    
+                    const poppedIndex = stack.pop();
+                    const height = heights[poppedIndex];
+                    stateHistory.push({ i, stack: [...stack], maxArea, poppedIndex, height, currentHeight, message: `Popped index ${poppedIndex} with height ${height}.`, stepId: 'F' });
+
+                    const width = stack.length === 0 ? i : i - stack[stack.length - 1] - 1;
+                    const area = height * width;
+                    const peekVal = stack.length === 0 ? 'null' : stack[stack.length - 1];
+                    const formulaText = `width = stack.isEmpty() ? ${i} : ${i} - ${peekVal} - 1`;
+                    
+                    stateHistory.push({ i, stack: [...stack], maxArea, poppedIndex, height, width, area, formulaText, currentHeight, message: `Calculated width = ${width}. Area = ${height} * ${width} = ${area}.`, stepId: 'G' });
+                    
+                    const oldMaxArea = maxArea;
+                    maxArea = Math.max(maxArea, area);
+                    stateHistory.push({ i, stack: [...stack], maxArea, poppedIndex, height, width, area, formulaText, currentHeight, message: `Updating maxArea = max(${oldMaxArea}, ${area}) = ${maxArea}.`, stepId: 'H' });
+                }
+
+                if (i < n) {
+                    stack.push(i);
+                    stateHistory.push({ i, stack: [...stack], maxArea, currentHeight, message: `Pushing index ${i} onto stack.`, stepId: 'I' });
+                }
+            }
+            
+            stateHistory.push({ i: n, stack: [], maxArea, message: `Finished. Final maxArea = ${maxArea}.`, stepId: 'J' });
+            
+            if (stateHistory.length > 0) {
+                currentStateIndex = 0;
+                renderState(stateHistory[0]);
+            }
+        }
+
+        function renderState(state) {
+            if (!state) return;
+            
+            const { i, stack, maxArea, currentHeight, poppedIndex, height, width, area, formulaText, message, stepId } = state;
+            const heights = heightsInput.value.split(',').map(s => parseInt(s.trim(), 10));
+
+            canvas.innerHTML = '';
+            const svgWidth = canvas.clientWidth;
+            const svgHeight = canvas.clientHeight;
+            const padding = { top: 20, right: 20, bottom: 40, left: 20 };
+            const chartWidth = svgWidth - padding.left - padding.right;
+            const chartHeight = svgHeight - padding.top - padding.bottom;
+
+            const barWidth = chartWidth / heights.length;
+            const maxVal = Math.max(...heights, 1);
+            const yScale = chartHeight / maxVal;
+
+            // Draw bars
+            heights.forEach((h, index) => {
+                const barHeight = h * yScale;
+                const x = padding.left + index * barWidth;
+                const y = padding.top + chartHeight - barHeight;
+
+                const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                bar.setAttribute('x', x);
+                bar.setAttribute('y', y);
+                bar.setAttribute('width', barWidth - 2);
+                bar.setAttribute('height', barHeight);
+                
+                let color = '#9ca3af'; // gray-400
+                if (stack.includes(index)) color = '#3b82f6'; // blue-500
+                if (index === poppedIndex) color = '#facc15'; // yellow-400
+                
+                bar.setAttribute('fill', color);
+                canvas.appendChild(bar);
+            });
+            
+            // Draw highlighted rectangle for calculated area
+            if(area !== undefined) {
+                const rectEl = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                const leftBoundary = stack.length === 0 ? 0 : stack[stack.length - 1] + 1;
+                rectEl.setAttribute('x', padding.left + leftBoundary * barWidth);
+                rectEl.setAttribute('y', padding.top + chartHeight - (height * yScale));
+                rectEl.setAttribute('width', width * barWidth - 2);
+                rectEl.setAttribute('height', height * yScale);
+                rectEl.classList.add('highlight-rect');
+                canvas.appendChild(rectEl);
+            }
+
+            // Draw Pointer for current index `i`
+            if (i >= 0 && i <= heights.length) {
+                const x = padding.left + i * barWidth + (barWidth / 2);
+                const y = svgHeight - 15;
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', x);
+                text.setAttribute('y', y);
+                text.setAttribute('fill', '#ef4444'); // red-500
+                text.classList.add('bar-pointer');
+                text.innerHTML = `&darr;<tspan x="${x}" dy="1em">i=${i}</tspan>`;
+                canvas.appendChild(text);
+            }
+            
+            stateDisplay.innerHTML = `
+                <div class="state-box"><div class="text-sm text-gray-500">Current Height</div><code class="text-lg font-bold text-teal-600">${currentHeight ?? '-'}</code></div>
+                <div class="state-box"><div class="text-sm text-gray-500">Max Area</div><code class="text-lg font-bold text-green-600">${maxArea}</code></div>
+                <div class="state-box"><div class="text-sm text-gray-500">Popped Height</div><code class="text-lg font-bold text-purple-600">${height ?? '-'}</code></div>
+                <div class="state-box"><div class="text-sm text-gray-500">Calc. Width</div><code class="text-lg font-bold text-blue-600">${width ?? '-'}</code></div>
+                <div class="state-box"><div class="text-sm text-gray-500">Calc. Area</div><code class="text-lg font-bold text-orange-600">${area ?? '-'}</code></div>
+            `;
+            widthFormulaDisplayEl.textContent = formulaText || 'width = ?';
+            stackDisplayEl.textContent = `[ ${stack.join(', ')} ]`;
+
+            log(message);
+            updateCodeStepDisplay(stepId);
+            
+            document.querySelectorAll('.flowchart-highlight').forEach(el => el.classList.remove('flowchart-highlight'));
+            const flowchartNode = document.querySelector(`[id*="flowchart-definition-subgraph-0-node-${stepId}"]`);
+            if (flowchartNode) {
+                flowchartNode.classList.add('flowchart-highlight');
+            }
+        }
+
+        function log(message) {
+            if (currentStateIndex <= 0) {
+                logContainer.innerHTML = '';
+            }
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `&gt; ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function stepForward() {
+            if (currentStateIndex < stateHistory.length - 1) {
+                currentStateIndex++;
+                renderState(stateHistory[currentStateIndex]);
+            } else {
+                stopAnimation();
+            }
+        }
+
+        function stepBackward() {
+            if (currentStateIndex > 0) {
+                currentStateIndex--;
+                renderState(stateHistory[currentStateIndex]);
+            }
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        }
+
+        function startAnimation() {
+            if (currentStateIndex >= stateHistory.length - 1) {
+                runVisualization();
+            }
+            isPlaying = true;
+            playIcon.classList.add('hidden');
+            pauseIcon.classList.remove('hidden');
+            animationInterval = setInterval(stepForward, 800);
+        }
+
+        function stopAnimation() {
+            isPlaying = false;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            clearInterval(animationInterval);
+        }
+
+        function toggleNarration() {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                speakerIcon.classList.remove('hidden');
+                stopIcon.classList.add('hidden');
+            } else {
+                const scriptText = narrationScriptContainer.innerText;
+                const utterance = new SpeechSynthesisUtterance(scriptText);
+                utterance.onstart = () => {
+                    speakerIcon.classList.add('hidden');
+                    stopIcon.classList.remove('hidden');
+                };
+                utterance.onend = () => {
+                    speakerIcon.classList.remove('hidden');
+                    stopIcon.classList.add('hidden');
+                };
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+        
+        runBtn.addEventListener('click', runVisualization);
+        stepForwardBtn.addEventListener('click', stepForward);
+        stepBackwardBtn.addEventListener('click', stepBackward);
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        narrateBtn.addEventListener('click', toggleNarration);
+        
+        setupCode();
+        runVisualization();
+    });
+    </script>
+</body>
+</html>

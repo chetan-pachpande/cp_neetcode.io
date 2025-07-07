@@ -36,7 +36,7 @@
             color: #6b7280; /* gray-500 */
         }
     </style>
-    <link rel="preconnect" href="https://rsms.me/">
+     <link rel="preconnect" href="https://rsms.me/">
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 </head>
 <body class="bg-gray-900 text-gray-200">
@@ -135,3 +135,552 @@
                          <button id="reset-button" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">Reset</button>
                     </div>
                 </div>
+                 <div class="flex justify-center gap-4 mb-4">
+                     <button id="backward-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition disabled:opacity-50" disabled>Backward</button>
+                    <button id="play-pause-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition disabled:opacity-50" disabled>Play Animation</button>
+                    <button id="forward-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition disabled:opacity-50" disabled>Forward</button>
+                 </div>
+
+
+                <!-- B. Visualization Panel -->
+                <div id="canvas-container" class="relative w-full h-80 bg-gray-900 rounded-lg overflow-hidden border-2 border-gray-700">
+                    <!-- Road will be drawn here -->
+                </div>
+
+                <!-- C. State Display -->
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="text-xl font-medium text-gray-300">Sorted Cars (by Position)</h3>
+                        <div id="cars-display" class="bg-gray-900 p-3 rounded-md mt-2 min-h-[100px] text-sm font-mono"></div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-medium text-gray-300">Fleet Arrival Times (Stack)</h3>
+                        <div id="stack-display" class="bg-gray-900 p-3 rounded-md mt-2 min-h-[100px] text-sm font-mono"></div>
+                    </div>
+                </div>
+                 <div class="mt-4 text-center">
+                    <h3 class="text-xl font-medium text-gray-300">Result</h3>
+                    <p id="result-display" class="text-3xl font-bold text-green-400 mt-2">-</p>
+                    <div id="explanation-display" class="text-gray-400 mt-4 text-sm text-left p-4 bg-gray-900 rounded-lg border border-gray-700 min-h-[50px]"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM ELEMENTS ---
+            const prevStepBtn = document.getElementById('prev-step');
+            const nextStepBtn = document.getElementById('next-step');
+            const explanationText = document.getElementById('explanation-text');
+            const codeSnippet = document.getElementById('code-snippet');
+            const flowchartNodes = document.querySelectorAll('.flow-node');
+            const runBtn = document.getElementById('run-button');
+            const resetBtn = document.getElementById('reset-button');
+            const playPauseBtn = document.getElementById('play-pause-button');
+            const forwardBtn = document.getElementById('forward-button');
+            const backwardBtn = document.getElementById('backward-button');
+
+            const targetInput = document.getElementById('target-input');
+            const positionInput = document.getElementById('position-input');
+            const speedInput = document.getElementById('speed-input');
+            const canvasContainer = document.getElementById('canvas-container');
+            const carsDisplay = document.getElementById('cars-display');
+            const stackDisplay = document.getElementById('stack-display');
+            const resultDisplay = document.getElementById('result-display');
+            const explanationDisplay = document.getElementById('explanation-display');
+            
+            // --- STATE ---
+            let currentStep = 0;
+            let executionState = null;
+            let animationFrameId;
+            let isPlaying = false;
+            let isAutoRunning = false;
+            let animationState = {
+                cars: null,
+                startTime: 0,
+                finalArrivalTime: 0
+            };
+
+            const carColors = ['#ef4444', '#f97316', '#84cc16', '#22c55e', '#06b6d4', '#6366f1', '#d946ef', '#f43f5e'];
+
+            // --- ALGORITHM STEPS ---
+            const steps = [
+                {
+                    elId: 'flow-start',
+                    explanation: "Welcome! This visualizer explains the 'Car Fleet' problem. Click 'Next' to begin. First, we define our function and handle the edge case where there are no cars.",
+                    code: (state) => `
+<span class="code-line">public int carFleet(int target, int[] position, int[] speed) {</span>
+<span class="code-line">    int n = position.length;</span>
+<span class="code-line"><span${state.step > 0 ? ' class="highlight-code"' : ''}>    if (n == 0) {</span></span>
+<span class="code-line"><span${state.step > 0 ? ' class="highlight-code"' : ''}>        return 0;</span></span>
+<span class="code-line"><span${state.step > 0 ? ' class="highlight-code"' : ''}>    }</span></span>
+<span class="code-line">    // ...</span>
+<span class="code-line">}</span>`
+                },
+                {
+                    elId: 'flow-combine',
+                    explanation: "To make sorting easier, we combine each car's position and speed into a single data structure. A 2D array or an array of objects works well. Each element now represents a single car with all its properties.",
+                    code: (state) => `
+<span class="code-line">public int carFleet(int target, int[] position, int[] speed) {</span>
+<span class="code-line">    int n = position.length;</span>
+<span class="code-line">    if (n == 0) { return 0; }</span>
+<span class="code-line"></span>
+<span class="code-line"><span${state.step > 1 ? ' class="highlight-code"' : ''}>    int[][] cars = new int[n][2];</span></span>
+<span class="code-line"><span${state.step > 1 ? ' class="highlight-code"' : ''}>    for (int i = 0; i < n; i++) {</span></span>
+<span class="code-line"><span${state.step > 1 ? ' class="highlight-code"' : ''}>        cars[i][0] = position[i];</span></span>
+<span class="code-line"><span${state.step > 1 ? ' class="highlight-code"' : ''}>        cars[i][1] = speed[i];</span></span>
+<span class="code-line"><span${state.step > 1 ? ' class="highlight-code"' : ''}>    }</span></span>
+<span class="code-line">    // ...</span>
+<span class="code-line">}</span>`
+                },
+                {
+                    elId: 'flow-sort',
+                    explanation: "The core idea is to process cars starting from the one closest to the target. So, we sort the 'cars' array in descending order based on their position.",
+                    code: (state) => `
+<span class="code-line">public int carFleet(int target, int[] position, int[] speed) {</span>
+<span class="code-line">    // ... (car creation)</span>
+<span class="code-line"></span>
+<span class="code-line"><span${state.step > 2 ? ' class="highlight-code"' : ''}>    // Sort cars by position, descending</span></span>
+<span class="code-line"><span${state.step > 2 ? ' class="highlight-code"' : ''}>    Arrays.sort(cars, (a, b) -> Integer.compare(b[0], a[0]));</span></span>
+<span class="code-line">    // ...</span>
+<span class="code-line">}</span>`
+                },
+                {
+                    elId: 'flow-stack',
+                    explanation: "We use a stack to keep track of the arrival times of the fleets. The top of the stack will always represent the arrival time of the fleet closest to the target.",
+                    code: (state) => `
+<span class="code-line">public int carFleet(int target, int[] position, int[] speed) {</span>
+<span class="code-line">    // ... (sorting)</span>
+<span class="code-line"></span>
+<span class="code-line"><span${state.step > 3 ? ' class="highlight-code"' : ''}>    Stack&lt;Double&gt; stack = new Stack&lt;&gt;();</span></span>
+<span class="code-line">    // ...</span>
+<span class="code-line">}</span>`
+                },
+                {
+                    elId: 'flow-loop',
+                    explanation: "Now, we iterate through the sorted cars. For each car, we calculate how long it will take to reach the target. Arrival Time = (Target - Position) / Speed.",
+                    code: (state) => `
+<span class="code-line">public int carFleet(int target, int[] position, int[] speed) {</span>
+<span class="code-line">    // ... (stack initialization)</span>
+<span class="code-line"></span>
+<span class="code-line"><span${state.step > 4 ? ' class="highlight-code"' : ''}>    for (int[] car : cars) {</span></span>
+<span class="code-line"><span${state.step > 4 ? ' class="highlight-code"' : ''}>        double carArrivalTime = (double) (target - car[0]) / car[1];</span></span>
+<span class="code-line"><span${state.step > 4 ? ' class="highlight-code"' : ''}>        // Fleet logic goes here...</span></span>
+<span class="code-line"><span${state.step > 4 ? ' class="highlight-code"' : ''}>    }</span></span>
+<span class="code-line">    // ...</span>
+<span class="code-line">}</span>`
+                },
+                {
+                    elId: 'flow-loop',
+                    explanation: "This is the key logic. If the stack is empty, this car forms the first fleet. If it's not empty, we compare the current car's arrival time with the time of the fleet ahead (stack.peek()). If the current car is slower (takes more time to arrive), it forms a NEW fleet. In both cases, we push its arrival time onto the stack.",
+                    code: (state) => `
+<span class="code-line">public int carFleet(int target, int[] position, int[] speed) {</span>
+<span class="code-line">    // ...</span>
+<span class="code-line">    for (int[] car : cars) {</span>
+<span class="code-line">        double carArrivalTime = (double) (target - car[0]) / car[1];</span>
+<span class="code-line"><span${state.step > 5 ? ' class="highlight-code"' : ''}>        if (stack.isEmpty() || carArrivalTime > stack.peek()) {</span></span>
+<span class="code-line"><span${state.step > 5 ? ' class="highlight-code"' : ''}>            stack.push(carArrivalTime); // This car forms a new fleet</span></span>
+<span class="code-line"><span${state.step > 5 ? ' class="highlight-code"' : ''}>        }</span></span>
+<span class="code-line">        // ...</span>
+<span class="code-line">    }</span>
+<span class="code-line">    // ...</span>
+<span class="code-line">}</span>`
+                },
+                {
+                    elId: 'flow-loop',
+                    explanation: "If the current car is faster or arrives at the same time as the fleet ahead (carArrivalTime <= stack.peek()), it will catch up and join that fleet. It doesn't form a new fleet, so we do nothing and continue to the next car.",
+                    code: (state) => `
+<span class="code-line">public int carFleet(int target, int[] position, int[] speed) {</span>
+<span class="code-line">    // ...</span>
+<span class="code-line">    for (int[] car : cars) {</span>
+<span class="code-line">        double carArrivalTime = (double) (target - car[0]) / car[1];</span>
+<span class="code-line">        if (stack.isEmpty() || carArrivalTime > stack.peek()) {</span>
+<span class="code-line">            stack.push(carArrivalTime);</span>
+<span class="code-line">        } else {</span>
+<span class="code-line"><span${state.step > 6 ? ' class="highlight-code"' : ''}>            // Car is faster or arrives at same time. It joins the fleet ahead.</span></span>
+<span class="code-line"><span${state.step > 6 ? ' class="highlight-code"' : ''}>            // No action needed.</span></span>
+<span class="code-line"><span${state.step > 6 ? ' class="highlight-code"' : ''}>            continue;</span></span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    // ...</span>
+<span class="code-line">}</span>`
+                },
+                 {
+                    elId: 'flow-end',
+                    explanation: "After checking all the cars, the number of fleets is simply the number of arrival times we have stored in our stack. The size of the stack is our final answer.",
+                    code: (state) => `
+<span class="code-line">public int carFleet(int target, int[] position, int[] speed) {</span>
+<span class="code-line">    // ... (full loop)</span>
+<span class="code-line">    for (int[] car : cars) {</span>
+<span class="code-line">        double carArrivalTime = (double) (target - car[0]) / car[1];</span>
+<span class="code-line">        if (stack.isEmpty() || carArrivalTime > stack.peek()) {</span>
+<span class="code-line">            stack.push(carArrivalTime);</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span${state.step > 7 ? ' class="highlight-code"' : ''}>return stack.size();</span></span>
+<span class="code-line">}</span>`
+                },
+            ];
+
+            // --- FUNCTIONS ---
+            function updateUI() {
+                const stepData = steps[currentStep];
+                explanationText.innerHTML = `<p>${stepData.explanation}</p>`;
+                codeSnippet.innerHTML = stepData.code({ step: currentStep });
+
+                flowchartNodes.forEach(node => node.classList.remove('highlight-flow'));
+                const el = document.getElementById(stepData.elId);
+                if (el) {
+                    el.firstElementChild.classList.add('highlight-flow');
+                }
+                
+                prevStepBtn.disabled = currentStep === 0;
+                nextStepBtn.disabled = currentStep === steps.length - 1;
+            }
+
+            function initializeExecutionState() {
+                const target = parseInt(targetInput.value, 10);
+                const positions = positionInput.value.split(',').map(s => parseInt(s.trim(), 10));
+                const speeds = speedInput.value.split(',').map(s => parseInt(s.trim(), 10));
+
+                if (isNaN(target) || target <= 0 || positions.some(isNaN) || speeds.some(isNaN) || positions.length !== speeds.length) {
+                    showModal('Invalid input. Please ensure Target is a positive number, and positions/speeds are matching comma-separated numbers.');
+                    return null;
+                }
+
+                let cars = positions.map((pos, i) => ({
+                    id: i,
+                    pos: pos,
+                    speed: speeds[i],
+                    originalPos: pos,
+                    color: carColors[i % carColors.length]
+                }));
+                
+                let carsForAlgo = positions.map((pos, i) => ({ id: i, pos, speed: speeds[i] }));
+                carsForAlgo.sort((a, b) => b.pos - a.pos);
+                
+                let sortedVisualCars = carsForAlgo.map(algoCar => {
+                    return cars.find(c => c.id === algoCar.id);
+                });
+
+                sortedVisualCars.forEach(c => c.time = c.speed > 0 ? (target - c.pos) / c.speed : Infinity);
+
+                return {
+                    target,
+                    cars: sortedVisualCars,
+                    history: [],
+                    stack: [],
+                    processedCarIndex: -1,
+                    fleets: 0,
+                    fleetsAnalysis: []
+                };
+            }
+
+            function updateStateDisplays() {
+                if (!executionState) return;
+
+                carsDisplay.innerHTML = executionState.cars.map((car, index) => {
+                    const isProcessed = index <= executionState.processedCarIndex;
+                    const isCurrent = index === executionState.processedCarIndex;
+                    return `<div class="${isCurrent ? 'bg-indigo-500 text-white rounded' : isProcessed ? 'text-gray-500' : ''} p-1">C${car.id + 1}: {pos: ${car.originalPos}, spd: ${car.speed}, time: ${car.time.toFixed(2)}}</div>`;
+                }).join('');
+
+                stackDisplay.innerHTML = `<div>Top</div>` + executionState.stack.slice().reverse().map(time => `<div class="border-t border-gray-700 p-1">${time.toFixed(2)}</div>`).join('') + `<div>Bottom</div>`;
+            
+                resultDisplay.textContent = executionState.fleets > 0 ? executionState.fleets : '-';
+            }
+            
+            function drawCanvas(carsToDraw) {
+                const cars = carsToDraw || (executionState ? executionState.cars : null);
+                if (!cars) return;
+                
+                const target = parseInt(targetInput.value, 10);
+                if (isNaN(target)) return;
+
+                canvasContainer.innerHTML = '';
+
+                const road = document.createElement('div');
+                road.className = 'absolute bottom-1/2 left-0 w-full h-0.5 bg-gray-500';
+                canvasContainer.appendChild(road);
+
+                const targetLine = document.createElement('div');
+                targetLine.className = 'absolute top-0 bottom-0 right-4 w-0.5 bg-red-500 flex items-center justify-center';
+                targetLine.innerHTML = `<span class="bg-red-500 text-white text-xs p-1 rounded -translate-x-1/2">Target</span>`;
+                canvasContainer.appendChild(targetLine);
+
+                cars.forEach(car => {
+                    const leftPercentage = (car.pos / target) * 100 * 0.95;
+                    const carEl = document.createElement('div');
+                    carEl.id = `car-${car.id}`;
+                    carEl.className = 'car absolute bottom-1/2 w-8 h-8 rounded-full -translate-y-1/2 -translate-x-1/2 flex items-center justify-center text-xs font-bold text-white shadow-lg';
+                    carEl.style.left = `${leftPercentage}%`;
+                    carEl.style.backgroundColor = car.color;
+                    carEl.dataset.carId = car.id;
+                    carEl.innerHTML = `C${car.id + 1}`;
+                    canvasContainer.appendChild(carEl);
+                });
+            }
+
+            function stepForward() {
+                if (!executionState || executionState.processedCarIndex >= executionState.cars.length - 1) {
+                    if(isAutoRunning) {
+                        isAutoRunning = false;
+                        runBtn.disabled = false;
+                        playPauseBtn.disabled = false;
+                        backwardBtn.disabled = false;
+                        forwardBtn.disabled = true;
+                    }
+                    pauseAnimation();
+                    return false;
+                }
+                
+                executionState.history.push({
+                    stack: [...executionState.stack],
+                    fleets: executionState.fleets,
+                    processedCarIndex: executionState.processedCarIndex,
+                    fleetsAnalysis: JSON.parse(JSON.stringify(executionState.fleetsAnalysis))
+                });
+
+                executionState.processedCarIndex++;
+                const car = executionState.cars[executionState.processedCarIndex];
+                
+                const isNewFleet = executionState.stack.length === 0 || car.time > executionState.stack[executionState.stack.length - 1];
+
+                if (isNewFleet) {
+                    executionState.stack.push(car.time);
+                    executionState.fleetsAnalysis.push({ leader: car, members: [] });
+                } else {
+                    if (executionState.fleetsAnalysis.length > 0) {
+                        executionState.fleetsAnalysis[executionState.fleetsAnalysis.length - 1].members.push(car);
+                    }
+                }
+                
+                executionState.fleets = executionState.stack.length;
+                updateStateDisplays();
+                
+                if (executionState.processedCarIndex >= executionState.cars.length - 1) {
+                     resultDisplay.textContent = executionState.fleets;
+                     generateExplanation();
+                }
+                backwardBtn.disabled = false;
+                return true;
+            }
+
+            function stepBackward() {
+                 if (!executionState || executionState.history.length === 0) return;
+
+                const lastState = executionState.history.pop();
+                executionState.stack = lastState.stack;
+                executionState.fleets = lastState.fleets;
+                executionState.processedCarIndex = lastState.processedCarIndex;
+                executionState.fleetsAnalysis = lastState.fleetsAnalysis;
+                
+                updateStateDisplays();
+                resultDisplay.textContent = executionState.fleets > 0 ? executionState.fleets : '-';
+                explanationDisplay.innerHTML = '';
+
+                forwardBtn.disabled = false;
+                playPauseBtn.disabled = false;
+                if(executionState.history.length === 0) {
+                    backwardBtn.disabled = true;
+                }
+            }
+
+            function runAlgorithmStepByStep() {
+                if (!isAutoRunning) return;
+                if (stepForward()) {
+                    setTimeout(runAlgorithmStepByStep, 750);
+                } else {
+                    isAutoRunning = false;
+                    runBtn.disabled = false;
+                    playPauseBtn.disabled = false;
+                    backwardBtn.disabled = false;
+                    forwardBtn.disabled = true;
+                    generateExplanation();
+                }
+            }
+            
+            function generateExplanation() {
+                if (!executionState || executionState.processedCarIndex < executionState.cars.length - 1) {
+                    explanationDisplay.innerHTML = '';
+                    return;
+                }
+
+                let html = '<h4 class="font-semibold text-white mb-2">Fleet Formation Explanation:</h4><ul class="list-disc list-inside space-y-2">';
+
+                executionState.fleetsAnalysis.forEach(fleet => {
+                    if (fleet.members.length === 0) {
+                        html += `<li>The car from position <strong>${fleet.leader.originalPos}</strong> (speed ${fleet.leader.speed}) forms a fleet by itself, as its arrival time (${fleet.leader.time.toFixed(2)}) is later than any fleet in front of it.</li>`;
+                    } else {
+                        const memberText = fleet.members.map(m => `car from <strong>${m.originalPos}</strong> (speed ${m.speed})`).join(' and the ');
+                        html += `<li>A fleet is formed, led by the car from <strong>${fleet.leader.originalPos}</strong>. The ${memberText} join this fleet because they catch up to the leader before reaching the target.</li>`;
+                    }
+                });
+
+                html += '</ul>';
+                explanationDisplay.innerHTML = html;
+            }
+
+            function updateCarPositions(elapsedTime) {
+                const target = executionState.target;
+
+                animationState.cars.forEach(car => {
+                    car.potentialPos = car.originalPos + car.speed * elapsedTime;
+                });
+
+                const sortedForCollision = [...animationState.cars].sort((a, b) => b.originalPos - a.originalPos);
+
+                for (let i = 1; i < sortedForCollision.length; i++) {
+                    const leader = sortedForCollision[i - 1];
+                    const follower = sortedForCollision[i];
+                    if (follower.potentialPos > leader.potentialPos) {
+                        follower.potentialPos = leader.potentialPos;
+                    }
+                }
+
+                sortedForCollision.forEach(car => {
+                    car.pos = car.potentialPos > target ? target : car.potentialPos;
+                    const carEl = document.getElementById(`car-${car.id}`);
+                    if (carEl) {
+                        const leftPercentage = (car.pos / target) * 100 * 0.95;
+                        carEl.style.left = `${leftPercentage}%`;
+                    }
+                });
+            }
+
+            function animate(currentTime) {
+                if (!isPlaying) return;
+
+                const elapsedTime = (currentTime - animationState.startTime) / 1000;
+
+                if (elapsedTime >= animationState.finalArrivalTime) {
+                    updateCarPositions(animationState.finalArrivalTime);
+                    pauseAnimation();
+                    return;
+                }
+                
+                updateCarPositions(elapsedTime);
+                animationFrameId = requestAnimationFrame(animate);
+            }
+
+
+            function playAnimation() {
+                if(isPlaying) return;
+                
+                const tempState = initializeExecutionState();
+                if (!tempState) return;
+
+                const stack = [];
+                for (const car of tempState.cars) {
+                    if (stack.length === 0 || car.time > stack[stack.length - 1]) {
+                        stack.push(car.time);
+                    }
+                }
+                animationState.finalArrivalTime = stack.length > 0 ? stack[stack.length - 1] : 0;
+
+                animationState.cars = JSON.parse(JSON.stringify(tempState.cars));
+                drawCanvas(animationState.cars);
+
+                animationState.startTime = performance.now();
+                isPlaying = true;
+                playPauseBtn.textContent = 'Pause Animation';
+                animate(animationState.startTime);
+            }
+
+            function pauseAnimation() {
+                 if(!isPlaying) return;
+                isPlaying = false;
+                playPauseBtn.textContent = 'Play Animation';
+                cancelAnimationFrame(animationFrameId);
+            }
+
+            function showModal(message) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-gray-800 text-white rounded-lg shadow-xl p-6 w-11/12 md:w-1/3">
+                        <h3 class="text-xl font-bold mb-4">Notification</h3>
+                        <p>${message}</p>
+                        <button id="modal-close" class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg w-full">Close</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                document.getElementById('modal-close').onclick = () => document.body.removeChild(modal);
+            }
+
+            // --- EVENT LISTENERS ---
+            nextStepBtn.addEventListener('click', () => {
+                if (currentStep < steps.length - 1) {
+                    currentStep++;
+                    updateUI();
+                }
+            });
+
+            prevStepBtn.addEventListener('click', () => {
+                if (currentStep > 0) {
+                    currentStep--;
+                    updateUI();
+                }
+            });
+            
+            runBtn.addEventListener('click', () => {
+                pauseAnimation();
+                executionState = initializeExecutionState();
+                if(executionState) {
+                    runBtn.disabled = true;
+                    playPauseBtn.disabled = true;
+                    forwardBtn.disabled = true;
+                    backwardBtn.disabled = true;
+                    
+                    updateStateDisplays();
+                    drawCanvas();
+                    
+                    isAutoRunning = true;
+                    setTimeout(runAlgorithmStepByStep, 500);
+                }
+            });
+            
+            resetBtn.addEventListener('click', () => {
+                 pauseAnimation();
+                 isAutoRunning = false;
+                 executionState = null;
+                 animationState.cars = null;
+
+                 runBtn.disabled = false;
+                 playPauseBtn.textContent = 'Play Animation';
+                 playPauseBtn.disabled = true;
+                 forwardBtn.disabled = true;
+                 backwardBtn.disabled = true;
+                 isPlaying = false;
+                 
+                 targetInput.value = "10";
+                 positionInput.value = "4,1,0,7";
+                 speedInput.value = "2,2,1,1";
+
+                 canvasContainer.innerHTML = '';
+                 carsDisplay.innerHTML = '';
+                 stackDisplay.innerHTML = '';
+                 resultDisplay.textContent = '-';
+                 explanationDisplay.innerHTML = '';
+            });
+            
+            playPauseBtn.addEventListener('click', () => {
+                if(!executionState || isAutoRunning) return;
+                
+                if (isPlaying) {
+                    pauseAnimation();
+                } else {
+                     playAnimation();
+                }
+            });
+
+            forwardBtn.addEventListener('click', () => stepForward());
+            backwardBtn.addEventListener('click', () => stepBackward());
+
+            // --- INITIALIZATION ---
+            updateUI();
+        });
+    </script>
+</body>
+</html>

@@ -68,6 +68,19 @@
             padding: 2px 6px;
             border-radius: 4px;
         }
+        .code-step-item {
+            display: block !important;
+        }
+        .code-step-item.hidden {
+            display: none !important;
+        }
+        pre code {
+            color: #1f2937 !important;
+            background-color: #f3f4f6 !important;
+        }
+        .bg-gray-100 pre code {
+            color: #111827 !important;
+        }
     </style>
 </head>
 <body class="text-white">
@@ -323,6 +336,12 @@ graph TD
             const activeStep = document.getElementById(`code-step-${stepId}`);
             if (activeStep) {
                 activeStep.classList.remove('hidden');
+            } else {
+                // Fallback: show the first step if stepId not found
+                const firstStep = document.querySelector('.code-step-item');
+                if (firstStep) {
+                    firstStep.classList.remove('hidden');
+                }
             }
         }
 
@@ -424,7 +443,7 @@ graph TD
             // Data points
             prices.forEach((p, index) => {
                 chartSvg.innerHTML += `<circle cx="${xScale(index)}" cy="${yScale(p)}" r="3" fill="#3b82f6" />`;
-                chartSvg.innerHTML += `<text x="${xScale(index)}" y="${height - padding.bottom + 20}" text-anchor="middle" font-size="12">${index}</text>`;
+                chartSvg.innerHTML += `<text x="${xScale(index)}" y="${height - padding.bottom + 20}" text-anchor="middle" font-size="12" fill="#374151">${index}</text>`;
             });
             
             // Min price seen so far point
@@ -515,6 +534,11 @@ graph TD
         
         setupCode();
         runVisualization();
+        
+        // Show first code step initially
+        setTimeout(() => {
+            updateCodeStepDisplay('B');
+        }, 100);
         
         new ResizeObserver(runVisualization).observe(document.querySelector('.visualization-panel'));
     });

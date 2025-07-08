@@ -33,6 +33,7 @@
             border: 1px solid #d1d5db;
             box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
             transition: all 0.2s;
+            color: #374151; /* gray-700 for better icon visibility */
         }
         .control-btn:hover {
             background-color: #f9fafb; /* gray-50 */
@@ -67,19 +68,6 @@
             font-weight: 600;
             padding: 2px 6px;
             border-radius: 4px;
-        }
-        .code-step-item {
-            display: block !important;
-        }
-        .code-step-item.hidden {
-            display: none !important;
-        }
-        pre code {
-            color: #1f2937 !important;
-            background-color: #f3f4f6 !important;
-        }
-        .bg-gray-100 pre code {
-            color: #111827 !important;
         }
     </style>
 </head>
@@ -141,14 +129,14 @@
                     </div>
                 </div>
 
-                <div class="card">
-                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
-                    <div id="code-steps-container"></div>
-                    <div class="flex justify-between mt-6">
-                        <button id="prev-step-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
-                        <button id="next-step-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
-                    </div>
-                </div>
+        <div class="card text-gray-800">
+            <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+            <div id="code-steps-container"></div>
+            <div class="flex justify-between mt-6">
+                <button id="prev-step-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                <button id="next-step-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+            </div>
+        </div>
 
             </div>
 
@@ -166,7 +154,7 @@
                     <div class="visualization-panel border-2 border-gray-200 rounded-lg bg-white mt-4 p-4 overflow-hidden relative">
                         <svg id="chart-svg" width="100%" height="100%"></svg>
                     </div>
-                     <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 text-center">
+                     <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 text-center text-gray-800">
                         <div><strong>Min Price Seen:</strong> <span id="min-price-val" class="state-value bg-green-100 text-green-800">0</span></div>
                         <div><strong>Max Profit Found:</strong> <span id="max-profit-val" class="state-value bg-blue-100 text-blue-800">0</span></div>
                         <div><strong>Current Price:</strong> <span id="current-price-val" class="state-value bg-yellow-100 text-yellow-800">0</span></div>
@@ -192,11 +180,11 @@
         </main>
 
         <footer class="mt-8 space-y-8">
-            <div class="card">
+            <div class="card text-gray-800">
                 <h2 class="text-2xl font-bold mb-4">Log of Step Execution</h2>
                 <div id="log-container" class="log-container"></div>
             </div>
-            <div class="card">
+            <div class="card text-gray-800">
                 <h2 class="text-2xl font-bold mb-4">Algorithm Flowchart</h2>
                 <div class="w-full flex justify-center">
                     <pre class="mermaid" id="flowchart-definition">
@@ -219,13 +207,13 @@ graph TD
                     </pre>
                 </div>
             </div>
-            <div class="card">
+            <div class="card text-gray-800">
                 <h2 class="text-2xl font-bold mb-4">Commented Java Code</h2>
-                <div id="commented-code-container" class="bg-gray-100 p-4 rounded-md">
-                    <pre><code class="language-java"></code></pre>
+                <div id="commented-code-container" class="bg-gray-100 p-4 rounded-md text-gray-800">
+                    <pre class="text-gray-800"><code class="language-java"></code></pre>
                 </div>
             </div>
-            <div class="card">
+            <div class="card text-gray-800">
                  <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold">Full Explanation Script (for Narration)</h2>
                     <button id="narrate-btn" class="p-2 rounded-full hover:bg-gray-200 transition" title="Narrate full explanation">
@@ -287,10 +275,10 @@ graph TD
 
         function setupCode() {
             codeStepsContainer.innerHTML = codeSteps.map((step) => `
-                <div id="code-step-${step.id}" class="code-step-item hidden">
+                <div id="code-step-${step.id}" class="code-step-item hidden text-gray-800">
                     <h3 class="text-lg font-semibold mb-2">${step.title}</h3>
-                    <p class="text-sm text-gray-600 mb-3">${step.explanation}</p>
-                    <pre class="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto"><code class="language-java">${step.code}</code></pre>
+                    <p class="text-sm text-gray-800 mb-3">${step.explanation}</p>
+                    <pre class="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto text-gray-800"><code class="language-java text-gray-800">${step.code}</code></pre>
                 </div>
             `).join('');
 
@@ -336,12 +324,6 @@ graph TD
             const activeStep = document.getElementById(`code-step-${stepId}`);
             if (activeStep) {
                 activeStep.classList.remove('hidden');
-            } else {
-                // Fallback: show the first step if stepId not found
-                const firstStep = document.querySelector('.code-step-item');
-                if (firstStep) {
-                    firstStep.classList.remove('hidden');
-                }
             }
         }
 
@@ -443,7 +425,7 @@ graph TD
             // Data points
             prices.forEach((p, index) => {
                 chartSvg.innerHTML += `<circle cx="${xScale(index)}" cy="${yScale(p)}" r="3" fill="#3b82f6" />`;
-                chartSvg.innerHTML += `<text x="${xScale(index)}" y="${height - padding.bottom + 20}" text-anchor="middle" font-size="12" fill="#374151">${index}</text>`;
+                chartSvg.innerHTML += `<text x="${xScale(index)}" y="${height - padding.bottom + 20}" text-anchor="middle" font-size="12">${index}</text>`;
             });
             
             // Min price seen so far point
@@ -534,11 +516,6 @@ graph TD
         
         setupCode();
         runVisualization();
-        
-        // Show first code step initially
-        setTimeout(() => {
-            updateCodeStepDisplay('B');
-        }, 100);
         
         new ResizeObserver(runVisualization).observe(document.querySelector('.visualization-panel'));
     });

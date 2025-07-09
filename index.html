@@ -257,7 +257,8 @@
       'two_sum.html',
       'largest_rectangle_in_histogram.html',
       'word_search.html',
-      'best_time_buy_sell_stock.html'
+      'best_time_buy_sell_stock.html',
+      'permutations.html'
     ]);
     document.addEventListener('DOMContentLoaded', () => {
       const tree = document.getElementById('category-tree');
@@ -266,13 +267,35 @@
         const item = document.createElement('li');
         // Category button
         const btn = document.createElement('button');
-        btn.className = 'flex justify-between items-center w-full px-6 py-4 text-left text-lg font-medium text-gray-900 hover:bg-gray-50 transition';
+        btn.className = 'flex justify-between items-start w-full px-6 py-6 text-left text-gray-900 hover:bg-gray-50 transition';
         btn.setAttribute('aria-expanded', 'false');
         const listId = `list-${slug}`;
         btn.setAttribute('aria-controls', listId);
+        // Calculate implemented vs in-progress counts
+        const implementedCount = problems.filter(([file]) => IMPLEMENTED.has(file)).length;
+        const inProgressCount = problems.length - implementedCount;
+        const completionPercentage = problems.length > 0 ? Math.round((implementedCount / problems.length) * 100) : 0;
+        
         btn.innerHTML = `
-          <span>${formatTitle(slug)} (${problems.length})</span>
-          <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200 icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="flex flex-col flex-grow">
+            <span class="text-lg font-medium">${formatTitle(slug)}</span>
+            <div class="flex items-center space-x-4 text-sm text-gray-600 mt-1">
+              <span class="flex items-center">
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                ${implementedCount} implemented
+              </span>
+              <span class="flex items-center">
+                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
+                ${inProgressCount} in progress
+              </span>
+              <span class="text-gray-400">Total: ${problems.length}</span>
+            </div>
+            <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-300" style="width: ${completionPercentage}%"></div>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">${completionPercentage}% complete</div>
+          </div>
+          <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200 icon flex-shrink-0 ml-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         `;

@@ -3,19 +3,520 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Permutations | LC 46 Visualizer</title>
+    <title>LeetCode 46: Permutations</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+            color: #374151; /* gray-700 for better icon visibility */
+        }
+        .control-btn:hover {
+            background-color: #f9fafb; /* gray-50 */
+            border-color: #9ca3af; /* gray-400 */
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .log-container {
+            height: 150px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+        }
+        .visualization-panel {
+             min-height: 400px; 
+        }
+        .mermaid svg { width: 100%; height: 100%; }
+        .perm-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 2px solid;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin: 0.25rem;
+        }
+        .mermaid .node.active > rect {
+            fill: #fef9c3 !important; /* yellow-100 */
+            stroke: #f59e0b !important; /* amber-500 */
+            stroke-width: 2px !important;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Permutations | LC 46</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">46. Permutations</h1>
+            <p class="text-lg text-gray-600 mt-2">An Interactive Visual Explainer</p>
+        </header>
+        <div class="text-center text-sm text-gray-500 mb-8">
+            Idea By: Chetan Pachpande | Executed By: Gemini
+        </div>
+
+        <div id="problem-card" class="card mb-8">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Given an array <code>nums</code> of distinct integers, return all the possible permutations. You can return the answer in any order.</p>
+                 <div class="my-4">
+                    <h3 class="text-lg font-semibold mb-2">Complexity Analysis</h3>
+                    <div class="bg-gray-100 p-3 rounded-lg border border-gray-200 text-sm">
+                        <p><strong>Time Complexity:</strong> O(N × N!)</p>
+                        <p class="text-gray-600 ml-4">There are N! possible permutations. For each permutation, it takes O(N) time to copy the current list to the results list.</p>
+                        <p class="mt-2"><strong>Space Complexity:</strong> O(N)</p>
+                        <p class="text-gray-600 ml-4">The recursion depth is at most N, which dominates the space used by the `used` array and the list for the current permutation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+            <div class="lg:col-span-2 flex flex-col gap-8">
+                
+                <div id="intuition-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+                    <div class="space-y-4 text-gray-700">
+                        <p>Generating all permutations is a classic problem that can be solved elegantly using a technique called <strong>backtracking</strong>.</p>
+                        <p>Imagine building a permutation one number at a time. We can model this as a search through a tree of choices. At each level of the tree, we choose one available number to add to our current permutation.</p>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li><strong>Choose:</strong> Pick an unused number from the input array.</li>
+                            <li><strong>Explore:</strong> Add this number to the current permutation and make a recursive call to continue building the permutation from this new state.</li>
+                            <li><strong>Un-choose (Backtrack):</strong> After the recursive call returns (meaning we've explored all possibilities starting with that choice), we must undo our choice. We remove the number from the current permutation and mark it as "unused" again. This allows us to explore other branches of the choice tree.</li>
+                        </ol>
+                        <p>We repeat this process until the current permutation is the same size as the input array, at which point we have found a complete, valid permutation and can add it to our results.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <div class="flex justify-between mt-6">
+                        <button id="prev-step-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                        <button id="next-step-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-3 flex flex-col gap-8">
+                
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization & Controls</h2>
+                    
+                    <div class="mb-4">
+                        <label for="nums-input" class="block text-sm font-medium text-gray-700">Numbers (comma-separated)</label>
+                        <input type="text" id="nums-input" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" value="1,2,3">
+                    </div>
+                     <button id="run-btn" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-semibold">Run Visualization</button>
+                    
+                    <div class="visualization-panel border-2 border-gray-200 rounded-lg bg-gray-50 flex-grow mt-4 p-4 flex flex-col justify-center">
+                        <h3 class="font-semibold text-center mb-2">Recursion Tree</h3>
+                        <pre class="mermaid" id="recursion-tree-vis"></pre>
+                    </div>
+                     
+                     <div class="mt-6 pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-3 text-center text-gray-800">Execution Controls</h3>
+                        <div class="flex justify-center items-center gap-8">
+                            <button id="step-backward-btn" class="control-btn" title="Step Backward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                            </button>
+                            <button id="play-pause-btn" class="control-btn !w-16 !h-16 bg-blue-600 text-white hover:bg-blue-700" title="Run/Pause">
+                                <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="hidden"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                            </button>
+                            <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Algorithm State</h2>
+                    <div class="flex flex-col justify-between space-y-4">
+                        <div>
+                            <h3 class="font-semibold text-center mb-2">Current Permutation Path</h3>
+                            <div id="current-path-vis" class="text-center bg-blue-50 p-2 rounded-lg min-h-[4.5rem]"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-center mb-2">Numbers Used?</h3>
+                            <div id="used-array-vis" class="text-center bg-yellow-50 p-2 rounded-lg min-h-[4.5rem]"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-center mb-2">Completed Permutations</h3>
+                            <div id="results-vis" class="text-center bg-green-50 p-2 rounded-lg min-h-[6rem] overflow-y-auto"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="mt-8 space-y-8">
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Log of Step Execution</h2>
+                <div id="log-container" class="log-container"></div>
+            </div>
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Commented Java Code</h2>
+                <div id="commented-code-container" class="bg-gray-100 p-4 rounded-md">
+                    <pre><code class="language-java"></code></pre>
+                </div>
+            </div>
+            <div class="card">
+                 <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Full Explanation Script (for Narration)</h2>
+                    <button id="narrate-btn" class="p-2 rounded-full hover:bg-gray-200 transition" title="Narrate full explanation">
+                        <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                         <svg id="stop-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 10h6" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="narration-script" class="text-gray-700 space-y-2">
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+        const numsInput = document.getElementById('nums-input');
+        const runBtn = document.getElementById('run-btn');
+        const logContainer = document.getElementById('log-container');
+        const codeStepsContainer = document.getElementById('code-steps-container');
+        const commentedCodeContainer = document.getElementById('commented-code-container');
+        const prevStepBtn = document.getElementById('prev-step-btn');
+        const nextStepBtn = document.getElementById('next-step-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const stepForwardBtn = document.getElementById('step-forward-btn');
+        const stepBackwardBtn = document.getElementById('step-backward-btn');
+        const narrateBtn = document.getElementById('narrate-btn');
+        const speakerIcon = document.getElementById('speaker-icon');
+        const stopIcon = document.getElementById('stop-icon');
+        const narrationScriptContainer = document.getElementById('narration-script');
+        
+        const recursionTreeVis = document.getElementById('recursion-tree-vis');
+        const currentPathVis = document.getElementById('current-path-vis');
+        const usedArrayVis = document.getElementById('used-array-vis');
+        const resultsVis = document.getElementById('results-vis');
+
+        let stateHistory = [];
+        let currentStateIndex = -1;
+        let isPlaying = false;
+        let animationInterval = null;
+        let nodeIdCounter = 0;
+
+        const codeSteps = [
+            { id: 'B', title: 'Step 1: Main Function Setup', explanation: 'The main `permute` function initializes the final `result` list and a boolean `used` array to keep track of which numbers have been included in the current permutation. It then kicks off the backtracking process.', code: `List<List<Integer>> result = new ArrayList<>();\nboolean[] used = new boolean[nums.length];\nbacktrack(result, new ArrayList<>(), nums, used);` },
+            { id: 'F', title: 'Step 2: Backtrack Base Case', explanation: 'This is the condition that stops the recursion. If the `current` permutation has the same number of elements as the input `nums` array, we have found a complete permutation. We add a copy of it to our `result` list and return.', code: `if (current.size() == nums.length) {\n    result.add(new ArrayList<>(current));\n    return;\n}` },
+            { id: 'I', title: 'Step 3: The Backtracking Loop', explanation: 'We loop through all the numbers in the original `nums` array. In each iteration, we will try to add the number `nums[i]` to our current permutation.', code: `for (int i = 0; i < nums.length; i++) { ... }` },
+            { id: 'K', title: 'Step 4: Choose', explanation: 'If the number `nums[i]` has not been used yet, we "choose" it. We add it to our `current` permutation list and mark it as used by setting `used[i]` to `true`.', code: `if (!used[i]) {\n    current.add(nums[i]);\n    used[i] = true; ...` },
+            { id: 'L', title: 'Step 5: Explore', explanation: 'After choosing a number, we "explore" further possibilities by making a recursive call to `backtrack`. This moves us one level deeper in our search for a complete permutation.', code: `backtrack(result, current, nums, used);` },
+            { id: 'M', title: 'Step 6: Un-choose (Backtrack)', explanation: 'This is the most critical step. After the recursive call returns, we must undo our choice. We mark `used[i]` as `false` and remove the number from the `current` list. This "un-choosing" allows us to explore other branches of the decision tree.', code: `used[i] = false;\ncurrent.remove(current.size() - 1);` }
+        ];
+
+        function setupCode() {
+            codeStepsContainer.innerHTML = codeSteps.map((step) => `
+                <div id="code-step-${step.id}" class="code-step-item hidden">
+                    <h3 class="text-lg font-semibold mb-2">${step.title}</h3>
+                    <p class="text-sm text-gray-600 mb-3">${step.explanation}</p>
+                    <pre class="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto"><code class="language-java">${step.code}</code></pre>
+                </div>
+            `).join('');
+
+            const fullCode = `class Solution {
+    public List<List<Integer>> permute(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        // used[i] will be true if nums[i] is in the current permutation
+        boolean[] used = new boolean[nums.length];
+        // Start the backtracking process
+        backtrack(result, new ArrayList<>(), nums, used);
+        return result;
+    }
+
+    private void backtrack(List<List<Integer>> result, List<Integer> current, int[] nums, boolean[] used) {
+        // Base Case: If the current permutation is complete
+        if (current.size() == nums.length) {
+            // Add a copy of the valid permutation to the result list
+            result.add(new ArrayList<>(current));
+            return;
+        }
+
+        // Iterate through all numbers to find the next candidate
+        for (int i = 0; i < nums.length; i++) {
+            // If the number is not already used in the current permutation
+            if (!used[i]) {
+                // 1. Choose: Add the number and mark it as used
+                current.add(nums[i]);
+                used[i] = true;
+
+                // 2. Explore: Recurse with the new state
+                backtrack(result, current, nums, used);
+
+                // 3. Un-choose (Backtrack): Remove the number and unmark it
+                used[i] = false;
+                current.remove(current.size() - 1);
+            }
+        }
+    }
+}`;
+            commentedCodeContainer.querySelector('code').textContent = fullCode;
+
+            const narrationText = `
+                <p><strong>Problem Description:</strong> Given an array of distinct integers, our task is to generate all possible orderings, or permutations, of those numbers.</p>
+                <p><strong>Complexity Analysis:</strong> The time complexity is O of N times N factorial. This is because there are N factorial permutations in total, and for each complete permutation, we spend O of N time to create a copy to store in our results list. The space complexity is O of N, which accounts for the maximum depth of the recursion stack and the auxiliary space used for tracking the current path and which numbers have been used.</p>
+                <p><strong>Intuition:</strong> The problem of finding all permutations is a classic example that can be solved with a recursive technique called backtracking. We can think of this as building a permutation step-by-step. At each step, we have a choice of which number to add next. The process follows a "choose, explore, un-choose" pattern. First, we choose an available number from our input set. Second, we explore the consequences of that choice by making a recursive call to continue building the permutation. Finally, and this is the key to backtracking, after the recursive call returns, we must un-choose the number, effectively undoing our decision. This allows us to go back and explore different choices at the previous step. We repeat this until our permutation is full, at which point we've found one valid result.</p>
+                <p><strong>Code Logic:</strong> The code uses a helper function, typically named 'backtrack', to implement the recursion. This function takes the results list, the current permutation being built, the original numbers, and a 'used' array to track which numbers are already in the current permutation. The base case for the recursion is when the size of the current permutation equals the size of the input array. When this happens, we've found a complete permutation, so we add a copy of it to our results. In the recursive step, we loop through all the input numbers. If a number hasn't been used, we add it to the current permutation, mark it as used, and then make the recursive call to explore further. After that call returns, we backtrack by removing the number and un-marking it as used.</p>
+            `;
+            narrationScriptContainer.innerHTML = narrationText;
+        }
+
+        function updateCodeStepDisplay(stepId) {
+            document.querySelectorAll('.code-step-item').forEach(item => item.classList.add('hidden'));
+            const activeStep = document.getElementById(`code-step-${stepId}`);
+            if (activeStep) {
+                activeStep.classList.remove('hidden');
+            }
+        }
+
+        function runVisualization() {
+            stopAnimation();
+            const nums = numsInput.value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+            
+            if (nums.length === 0) {
+                logContainer.innerHTML = "> Please provide some numbers.";
+                return;
+            }
+
+            stateHistory = [];
+            currentStateIndex = -1;
+            nodeIdCounter = 0;
+            
+            const results = [];
+            const used = new Array(nums.length).fill(false);
+            const treeData = { nodes: [], links: [] };
+            
+            const captureCallback = (current, used, message, stepId, activeNodeId) => {
+                captureState(current, used, results, message, stepId, treeData, activeNodeId);
+            };
+
+            backtrack(results, [], nums, used, 0, treeData, captureCallback);
+            
+            if (stateHistory.length > 0) {
+                currentStateIndex = 0;
+                renderState(stateHistory[0]);
+            }
+        }
+
+        function backtrack(resultList, current, nums, used, parentId, treeData, capture) {
+            const nodeId = ++nodeIdCounter;
+            const nodeLabel = `backtrack([${current.join(',')}])`;
+            treeData.nodes.push({ id: nodeId, label: nodeLabel });
+            if (parentId !== 0) {
+                treeData.links.push({ from: parentId, to: nodeId });
+            }
+            
+            capture(current, used, `Entering ${nodeLabel}`, 'I', nodeId);
+
+            if (current.length === nums.length) {
+                resultList.push([...current]);
+                capture(current, used, `Base case. Found: [${current.join(', ')}]`, 'F', nodeId);
+                return;
+            }
+
+            for (let i = 0; i < nums.length; i++) {
+                if (!used[i]) {
+                    current.push(nums[i]);
+                    used[i] = true;
+                    capture(current, used, `Chose ${nums[i]}. Path: [${current.join(', ')}]`, 'K', nodeId);
+
+                    backtrack(resultList, current, nums, used, nodeId, treeData, capture);
+                    
+                    capture(current, used, `Returning to ${nodeLabel}`, 'M', nodeId);
+
+                    used[i] = false;
+                    current.pop();
+                    capture(current, used, `Backtracked. Removed ${nums[i]}. Path: [${current.join(', ')}]`, 'M', nodeId);
+                }
+            }
+        }
+
+        function captureState(current, used, results, message, stepId, treeData, activeNodeId) {
+            stateHistory.push({
+                current: [...current],
+                used: [...used],
+                results: JSON.parse(JSON.stringify(results)),
+                message,
+                stepId,
+                tree: JSON.parse(JSON.stringify(treeData)),
+                activeNodeId
+            });
+        }
+
+        async function renderState(state) {
+            if (!state) return;
+            
+            const { current, used, results, message, stepId, tree, activeNodeId } = state;
+            
+            // Render State visualizations
+            currentPathVis.innerHTML = current.map(num => `<div class="perm-box border-blue-500 text-blue-700">${num}</div>`).join('') || '<span class="text-gray-500">empty</span>';
+            usedArrayVis.innerHTML = used.map((isUsed, index) => 
+                `<div class="perm-box ${isUsed ? 'bg-yellow-400 border-yellow-600' : 'bg-gray-200 border-gray-400'}">${isUsed ? 'T' : 'F'}</div>`
+            ).join('');
+            resultsVis.innerHTML = results.map(res => `<div class="my-1 font-mono bg-green-200 text-green-800 rounded p-1 inline-block mx-1">[${res.join(', ')}]</div>`).join('') || '<span class="text-gray-500">No permutations found yet.</span>';
+
+            // Render Recursion Tree
+            let mermaidDef = 'graph TD;\n';
+            tree.nodes.forEach(node => {
+                mermaidDef += `    ${node.id}("${node.label}");\n`;
+            });
+            tree.links.forEach(link => {
+                mermaidDef += `    ${link.from} --> ${link.to};\n`;
+            });
+            mermaidDef += `    classDef active fill:#fef9c3,stroke:#f59e0b,stroke-width:2px;\n`;
+            if(activeNodeId) {
+                mermaidDef += `    class ${activeNodeId} active;\n`;
+            }
+            
+            recursionTreeVis.innerHTML = mermaidDef;
+            recursionTreeVis.removeAttribute('data-processed');
+            try {
+                await mermaid.run({ nodes: [recursionTreeVis] });
+            } catch(e) { console.error(e); }
+
+            log(message);
+            updateCodeStepDisplay(stepId);
+        }
+
+        function log(message) {
+            if (currentStateIndex <= 0) {
+                logContainer.innerHTML = '';
+            }
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `&gt; ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function stepForward() {
+            if (currentStateIndex < stateHistory.length - 1) {
+                currentStateIndex++;
+                renderState(stateHistory[currentStateIndex]);
+            } else {
+                stopAnimation();
+            }
+        }
+
+        function stepBackward() {
+            if (currentStateIndex > 0) {
+                currentStateIndex--;
+                renderState(stateHistory[currentStateIndex]);
+            }
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        }
+
+        function startAnimation() {
+            if (currentStateIndex >= stateHistory.length - 1) {
+                runVisualization();
+            }
+            isPlaying = true;
+            playIcon.classList.add('hidden');
+            pauseIcon.classList.remove('hidden');
+            animationInterval = setInterval(stepForward, 1000);
+        }
+
+        function stopAnimation() {
+            isPlaying = false;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            clearInterval(animationInterval);
+        }
+
+        function toggleNarration() {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                speakerIcon.classList.remove('hidden');
+                stopIcon.classList.add('hidden');
+            } else {
+                const scriptText = narrationScriptContainer.innerText;
+                const utterance = new SpeechSynthesisUtterance(scriptText);
+                utterance.onstart = () => {
+                    speakerIcon.classList.add('hidden');
+                    stopIcon.classList.remove('hidden');
+                };
+                utterance.onend = () => {
+                    speakerIcon.classList.remove('hidden');
+                    stopIcon.classList.add('hidden');
+                };
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+        
+        runBtn.addEventListener('click', runVisualization);
+        stepForwardBtn.addEventListener('click', stepForward);
+        stepBackwardBtn.addEventListener('click', stepBackward);
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        narrateBtn.addEventListener('click', toggleNarration);
+        
+        setupCode();
+        runVisualization();
+    });
+    </script>
 </body>
 </html>

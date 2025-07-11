@@ -3,19 +3,742 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contains Duplicate | LC 217 Visualizer</title>
+    <title>LeetCode 217: Contains Duplicate</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+            color: #374151;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .log-container {
+            height: 150px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        .array-element {
+            min-width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+            font-weight: 600;
+            margin: 4px;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .array-element.current {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+        }
+        .array-element.checked {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+        }
+        .array-element.duplicate {
+            background-color: #fecaca;
+            border-color: #ef4444;
+            animation: pulse 1s infinite;
+        }
+        .set-element {
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #10b981;
+            background-color: #d1fae5;
+            font-weight: 600;
+            margin: 3px;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .set-element.new {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1.1); }
+            50% { transform: scale(1.2); }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px) scale(0.8); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .code-step {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .code-step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .code-step-number {
+            flex-shrink: 0;
+            width: 2rem;
+            height: 2rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+        }
+        .log-info { color: #3b82f6; }
+        .log-success { color: #10b981; }
+        .log-warning { color: #f59e0b; }
+        .log-error { color: #ef4444; }
+        .state-value {
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .algorithm-pointer {
+            position: absolute;
+            background-color: #ef4444;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transform: translateX(-50%);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .algorithm-pointer::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #ef4444;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Contains Duplicate | LC 217</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-8 rounded-lg mb-8 text-center">
+            <h1 class="text-4xl font-bold text-white">LeetCode 217: Contains Duplicate</h1>
+            <p class="text-lg text-blue-100 mt-2">An Interactive Visual Explainer</p>
+            <p class="text-sm text-blue-200 mt-1">Idea By: Chetan Pachpande | Executed By: Claude</p>
+        </header>
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition">Back to Home</a>
+        </div>
+
+        <div id="problem-card" class="card">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Given an integer array <code>nums</code>, return <code>true</code> if any value appears <strong>at least twice</strong> in the array, and return <code>false</code> if every element is distinct.</p>
+                <div class="bg-gray-100 p-4 rounded-lg text-sm">
+                    <p><strong>Example 1:</strong></p>
+                    <p><strong>Input:</strong> nums = [1,2,3,1]</p>
+                    <p><strong>Output:</strong> true</p>
+                    <p><strong>Explanation:</strong> The element 1 occurs at indices 0 and 3.</p>
+                    <br>
+                    <p><strong>Example 2:</strong></p>
+                    <p><strong>Input:</strong> nums = [1,2,3,4]</p>
+                    <p><strong>Output:</strong> false</p>
+                    <p><strong>Explanation:</strong> All elements are distinct.</p>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Complexity Analysis</h3>
+                    <p><strong>Time Complexity:</strong> <code>O(N)</code><br><span class="text-sm text-gray-600">We iterate through the array once. HashSet operations (contains, add) are O(1) on average.</span></p>
+                    <p class="mt-2"><strong>Space Complexity:</strong> <code>O(N)</code><br><span class="text-sm text-gray-600">In the worst case, all elements are unique, so we store all N elements in the HashSet.</span></p>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Java Solution</h3>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>class Solution {
+    public boolean containsDuplicate(int[] nums) {
+        HashSet&lt;Integer&gt; set = new HashSet&lt;&gt;();
+        
+        for (int i = 0; i &lt; nums.length; i++) {
+            if (set.contains(nums[i])) {
+                return true;  // Found duplicate!
+            } else {
+                set.add(nums[i]);  // Add to set
+            }
+        }
+        return false;  // No duplicates found
+    }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8 mt-8">
+
+            <!-- Left Column -->
+            <div class="lg:col-span-2">
+                <div id="intuition-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+                    <p class="mb-3">The key insight is to use a <strong>HashSet</strong> to keep track of elements we've already seen as we iterate through the array.</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><strong>Iterate Through Array:</strong> Process each element one by one from left to right.</li>
+                        <li><strong>Check HashSet:</strong> Before processing, check if the current element already exists in our HashSet.</li>
+                        <li><strong>Duplicate Found:</strong> If element exists in HashSet, we found a duplicate - return true immediately.</li>
+                        <li><strong>Add to HashSet:</strong> If element doesn't exist, add it to the HashSet and continue.</li>
+                        <li><strong>No Duplicates:</strong> If we finish the entire array without finding duplicates, return false.</li>
+                    </ol>
+                </div>
+
+                <div id="code-steps-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <div class="flex justify-between mt-6">
+                        <button id="prev-step-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">Previous</button>
+                        <button id="next-step-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-3">
+                <div id="visualization-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="array-input" class="block text-sm font-medium text-gray-700">Input Array</label>
+                            <input type="text" id="array-input" value="1,2,3,1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="flex items-end">
+                            <button id="run-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Run Visualization</button>
+                        </div>
+                    </div>
+
+                    <!-- Array Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Input Array:</h3>
+                        <div id="array-container" class="relative bg-gray-50 p-4 rounded-lg min-h-[80px] flex items-center justify-center">
+                            <div id="array-vis" class="flex flex-wrap justify-center"></div>
+                            <div id="array-pointer" class="algorithm-pointer" style="display: none;">i</div>
+                        </div>
+                    </div>
+
+                    <!-- HashSet Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">HashSet Contents:</h3>
+                        <div id="set-container" class="bg-green-50 p-4 rounded-lg min-h-[80px] border-2 border-green-200">
+                            <div id="set-vis" class="flex flex-wrap justify-center"></div>
+                            <div id="set-empty" class="text-green-600 text-center text-sm">HashSet is empty</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="algorithm-states-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Algorithm States</h2>
+                    <div class="space-y-3 text-base">
+                        <div class="grid grid-cols-2 gap-x-4">
+                            <span>Status:</span> <span id="state-status" class="state-value">Ready</span>
+                            <span>Current Index (i):</span> <span id="state-index" class="state-value">N/A</span>
+                            <span>Current Element:</span> <span id="state-element" class="state-value">N/A</span>
+                            <span>HashSet Size:</span> <span id="state-set-size" class="state-value">0</span>
+                            <span>Duplicate Found:</span> <span id="state-duplicate" class="state-value">false</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="execution-commands-card" class="card">
+                     <h2 class="text-2xl font-bold mb-4 text-center">Execution Commands</h2>
+                    <div class="flex items-center justify-center space-x-4">
+                        <button id="step-back-btn" class="control-btn" title="Step Backward">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
+                        </button>
+                        <button id="play-pause-btn" class="control-btn w-16 h-16 bg-blue-500 text-white hover:bg-blue-600" title="Play/Pause">
+                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 hidden" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                        </button>
+                        <button id="reset-btn" class="control-btn" title="Reset">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-8">
+            <div id="log-card" class="card">
+                <h2 class="text-2xl font-bold mb-4">Execution Log</h2>
+                <div id="log-container" class="log-container">
+                    <div class="text-gray-500">Execution log will appear here...</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        console.log('Contains Duplicate visualization loaded');
+        
+        // Global variables
+        let inputArray = [];
+        let steps = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let currentCodeStep = 0;
+        
+        // Algorithm steps for code explanation
+        const algorithmSteps = [
+            {
+                title: "Initialize HashSet",
+                description: "Create an empty HashSet to store elements we've seen.",
+                code: `HashSet<Integer> set = new HashSet<>();`
+            },
+            {
+                title: "Start Loop",
+                description: "Begin iterating through the array from index 0.",
+                code: `for (int i = 0; i < nums.length; i++) {`
+            },
+            {
+                title: "Check for Duplicate",
+                description: "Check if the current element already exists in our HashSet.",
+                code: `if (set.contains(nums[i])) {
+    return true;  // Found duplicate!
+}`
+            },
+            {
+                title: "Add to HashSet",
+                description: "If element is not a duplicate, add it to the HashSet.",
+                code: `else {
+    set.add(nums[i]);  // Add to set
+}`
+            },
+            {
+                title: "Continue Loop",
+                description: "Move to the next element and repeat the process.",
+                code: `// Continue to next iteration`
+            },
+            {
+                title: "Return False",
+                description: "If we've checked all elements without finding duplicates, return false.",
+                code: `return false;  // No duplicates found`
+            }
+        ];
+        
+        // DOM elements
+        const arrayInput = document.getElementById('array-input');
+        const runBtn = document.getElementById('run-btn');
+        const arrayVis = document.getElementById('array-vis');
+        const setVis = document.getElementById('set-vis');
+        const setEmpty = document.getElementById('set-empty');
+        const arrayPointer = document.getElementById('array-pointer');
+        const logContainer = document.getElementById('log-container');
+        const stepBackBtn = document.getElementById('step-back-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const stepForwardBtn = document.getElementById('step-forward-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const codeStepsContainer = document.getElementById('code-steps-container');
+        const prevStepBtn = document.getElementById('prev-step-btn');
+        const nextStepBtn = document.getElementById('next-step-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        
+        // State elements
+        const stateStatus = document.getElementById('state-status');
+        const stateIndex = document.getElementById('state-index');
+        const stateElement = document.getElementById('state-element');
+        const stateSetSize = document.getElementById('state-set-size');
+        const stateDuplicate = document.getElementById('state-duplicate');
+        
+        function logWithType(message, type = 'info') {
+            console.log(message);
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function log(message) {
+            logWithType(message, 'info');
+        }
+        
+        function displayCodeStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= algorithmSteps.length) return;
+            
+            currentCodeStep = stepIndex;
+            const step = algorithmSteps[stepIndex];
+            
+            codeStepsContainer.innerHTML = `
+                <div class="code-step">
+                    <div class="code-step-header">
+                        <div class="code-step-number">${stepIndex + 1}</div>
+                        <div>
+                            <div class="font-bold">Step ${stepIndex + 1}: ${step.title}</div>
+                            <div class="text-sm text-gray-600 mt-1">${step.description}</div>
+                        </div>
+                    </div>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg text-sm overflow-x-auto mt-3"><code>${step.code}</code></pre>
+                </div>
+            `;
+            
+            prevStepBtn.disabled = currentCodeStep === 0;
+            nextStepBtn.disabled = currentCodeStep === algorithmSteps.length - 1;
+        }
+        
+        function updateArrayVisualization(currentIndex = -1, duplicateIndex = -1, checkedIndices = []) {
+            arrayVis.innerHTML = '';
+            const container = document.getElementById('array-container');
+            
+            inputArray.forEach((num, index) => {
+                const element = document.createElement('div');
+                element.className = 'array-element';
+                element.textContent = num;
+                element.id = `array-${index}`;
+                
+                if (index === currentIndex) {
+                    element.classList.add('current');
+                } else if (index === duplicateIndex) {
+                    element.classList.add('duplicate');
+                } else if (checkedIndices.includes(index)) {
+                    element.classList.add('checked');
+                }
+                
+                arrayVis.appendChild(element);
+            });
+            
+            // Position pointer
+            if (currentIndex >= 0 && currentIndex < inputArray.length) {
+                const currentElement = document.getElementById(`array-${currentIndex}`);
+                if (currentElement) {
+                    const rect = currentElement.getBoundingClientRect();
+                    const containerRect = container.getBoundingClientRect();
+                    arrayPointer.style.left = `${rect.left - containerRect.left + rect.width / 2}px`;
+                    arrayPointer.style.top = `${rect.top - containerRect.top - 30}px`;
+                    arrayPointer.style.display = 'block';
+                } else {
+                    arrayPointer.style.display = 'none';
+                }
+            } else {
+                arrayPointer.style.display = 'none';
+            }
+        }
+        
+        function updateSetVisualization(setContents, newElement = null) {
+            setVis.innerHTML = '';
+            
+            if (setContents.length === 0) {
+                setEmpty.style.display = 'block';
+            } else {
+                setEmpty.style.display = 'none';
+                setContents.forEach(num => {
+                    const element = document.createElement('div');
+                    element.className = 'set-element';
+                    if (num === newElement) {
+                        element.classList.add('new');
+                    }
+                    element.textContent = num;
+                    setVis.appendChild(element);
+                });
+            }
+        }
+        
+        function updateStates(index, element, setSize, duplicateFound, status) {
+            if (stateStatus) stateStatus.textContent = status;
+            if (stateIndex) stateIndex.textContent = index >= 0 ? index : 'N/A';
+            if (stateElement) stateElement.textContent = element !== null ? element : 'N/A';
+            if (stateSetSize) stateSetSize.textContent = setSize;
+            if (stateDuplicate) stateDuplicate.textContent = duplicateFound ? 'true' : 'false';
+        }
+        
+        function generateSteps() {
+            steps = [];
+            const hashSet = new Set();
+            const checkedIndices = [];
+            
+            // Initial step
+            steps.push({
+                index: -1,
+                element: null,
+                setContents: [],
+                checkedIndices: [],
+                duplicateIndex: -1,
+                message: '🏁 Starting algorithm with empty HashSet',
+                status: 'Initializing',
+                codeStep: 0,
+                duplicateFound: false
+            });
+            
+            // Process each element
+            for (let i = 0; i < inputArray.length; i++) {
+                const currentElement = inputArray[i];
+                
+                // Step: Check current element
+                steps.push({
+                    index: i,
+                    element: currentElement,
+                    setContents: Array.from(hashSet),
+                    checkedIndices: [...checkedIndices],
+                    duplicateIndex: -1,
+                    message: `🔍 Checking element ${currentElement} at index ${i}`,
+                    status: 'Checking',
+                    codeStep: 2,
+                    duplicateFound: false
+                });
+                
+                // Check if element exists in set
+                if (hashSet.has(currentElement)) {
+                    // Found duplicate!
+                    steps.push({
+                        index: i,
+                        element: currentElement,
+                        setContents: Array.from(hashSet),
+                        checkedIndices: [...checkedIndices],
+                        duplicateIndex: i,
+                        message: `🚨 DUPLICATE FOUND! Element ${currentElement} already exists in HashSet`,
+                        status: 'Duplicate Found',
+                        codeStep: 2,
+                        duplicateFound: true
+                    });
+                    
+                    steps.push({
+                        index: i,
+                        element: currentElement,
+                        setContents: Array.from(hashSet),
+                        checkedIndices: [...checkedIndices],
+                        duplicateIndex: i,
+                        message: `✅ Returning TRUE - duplicate found!`,
+                        status: 'Complete',
+                        codeStep: 2,
+                        duplicateFound: true
+                    });
+                    return steps;
+                } else {
+                    // Add to set
+                    hashSet.add(currentElement);
+                    checkedIndices.push(i);
+                    
+                    steps.push({
+                        index: i,
+                        element: currentElement,
+                        setContents: Array.from(hashSet),
+                        checkedIndices: [...checkedIndices],
+                        duplicateIndex: -1,
+                        message: `➕ Added ${currentElement} to HashSet (size: ${hashSet.size})`,
+                        status: 'Adding to Set',
+                        codeStep: 3,
+                        duplicateFound: false,
+                        newElement: currentElement
+                    });
+                }
+            }
+            
+            // No duplicates found
+            steps.push({
+                index: -1,
+                element: null,
+                setContents: Array.from(hashSet),
+                checkedIndices: [...checkedIndices],
+                duplicateIndex: -1,
+                message: `✅ No duplicates found - returning FALSE`,
+                status: 'Complete',
+                codeStep: 5,
+                duplicateFound: false
+            });
+            
+            return steps;
+        }
+        
+        function renderStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= steps.length) return;
+            
+            const step = steps[stepIndex];
+            
+            // Update visualizations
+            updateArrayVisualization(step.index, step.duplicateIndex, step.checkedIndices);
+            updateSetVisualization(step.setContents, step.newElement);
+            updateStates(step.index, step.element, step.setContents.length, step.duplicateFound, step.status);
+            
+            // Update code step
+            if (step.codeStep !== undefined) {
+                displayCodeStep(step.codeStep);
+            }
+            
+            // Log message
+            if (step.message.includes('🚨') || step.duplicateFound) {
+                logWithType(step.message, 'error');
+            } else if (step.message.includes('✅')) {
+                logWithType(step.message, 'success');
+            } else if (step.message.includes('➕')) {
+                logWithType(step.message, 'success');
+            } else if (step.message.includes('🔍')) {
+                logWithType(step.message, 'warning');
+            } else {
+                logWithType(step.message, 'info');
+            }
+        }
+        
+        function runVisualization() {
+            logContainer.innerHTML = '';
+            log('🚀 Starting Contains Duplicate visualization...');
+            
+            // Parse input
+            const inputStr = arrayInput.value.trim();
+            if (!inputStr) {
+                alert('Please enter an array');
+                return;
+            }
+            
+            try {
+                inputArray = inputStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            } catch (e) {
+                alert('Invalid input format. Please use comma-separated integers.');
+                return;
+            }
+            
+            if (inputArray.length === 0) {
+                alert('Array must contain at least one element');
+                return;
+            }
+            
+            log(`📊 Input array: [${inputArray.join(', ')}]`);
+            
+            // Generate steps
+            generateSteps();
+            
+            // Start visualization
+            currentStep = 0;
+            renderStep(currentStep);
+            
+            logWithType(`🎯 Generated ${steps.length} steps for visualization`, 'success');
+        }
+        
+        function stepForward() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep(currentStep);
+            } else {
+                stopAnimation();
+            }
+        }
+        
+        function stepBackward() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderStep(currentStep);
+            }
+        }
+        
+        function togglePlay() {
+            if (isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        }
+        
+        function startAnimation() {
+            isPlaying = true;
+            if (playIcon && pauseIcon) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            }
+            playInterval = setInterval(stepForward, 1200);
+        }
+        
+        function stopAnimation() {
+            isPlaying = false;
+            if (playIcon && pauseIcon) {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+            clearInterval(playInterval);
+        }
+        
+        function resetVisualization() {
+            stopAnimation();
+            currentStep = 0;
+            if (steps.length > 0) {
+                renderStep(currentStep);
+            }
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, adding event listeners');
+            
+            runBtn.addEventListener('click', runVisualization);
+            stepBackBtn.addEventListener('click', stepBackward);
+            playPauseBtn.addEventListener('click', togglePlay);
+            stepForwardBtn.addEventListener('click', stepForward);
+            resetBtn.addEventListener('click', resetVisualization);
+            
+            // Algorithm step navigation
+            prevStepBtn.addEventListener('click', () => {
+                if (currentCodeStep > 0) {
+                    displayCodeStep(currentCodeStep - 1);
+                }
+            });
+            
+            nextStepBtn.addEventListener('click', () => {
+                if (currentCodeStep < algorithmSteps.length - 1) {
+                    displayCodeStep(currentCodeStep + 1);
+                }
+            });
+            
+            // Initialize display
+            displayCodeStep(0);
+            updateStates(-1, null, 0, false, 'Ready');
+            
+            // Welcome message
+            logWithType('🚀 Welcome! Enter an array and click "Run Visualization" to see the Contains Duplicate algorithm in action.', 'info');
+        });
+        
+        console.log('Contains Duplicate script setup complete');
+    </script>
 </body>
 </html>

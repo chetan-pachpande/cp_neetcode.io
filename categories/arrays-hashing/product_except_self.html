@@ -3,19 +3,822 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product of Array Except Self | LC 238 Visualizer</title>
+    <title>LeetCode 238: Product of Array Except Self</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+            color: #374151;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .log-container {
+            height: 150px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        .array-element {
+            min-width: 60px;
+            height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+            font-weight: 600;
+            margin: 4px;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            position: relative;
+        }
+        .array-element.current {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+        }
+        .array-element.prefix-phase {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+        }
+        .array-element.postfix-phase {
+            background-color: #dcfce7;
+            border-color: #16a34a;
+        }
+        .array-element.completed {
+            background-color: #f3e8ff;
+            border-color: #a855f7;
+        }
+        .array-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .array-index {
+            font-size: 0.7rem;
+            color: #6b7280;
+            position: absolute;
+            top: 2px;
+            left: 4px;
+        }
+        .prefix-indicator {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #3b82f6;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .postfix-indicator {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #16a34a;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .algorithm-pointer {
+            position: absolute;
+            background-color: #ef4444;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transform: translateX(-50%);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .algorithm-pointer::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #ef4444;
+        }
+        .code-step {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .code-step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .code-step-number {
+            flex-shrink: 0;
+            width: 2rem;
+            height: 2rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+        }
+        .log-info { color: #3b82f6; }
+        .log-success { color: #10b981; }
+        .log-warning { color: #f59e0b; }
+        .log-error { color: #ef4444; }
+        .state-value {
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .phase-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .phase-prefix {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .phase-postfix {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .calculation-display {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        @keyframes calculation {
+            0% { background-color: #fef3c7; }
+            50% { background-color: #fbbf24; }
+            100% { background-color: #f3e8ff; }
+        }
+        .calculating {
+            animation: calculation 0.6s ease-in-out;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Product of Array Except Self | LC 238</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-8 rounded-lg mb-8 text-center">
+            <h1 class="text-4xl font-bold text-white">LeetCode 238: Product of Array Except Self</h1>
+            <p class="text-lg text-blue-100 mt-2">An Interactive Visual Explainer</p>
+            <p class="text-sm text-blue-200 mt-1">Idea By: Chetan Pachpande | Executed By: Claude</p>
+        </header>
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition">Back to Home</a>
+        </div>
+
+        <div id="problem-card" class="card">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Given an integer array <code>nums</code>, return an array <code>answer</code> such that <code>answer[i]</code> is equal to the product of all the elements of <code>nums</code> except <code>nums[i]</code>.</p>
+                <p>The algorithm must run in <strong>O(n)</strong> time and without using the division operation.</p>
+                <div class="bg-gray-100 p-4 rounded-lg text-sm">
+                    <p><strong>Example 1:</strong></p>
+                    <p><strong>Input:</strong> nums = [1,2,3,4]</p>
+                    <p><strong>Output:</strong> [24,12,8,6]</p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc ml-6 mt-2">
+                        <li>answer[0] = 2×3×4 = 24</li>
+                        <li>answer[1] = 1×3×4 = 12</li>
+                        <li>answer[2] = 1×2×4 = 8</li>
+                        <li>answer[3] = 1×2×3 = 6</li>
+                    </ul>
+                    <br>
+                    <p><strong>Example 2:</strong></p>
+                    <p><strong>Input:</strong> nums = [-1,1,0,-3,3]</p>
+                    <p><strong>Output:</strong> [0,0,9,0,0]</p>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Complexity Analysis</h3>
+                    <p><strong>Time Complexity:</strong> <code>O(N)</code><br><span class="text-sm text-gray-600">Two passes through the array, each taking O(n) time.</span></p>
+                    <p class="mt-2"><strong>Space Complexity:</strong> <code>O(1)</code><br><span class="text-sm text-gray-600">Only using the output array and a few variables. No extra space proportional to input size.</span></p>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Java Solution</h3>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int[] result = new int[nums.length];
+        Arrays.fill(result, 1);
+        
+        // Prefix pass: result[i] = product of all elements before i
+        int preFix = 1; 
+        for (int i = 0; i &lt; nums.length; i++) {
+            result[i] = preFix;
+            preFix = preFix * nums[i];
+        }
+        
+        // Postfix pass: multiply by product of all elements after i
+        int postFix = 1;
+        for (int i = nums.length - 1; i &gt;= 0; i--) {
+            result[i] = postFix * result[i];
+            postFix = postFix * nums[i];
+        }
+        
+        return result;
+    }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8 mt-8">
+
+            <!-- Left Column -->
+            <div class="lg:col-span-2">
+                <div id="intuition-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+                    <p class="mb-3">The key insight is to use a <strong>two-pass approach</strong> with prefix and postfix products to avoid division and achieve O(n) time complexity.</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><strong>Prefix Pass:</strong> For each position i, store the product of all elements to the left of i.</li>
+                        <li><strong>Postfix Pass:</strong> For each position i, multiply the prefix product by the product of all elements to the right of i.</li>
+                        <li><strong>Result:</strong> result[i] = (product of elements before i) × (product of elements after i)</li>
+                        <li><strong>No Division:</strong> We cleverly avoid division by constructing the answer through multiplication only.</li>
+                        <li><strong>Space Efficient:</strong> Use the result array itself to store intermediate values.</li>
+                    </ol>
+                </div>
+
+                <div id="code-steps-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <div class="flex justify-between mt-6">
+                        <button id="prev-step-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">Previous</button>
+                        <button id="next-step-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-3">
+                <div id="visualization-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="array-input" class="block text-sm font-medium text-gray-700">Input Array</label>
+                            <input type="text" id="array-input" value="1,2,3,4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="flex items-end">
+                            <button id="run-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Run Visualization</button>
+                        </div>
+                    </div>
+
+                    <!-- Input Array Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Input Array:</h3>
+                        <div id="input-container" class="relative bg-gray-50 p-4 rounded-lg min-h-[80px] flex items-center justify-center">
+                            <div id="input-vis" class="flex flex-wrap justify-center"></div>
+                        </div>
+                    </div>
+
+                    <!-- Result Array Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Result Array: <span id="current-phase" class="phase-indicator phase-prefix">Prefix Pass</span></h3>
+                        <div id="result-container" class="relative bg-purple-50 p-4 rounded-lg min-h-[80px] flex items-center justify-center">
+                            <div id="result-vis" class="flex flex-wrap justify-center"></div>
+                            <div id="result-pointer" class="algorithm-pointer" style="display: none;">i</div>
+                        </div>
+                    </div>
+
+                    <!-- Calculation Display -->
+                    <div id="calculation-card" class="calculation-display">
+                        <h4 class="font-semibold mb-2">Current Calculation:</h4>
+                        <div id="calculation-content" class="text-sm font-mono">
+                            Ready to start...
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="algorithm-states-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Algorithm States</h2>
+                    <div class="space-y-3 text-base">
+                        <div class="grid grid-cols-2 gap-x-4">
+                            <span>Status:</span> <span id="state-status" class="state-value">Ready</span>
+                            <span>Current Phase:</span> <span id="state-phase" class="state-value">Initialization</span>
+                            <span>Current Index (i):</span> <span id="state-index" class="state-value">N/A</span>
+                            <span>Prefix Value:</span> <span id="state-prefix" class="state-value">1</span>
+                            <span>Postfix Value:</span> <span id="state-postfix" class="state-value">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="execution-commands-card" class="card">
+                     <h2 class="text-2xl font-bold mb-4 text-center">Execution Commands</h2>
+                    <div class="flex items-center justify-center space-x-4">
+                        <button id="step-back-btn" class="control-btn" title="Step Backward">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
+                        </button>
+                        <button id="play-pause-btn" class="control-btn w-16 h-16 bg-blue-500 text-white hover:bg-blue-600" title="Play/Pause">
+                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 hidden" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                        </button>
+                        <button id="reset-btn" class="control-btn" title="Reset">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-8">
+            <div id="log-card" class="card">
+                <h2 class="text-2xl font-bold mb-4">Execution Log</h2>
+                <div id="log-container" class="log-container">
+                    <div class="text-gray-500">Execution log will appear here...</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        console.log('Product of Array Except Self visualization loaded');
+        
+        // Global variables
+        let inputArray = [];
+        let steps = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let currentCodeStep = 0;
+        
+        // Algorithm steps for code explanation
+        const algorithmSteps = [
+            {
+                title: "Initialize Result Array",
+                description: "Create result array and fill with 1s to prepare for multiplication.",
+                code: `int[] result = new int[nums.length];
+Arrays.fill(result, 1);`
+            },
+            {
+                title: "Start Prefix Pass",
+                description: "Begin the first pass to calculate prefix products (products of elements before each index).",
+                code: `int preFix = 1; 
+for (int i = 0; i < nums.length; i++) {`
+            },
+            {
+                title: "Store Prefix Product",
+                description: "Store the current prefix value at result[i], then update prefix for next iteration.",
+                code: `result[i] = preFix;
+preFix = preFix * nums[i];`
+            },
+            {
+                title: "Start Postfix Pass",
+                description: "Begin the second pass to multiply by postfix products (products of elements after each index).",
+                code: `int postFix = 1;
+for (int i = nums.length - 1; i >= 0; i--) {`
+            },
+            {
+                title: "Calculate Final Result",
+                description: "Multiply existing prefix product by postfix product, then update postfix for next iteration.",
+                code: `result[i] = postFix * result[i];
+postFix = postFix * nums[i];`
+            },
+            {
+                title: "Return Result",
+                description: "Return the completed result array containing products except self.",
+                code: `return result;`
+            }
+        ];
+        
+        // DOM elements
+        const arrayInput = document.getElementById('array-input');
+        const runBtn = document.getElementById('run-btn');
+        const inputVis = document.getElementById('input-vis');
+        const resultVis = document.getElementById('result-vis');
+        const resultPointer = document.getElementById('result-pointer');
+        const currentPhase = document.getElementById('current-phase');
+        const calculationContent = document.getElementById('calculation-content');
+        const logContainer = document.getElementById('log-container');
+        const stepBackBtn = document.getElementById('step-back-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const stepForwardBtn = document.getElementById('step-forward-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const codeStepsContainer = document.getElementById('code-steps-container');
+        const prevStepBtn = document.getElementById('prev-step-btn');
+        const nextStepBtn = document.getElementById('next-step-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        
+        // State elements
+        const stateStatus = document.getElementById('state-status');
+        const statePhase = document.getElementById('state-phase');
+        const stateIndex = document.getElementById('state-index');
+        const statePrefix = document.getElementById('state-prefix');
+        const statePostfix = document.getElementById('state-postfix');
+        
+        function logWithType(message, type = 'info') {
+            console.log(message);
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function log(message) {
+            logWithType(message, 'info');
+        }
+        
+        function displayCodeStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= algorithmSteps.length) return;
+            
+            currentCodeStep = stepIndex;
+            const step = algorithmSteps[stepIndex];
+            
+            codeStepsContainer.innerHTML = `
+                <div class="code-step">
+                    <div class="code-step-header">
+                        <div class="code-step-number">${stepIndex + 1}</div>
+                        <div>
+                            <div class="font-bold">Step ${stepIndex + 1}: ${step.title}</div>
+                            <div class="text-sm text-gray-600 mt-1">${step.description}</div>
+                        </div>
+                    </div>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg text-sm overflow-x-auto mt-3"><code>${step.code}</code></pre>
+                </div>
+            `;
+            
+            prevStepBtn.disabled = currentCodeStep === 0;
+            nextStepBtn.disabled = currentCodeStep === algorithmSteps.length - 1;
+        }
+        
+        function updateInputVisualization() {
+            inputVis.innerHTML = '';
+            
+            inputArray.forEach((num, index) => {
+                const element = document.createElement('div');
+                element.className = 'array-element';
+                element.innerHTML = `
+                    <div class="array-index">${index}</div>
+                    <div class="array-value">${num}</div>
+                `;
+                inputVis.appendChild(element);
+            });
+        }
+        
+        function updateResultVisualization(currentIndex = -1, phase = 'none', resultArray = [], prefixValue = 1, postfixValue = 1) {
+            resultVis.innerHTML = '';
+            const container = document.getElementById('result-container');
+            
+            resultArray.forEach((num, index) => {
+                const element = document.createElement('div');
+                element.className = 'array-element';
+                element.id = `result-${index}`;
+                
+                if (index === currentIndex) {
+                    element.classList.add('current');
+                    element.classList.add('calculating');
+                } else if (phase === 'prefix' && index < currentIndex) {
+                    element.classList.add('prefix-phase');
+                } else if (phase === 'postfix' && index > currentIndex) {
+                    element.classList.add('postfix-phase');
+                } else if ((phase === 'prefix' && index <= currentIndex) || (phase === 'postfix' && index >= currentIndex)) {
+                    element.classList.add('completed');
+                }
+                
+                element.innerHTML = `
+                    <div class="array-index">${index}</div>
+                    <div class="array-value">${num}</div>
+                `;
+                
+                // Add indicators for current calculation
+                if (index === currentIndex) {
+                    if (phase === 'prefix') {
+                        element.innerHTML += `<div class="prefix-indicator">prefix: ${prefixValue}</div>`;
+                    } else if (phase === 'postfix') {
+                        element.innerHTML += `<div class="postfix-indicator">postfix: ${postfixValue}</div>`;
+                    }
+                }
+                
+                resultVis.appendChild(element);
+            });
+            
+            // Position pointer
+            if (currentIndex >= 0 && currentIndex < resultArray.length) {
+                const currentElement = document.getElementById(`result-${currentIndex}`);
+                if (currentElement) {
+                    const rect = currentElement.getBoundingClientRect();
+                    const containerRect = container.getBoundingClientRect();
+                    resultPointer.style.left = `${rect.left - containerRect.left + rect.width / 2}px`;
+                    resultPointer.style.top = `${rect.top - containerRect.top - 30}px`;
+                    resultPointer.style.display = 'block';
+                } else {
+                    resultPointer.style.display = 'none';
+                }
+            } else {
+                resultPointer.style.display = 'none';
+            }
+        }
+        
+        function updatePhaseIndicator(phase) {
+            if (phase === 'prefix') {
+                currentPhase.textContent = 'Prefix Pass';
+                currentPhase.className = 'phase-indicator phase-prefix';
+            } else if (phase === 'postfix') {
+                currentPhase.textContent = 'Postfix Pass';
+                currentPhase.className = 'phase-indicator phase-postfix';
+            } else {
+                currentPhase.textContent = 'Initialization';
+                currentPhase.className = 'phase-indicator phase-prefix';
+            }
+        }
+        
+        function updateCalculationDisplay(calculation) {
+            calculationContent.innerHTML = calculation;
+        }
+        
+        function updateStates(index, phase, prefixValue, postfixValue, status) {
+            if (stateStatus) stateStatus.textContent = status;
+            if (statePhase) statePhase.textContent = phase;
+            if (stateIndex) stateIndex.textContent = index >= 0 ? index : 'N/A';
+            if (statePrefix) statePrefix.textContent = prefixValue;
+            if (statePostfix) statePostfix.textContent = postfixValue;
+        }
+        
+        function generateSteps() {
+            steps = [];
+            const result = new Array(inputArray.length).fill(1);
+            let prefix = 1;
+            let postfix = 1;
+            
+            // Initial step
+            steps.push({
+                index: -1,
+                phase: 'init',
+                resultArray: [...result],
+                prefixValue: prefix,
+                postfixValue: postfix,
+                message: '🏁 Initialized result array with all 1s',
+                calculation: 'result = [1, 1, 1, ...] - Ready for prefix pass',
+                status: 'Initializing',
+                codeStep: 0
+            });
+            
+            // Prefix pass
+            for (let i = 0; i < inputArray.length; i++) {
+                // Store current prefix
+                result[i] = prefix;
+                
+                steps.push({
+                    index: i,
+                    phase: 'prefix',
+                    resultArray: [...result],
+                    prefixValue: prefix,
+                    postfixValue: 1,
+                    message: `🔵 Prefix Pass: result[${i}] = ${prefix} (product of elements before index ${i})`,
+                    calculation: `result[${i}] = prefix = ${prefix}<br>Next: prefix = ${prefix} × ${inputArray[i]} = ${prefix * inputArray[i]}`,
+                    status: 'Prefix Pass',
+                    codeStep: 2
+                });
+                
+                // Update prefix for next iteration
+                prefix *= inputArray[i];
+            }
+            
+            // Postfix pass
+            postfix = 1;
+            for (let i = inputArray.length - 1; i >= 0; i--) {
+                const oldValue = result[i];
+                result[i] = postfix * result[i];
+                
+                steps.push({
+                    index: i,
+                    phase: 'postfix',
+                    resultArray: [...result],
+                    prefixValue: prefix,
+                    postfixValue: postfix,
+                    message: `🟢 Postfix Pass: result[${i}] = ${postfix} × ${oldValue} = ${result[i]}`,
+                    calculation: `result[${i}] = postfix × result[${i}] = ${postfix} × ${oldValue} = ${result[i]}<br>Next: postfix = ${postfix} × ${inputArray[i]} = ${postfix * inputArray[i]}`,
+                    status: 'Postfix Pass',
+                    codeStep: 4
+                });
+                
+                // Update postfix for next iteration
+                postfix *= inputArray[i];
+            }
+            
+            // Final step
+            steps.push({
+                index: -1,
+                phase: 'complete',
+                resultArray: [...result],
+                prefixValue: prefix,
+                postfixValue: postfix,
+                message: `✅ Algorithm Complete! Result: [${result.join(', ')}]`,
+                calculation: `Final Result: [${result.join(', ')}]<br>Each element is the product of all other elements!`,
+                status: 'Complete',
+                codeStep: 5
+            });
+            
+            return steps;
+        }
+        
+        function renderStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= steps.length) return;
+            
+            const step = steps[stepIndex];
+            
+            // Update visualizations
+            updateResultVisualization(step.index, step.phase, step.resultArray, step.prefixValue, step.postfixValue);
+            updatePhaseIndicator(step.phase);
+            updateCalculationDisplay(step.calculation);
+            updateStates(step.index, step.phase, step.prefixValue, step.postfixValue, step.status);
+            
+            // Update code step
+            if (step.codeStep !== undefined) {
+                displayCodeStep(step.codeStep);
+            }
+            
+            // Log message
+            if (step.message.includes('✅')) {
+                logWithType(step.message, 'success');
+            } else if (step.message.includes('🔵')) {
+                logWithType(step.message, 'info');
+            } else if (step.message.includes('🟢')) {
+                logWithType(step.message, 'success');
+            } else {
+                logWithType(step.message, 'info');
+            }
+        }
+        
+        function runVisualization() {
+            logContainer.innerHTML = '';
+            log('🚀 Starting Product of Array Except Self visualization...');
+            
+            // Parse input
+            const inputStr = arrayInput.value.trim();
+            if (!inputStr) {
+                alert('Please enter an array');
+                return;
+            }
+            
+            try {
+                inputArray = inputStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            } catch (e) {
+                alert('Invalid input format. Please use comma-separated integers.');
+                return;
+            }
+            
+            if (inputArray.length === 0) {
+                alert('Array must contain at least one element');
+                return;
+            }
+            
+            log(`📊 Input array: [${inputArray.join(', ')}]`);
+            
+            // Update input visualization
+            updateInputVisualization();
+            
+            // Generate steps
+            generateSteps();
+            
+            // Start visualization
+            currentStep = 0;
+            renderStep(currentStep);
+            
+            logWithType(`🎯 Generated ${steps.length} steps for visualization`, 'success');
+        }
+        
+        function stepForward() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep(currentStep);
+            } else {
+                stopAnimation();
+            }
+        }
+        
+        function stepBackward() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderStep(currentStep);
+            }
+        }
+        
+        function togglePlay() {
+            if (isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        }
+        
+        function startAnimation() {
+            isPlaying = true;
+            if (playIcon && pauseIcon) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            }
+            playInterval = setInterval(stepForward, 1500);
+        }
+        
+        function stopAnimation() {
+            isPlaying = false;
+            if (playIcon && pauseIcon) {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+            clearInterval(playInterval);
+        }
+        
+        function resetVisualization() {
+            stopAnimation();
+            currentStep = 0;
+            if (steps.length > 0) {
+                renderStep(currentStep);
+            }
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, adding event listeners');
+            
+            runBtn.addEventListener('click', runVisualization);
+            stepBackBtn.addEventListener('click', stepBackward);
+            playPauseBtn.addEventListener('click', togglePlay);
+            stepForwardBtn.addEventListener('click', stepForward);
+            resetBtn.addEventListener('click', resetVisualization);
+            
+            // Algorithm step navigation
+            prevStepBtn.addEventListener('click', () => {
+                if (currentCodeStep > 0) {
+                    displayCodeStep(currentCodeStep - 1);
+                }
+            });
+            
+            nextStepBtn.addEventListener('click', () => {
+                if (currentCodeStep < algorithmSteps.length - 1) {
+                    displayCodeStep(currentCodeStep + 1);
+                }
+            });
+            
+            // Initialize display
+            displayCodeStep(0);
+            updateStates(-1, 'Initialization', 1, 1, 'Ready');
+            updateCalculationDisplay('Ready to start...');
+            
+            // Welcome message
+            logWithType('🚀 Welcome! Enter an array and click "Run Visualization" to see the Product Except Self algorithm in action.', 'info');
+        });
+        
+        console.log('Product of Array Except Self script setup complete');
+    </script>
 </body>
 </html>

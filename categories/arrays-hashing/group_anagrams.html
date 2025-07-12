@@ -5,17 +5,859 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Anagrams | LC 49 Visualizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+            color: #374151;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .log-container {
+            height: 150px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        .string-element {
+            min-width: 100px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+            font-weight: 600;
+            margin: 3px;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            position: relative;
+        }
+        .string-element.current {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+        .string-element.processed {
+            background-color: #d1fae5;
+            border-color: #10b981;
+        }
+        .count-cell {
+            min-width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .count-cell.positive {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+        .count-cell.zero {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+            color: #6b7280;
+        }
+        .count-cell.active {
+            transform: scale(1.2);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+            z-index: 10;
+        }
+        .alphabet-label {
+            min-width: 35px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .group-container {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 0.5rem;
+            min-height: 80px;
+            background-color: #f9fafb;
+            transition: all 0.3s ease;
+        }
+        .group-container.active {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+        }
+        .group-key {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #6b7280;
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+        .group-strings {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .group-string-item {
+            background-color: #e5e7eb;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            border: 1px solid #d1d5db;
+        }
+        .group-string-item.new {
+            background-color: #bbf7d0;
+            border-color: #10b981;
+            animation: pulse 1s ease-in-out;
+        }
+        .code-step {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .code-step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .code-step-number {
+            flex-shrink: 0;
+            width: 2rem;
+            height: 2rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+        }
+        .log-info { color: #3b82f6; }
+        .log-success { color: #10b981; }
+        .log-warning { color: #f59e0b; }
+        .log-error { color: #ef4444; }
+        .state-value {
+            font-weight: bold;
+            color: #1f2937;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes countUp {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); background-color: #93c5fd; }
+            100% { transform: scale(1); }
+        }
+        .count-cell.animate {
+            animation: countUp 0.6s ease-in-out;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Group Anagrams | LC 49</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="bg-gradient-to-r from-green-600 to-green-700 text-white p-8 rounded-lg mb-8 text-center">
+            <h1 class="text-4xl font-bold text-white">LeetCode 49: Group Anagrams</h1>
+            <p class="text-lg text-green-100 mt-2">An Interactive Visual Explainer</p>
+            <p class="text-sm text-green-200 mt-1">Idea By: Chetan Pachpande | Executed By: Claude</p>
+        </header>
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition">Back to Home</a>
+        </div>
+
+        <div id="problem-card" class="card">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p><strong>Given an array of strings, group the anagrams together. You can return the answer in any order.</strong></p>
+                <p>An <strong>Anagram</strong> is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.</p>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p><strong>Example:</strong></p>
+                    <p><code>Input: strs = ["eat","tea","tan","ate","nat","bat"]</code></p>
+                    <p><code>Output: [["bat"],["nat","tan"],["ate","eat","tea"]]</code></p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p><strong>Constraints:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>1 ≤ strs.length ≤ 10⁴</li>
+                        <li>0 ≤ strs[i].length ≤ 100</li>
+                        <li>strs[i] consists of lowercase English letters only</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8 mt-8">
+
+            <!-- Left Column -->
+            <div class="lg:col-span-2">
+                <div id="intuition-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+                    <p class="mb-3">The key insight is that anagrams have <strong>identical character frequencies</strong>. We use character counting to create unique signatures for grouping.</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><strong>Character Frequency:</strong> Count frequency of each character (a-z) for every string.</li>
+                        <li><strong>Unique Key:</strong> Create a unique key using the character counts (e.g., "#1#0#1#0...#1").</li>
+                        <li><strong>HashMap Grouping:</strong> Use the key to group strings with identical character frequencies.</li>
+                        <li><strong>Result Formation:</strong> Collect all groups from the HashMap as the final answer.</li>
+                    </ol>
+                </div>
+
+                <div id="code-steps-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <div class="flex justify-between mt-6">
+                        <button id="prev-step-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">Previous</button>
+                        <button id="next-step-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-3">
+                <div id="visualization-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="array-input" class="block text-sm font-medium text-gray-700">Input Array (comma-separated)</label>
+                            <input type="text" id="array-input" value="eat,tea,tan,ate,nat,bat" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="flex items-end">
+                            <button id="run-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Run Visualization</button>
+                        </div>
+                    </div>
+
+                    <!-- Input Array Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Input Array:</h3>
+                        <div id="input-container" class="relative bg-gray-50 p-4 rounded-lg min-h-[80px] flex items-center justify-center">
+                            <div id="input-vis" class="flex flex-wrap justify-center"></div>
+                        </div>
+                    </div>
+
+                    <!-- Current String Analysis -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Current String Analysis:</h3>
+                        <div id="current-string-container" class="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                            <div class="mb-2">
+                                <span class="font-medium">String:</span> <span id="current-string" class="font-mono text-lg">-</span>
+                            </div>
+                            <div class="mb-3">
+                                <span class="font-medium">Generated Key:</span> <span id="current-key" class="font-mono text-sm bg-gray-200 px-2 py-1 rounded">-</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium mb-2">Character Count Array (a-z):</h4>
+                                <div id="alphabet-labels" class="flex flex-wrap justify-center mb-1"></div>
+                                <div id="count-array-vis" class="flex flex-wrap justify-center"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Groups Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Anagram Groups:</h3>
+                        <div id="groups-container" class="space-y-3">
+                            <div class="text-gray-500 text-center">Groups will appear here as strings are processed...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="algorithm-states-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Algorithm States</h2>
+                    <div class="space-y-3 text-base">
+                        <div class="grid grid-cols-2 gap-x-4">
+                            <span>Status:</span> <span id="state-status" class="state-value">Ready</span>
+                            <span>Current Index:</span> <span id="state-index" class="state-value">N/A</span>
+                            <span>Current String:</span> <span id="state-string" class="state-value">N/A</span>
+                            <span>Generated Key:</span> <span id="state-key" class="state-value">N/A</span>
+                            <span>Total Groups:</span> <span id="state-groups" class="state-value">0</span>
+                            <span>Processing Step:</span> <span id="state-step" class="state-value">Initialize</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="execution-commands-card" class="card">
+                     <h2 class="text-2xl font-bold mb-4 text-center">Execution Commands</h2>
+                    <div class="flex items-center justify-center space-x-4">
+                        <button id="step-back-btn" class="control-btn" title="Step Backward">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
+                        </button>
+                        <button id="play-pause-btn" class="control-btn w-16 h-16 bg-green-500 text-white hover:bg-green-600" title="Play/Pause">
+                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 hidden" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                        </button>
+                        <button id="reset-btn" class="control-btn" title="Reset">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-8">
+            <div id="log-card" class="card">
+                <h2 class="text-2xl font-bold mb-4">Execution Log</h2>
+                <div id="log-container" class="log-container">
+                    <div class="text-gray-500">Execution log will appear here...</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        console.log('Group Anagrams visualization loaded');
+        
+        // Global variables
+        let inputArray = [];
+        let steps = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let currentCodeStep = 0;
+        
+        // Algorithm steps for code explanation
+        const algorithmSteps = [
+            {
+                title: "Input Validation",
+                description: "Check if the input array is empty. If so, return an empty result.",
+                code: `if (strs.length == 0) {
+    return new ArrayList();
+}`
+            },
+            {
+                title: "Initialize HashMap",
+                description: "Create a HashMap to store groups of anagrams using character frequency keys.",
+                code: `Map<String, List> ansMap = new HashMap<>();`
+            },
+            {
+                title: "Initialize Count Array",
+                description: "Create an array to count character frequencies for each string.",
+                code: `int[] count = new int[26];`
+            },
+            {
+                title: "Process Each String",
+                description: "For each string, reset the count array and count character frequencies.",
+                code: `for (String s : strs) {
+    Arrays.fill(count, 0);
+    for (char c : s.toCharArray()) {
+        count[c - 'a']++;
+    }
+    // Generate key...
+}`
+            },
+            {
+                title: "Generate Unique Key",
+                description: "Create a unique key from character frequencies using StringBuilder.",
+                code: `StringBuilder sb = new StringBuilder("");
+for (int i = 0; i < 26; i++) {
+    sb.append("#");
+    sb.append(count[i]);
+}
+String key = sb.toString();`
+            },
+            {
+                title: "Group by Key",
+                description: "Add the string to the appropriate group in the HashMap using the generated key.",
+                code: `if (!ansMap.containsKey(key)) {
+    ansMap.put(key, new ArrayList());
+}
+ansMap.get(key).add(s);`
+            },
+            {
+                title: "Return Result",
+                description: "Convert the HashMap values (groups) to a list and return as the final result.",
+                code: `return new ArrayList(ansMap.values());`
+            }
+        ];
+        
+        // DOM elements
+        const arrayInput = document.getElementById('array-input');
+        const runBtn = document.getElementById('run-btn');
+        const inputVis = document.getElementById('input-vis');
+        const currentStringEl = document.getElementById('current-string');
+        const currentKeyEl = document.getElementById('current-key');
+        const countArrayVis = document.getElementById('count-array-vis');
+        const alphabetLabels = document.getElementById('alphabet-labels');
+        const groupsContainer = document.getElementById('groups-container');
+        const logContainer = document.getElementById('log-container');
+        const stepBackBtn = document.getElementById('step-back-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const stepForwardBtn = document.getElementById('step-forward-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const codeStepsContainer = document.getElementById('code-steps-container');
+        const prevStepBtn = document.getElementById('prev-step-btn');
+        const nextStepBtn = document.getElementById('next-step-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        
+        // State elements
+        const stateStatus = document.getElementById('state-status');
+        const stateIndex = document.getElementById('state-index');
+        const stateString = document.getElementById('state-string');
+        const stateKey = document.getElementById('state-key');
+        const stateGroups = document.getElementById('state-groups');
+        const stateStep = document.getElementById('state-step');
+        
+        function logWithType(message, type = 'info') {
+            console.log(message);
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function log(message) {
+            logWithType(message, 'info');
+        }
+        
+        function displayCodeStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= algorithmSteps.length) return;
+            
+            currentCodeStep = stepIndex;
+            const step = algorithmSteps[stepIndex];
+            
+            codeStepsContainer.innerHTML = `
+                <div class="code-step">
+                    <div class="code-step-header">
+                        <div class="code-step-number">${stepIndex + 1}</div>
+                        <div>
+                            <div class="font-bold">Step ${stepIndex + 1}: ${step.title}</div>
+                            <div class="text-sm text-gray-600 mt-1">${step.description}</div>
+                        </div>
+                    </div>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg text-sm overflow-x-auto mt-3"><code>${step.code}</code></pre>
+                </div>
+            `;
+            
+            prevStepBtn.disabled = currentCodeStep === 0;
+            nextStepBtn.disabled = currentCodeStep === algorithmSteps.length - 1;
+        }
+        
+        function initializeAlphabetLabels() {
+            alphabetLabels.innerHTML = '';
+            for (let i = 0; i < 26; i++) {
+                const label = document.createElement('div');
+                label.className = 'alphabet-label';
+                label.textContent = String.fromCharCode(97 + i); // a-z
+                alphabetLabels.appendChild(label);
+            }
+        }
+        
+        function updateInputVisualization() {
+            inputVis.innerHTML = '';
+            
+            for (let i = 0; i < inputArray.length; i++) {
+                const element = document.createElement('div');
+                element.className = 'string-element';
+                element.textContent = inputArray[i];
+                element.id = `input-${i}`;
+                inputVis.appendChild(element);
+            }
+        }
+        
+        function updateCountArrayVisualization(counts, activeIndices = []) {
+            countArrayVis.innerHTML = '';
+            
+            for (let i = 0; i < 26; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'count-cell';
+                cell.textContent = counts[i];
+                cell.id = `count-${i}`;
+                
+                if (counts[i] > 0) {
+                    cell.classList.add('positive');
+                } else {
+                    cell.classList.add('zero');
+                }
+                
+                if (activeIndices.includes(i)) {
+                    cell.classList.add('active');
+                    cell.classList.add('animate');
+                }
+                
+                countArrayVis.appendChild(cell);
+            }
+        }
+        
+        function updateGroupsVisualization(groups, activeKey = null, newString = null) {
+            groupsContainer.innerHTML = '';
+            
+            if (Object.keys(groups).length === 0) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'text-gray-500 text-center';
+                placeholder.textContent = 'Groups will appear here as strings are processed...';
+                groupsContainer.appendChild(placeholder);
+                return;
+            }
+            
+            Object.entries(groups).forEach(([key, strings]) => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'group-container';
+                if (key === activeKey) {
+                    groupDiv.classList.add('active');
+                }
+                
+                const keyDiv = document.createElement('div');
+                keyDiv.className = 'group-key';
+                keyDiv.textContent = `Key: ${key}`;
+                groupDiv.appendChild(keyDiv);
+                
+                const stringsDiv = document.createElement('div');
+                stringsDiv.className = 'group-strings';
+                
+                strings.forEach(str => {
+                    const stringItem = document.createElement('div');
+                    stringItem.className = 'group-string-item';
+                    if (str === newString && key === activeKey) {
+                        stringItem.classList.add('new');
+                    }
+                    stringItem.textContent = str;
+                    stringsDiv.appendChild(stringItem);
+                });
+                
+                groupDiv.appendChild(stringsDiv);
+                groupsContainer.appendChild(groupDiv);
+            });
+        }
+        
+        function updateStates(index, currentString, key, groupCount, step, status) {
+            if (stateStatus) stateStatus.textContent = status;
+            if (stateIndex) stateIndex.textContent = index >= 0 ? index : 'N/A';
+            if (stateString) stateString.textContent = currentString || 'N/A';
+            if (stateKey) stateKey.textContent = key || 'N/A';
+            if (stateGroups) stateGroups.textContent = groupCount;
+            if (stateStep) stateStep.textContent = step;
+        }
+        
+        function generateKey(str) {
+            const count = new Array(26).fill(0);
+            for (let char of str) {
+                count[char.charCodeAt(0) - 97]++;
+            }
+            
+            let key = '';
+            for (let i = 0; i < 26; i++) {
+                key += '#' + count[i];
+            }
+            
+            return { key, count };
+        }
+        
+        function generateSteps() {
+            steps = [];
+            const groups = {};
+            
+            // Initial step
+            steps.push({
+                index: -1,
+                currentString: null,
+                key: null,
+                count: new Array(26).fill(0),
+                groups: {},
+                activeKey: null,
+                newString: null,
+                message: '🚀 Starting Group Anagrams algorithm...',
+                status: 'Initializing',
+                step: 'Initialize',
+                codeStep: 0,
+                activeIndices: []
+            });
+            
+            // Process each string
+            for (let i = 0; i < inputArray.length; i++) {
+                const str = inputArray[i];
+                
+                steps.push({
+                    index: i,
+                    currentString: str,
+                    key: null,
+                    count: new Array(26).fill(0),
+                    groups: { ...groups },
+                    activeKey: null,
+                    newString: null,
+                    message: `🔍 Processing string "${str}" at index ${i}`,
+                    status: 'Processing String',
+                    step: 'Count Characters',
+                    codeStep: 3,
+                    activeIndices: []
+                });
+                
+                // Generate key and count
+                const { key, count } = generateKey(str);
+                const activeIndices = [];
+                for (let j = 0; j < 26; j++) {
+                    if (count[j] > 0) activeIndices.push(j);
+                }
+                
+                steps.push({
+                    index: i,
+                    currentString: str,
+                    key: key,
+                    count: count,
+                    groups: { ...groups },
+                    activeKey: null,
+                    newString: null,
+                    message: `🔑 Generated key: "${key}" for string "${str}"`,
+                    status: 'Key Generated',
+                    step: 'Generate Key',
+                    codeStep: 4,
+                    activeIndices: activeIndices
+                });
+                
+                // Add to group
+                if (!groups[key]) {
+                    groups[key] = [];
+                }
+                groups[key].push(str);
+                
+                steps.push({
+                    index: i,
+                    currentString: str,
+                    key: key,
+                    count: count,
+                    groups: { ...groups },
+                    activeKey: key,
+                    newString: str,
+                    message: `➕ Added "${str}" to group with key "${key}"`,
+                    status: 'Added to Group',
+                    step: 'Update HashMap',
+                    codeStep: 5,
+                    activeIndices: activeIndices
+                });
+            }
+            
+            // Final step
+            steps.push({
+                index: -1,
+                currentString: null,
+                key: null,
+                count: new Array(26).fill(0),
+                groups: { ...groups },
+                activeKey: null,
+                newString: null,
+                message: `✅ Algorithm complete! Found ${Object.keys(groups).length} anagram groups`,
+                status: 'Complete',
+                step: 'Return Result',
+                codeStep: 6,
+                activeIndices: []
+            });
+            
+            return steps;
+        }
+        
+        function renderStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= steps.length) return;
+            
+            const step = steps[stepIndex];
+            
+            // Update input visualization
+            updateInputVisualization();
+            if (step.index >= 0) {
+                const inputElement = document.getElementById(`input-${step.index}`);
+                if (inputElement) {
+                    inputElement.classList.add('current');
+                }
+            }
+            
+            // Update current string analysis
+            currentStringEl.textContent = step.currentString || '-';
+            currentKeyEl.textContent = step.key || '-';
+            updateCountArrayVisualization(step.count, step.activeIndices);
+            
+            // Update groups visualization
+            updateGroupsVisualization(step.groups, step.activeKey, step.newString);
+            
+            // Update states
+            updateStates(step.index, step.currentString, step.key, Object.keys(step.groups).length, step.step, step.status);
+            
+            // Update code step
+            if (step.codeStep !== undefined) {
+                displayCodeStep(step.codeStep);
+            }
+            
+            // Log message
+            if (step.message.includes('✅')) {
+                logWithType(step.message, 'success');
+            } else if (step.message.includes('🔍')) {
+                logWithType(step.message, 'info');
+            } else if (step.message.includes('🔑')) {
+                logWithType(step.message, 'warning');
+            } else if (step.message.includes('➕')) {
+                logWithType(step.message, 'success');
+            } else {
+                logWithType(step.message, 'info');
+            }
+        }
+        
+        function runVisualization() {
+            logContainer.innerHTML = '';
+            log('🚀 Starting Group Anagrams visualization...');
+            
+            // Parse input
+            const inputStr = arrayInput.value.trim();
+            if (!inputStr) {
+                alert('Please enter an array of strings');
+                return;
+            }
+            
+            try {
+                inputArray = inputStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            } catch (e) {
+                alert('Invalid input format. Please use comma-separated strings.');
+                return;
+            }
+            
+            if (inputArray.length === 0) {
+                alert('Array must contain at least one string');
+                return;
+            }
+            
+            log(`📊 Input array: [${inputArray.map(s => `"${s}"`).join(', ')}]`);
+            
+            // Generate steps
+            generateSteps();
+            
+            // Start visualization
+            currentStep = 0;
+            renderStep(currentStep);
+            
+            logWithType(`🎯 Generated ${steps.length} steps for visualization`, 'success');
+        }
+        
+        function stepForward() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep(currentStep);
+            } else {
+                stopAnimation();
+            }
+        }
+        
+        function stepBackward() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderStep(currentStep);
+            }
+        }
+        
+        function togglePlay() {
+            if (isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        }
+        
+        function startAnimation() {
+            isPlaying = true;
+            if (playIcon && pauseIcon) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            }
+            playInterval = setInterval(stepForward, 1600);
+        }
+        
+        function stopAnimation() {
+            isPlaying = false;
+            if (playIcon && pauseIcon) {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+            clearInterval(playInterval);
+        }
+        
+        function resetVisualization() {
+            stopAnimation();
+            currentStep = 0;
+            if (steps.length > 0) {
+                renderStep(currentStep);
+            }
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, adding event listeners');
+            
+            runBtn.addEventListener('click', runVisualization);
+            stepBackBtn.addEventListener('click', stepBackward);
+            playPauseBtn.addEventListener('click', togglePlay);
+            stepForwardBtn.addEventListener('click', stepForward);
+            resetBtn.addEventListener('click', resetVisualization);
+            
+            // Algorithm step navigation
+            prevStepBtn.addEventListener('click', () => {
+                if (currentCodeStep > 0) {
+                    displayCodeStep(currentCodeStep - 1);
+                }
+            });
+            
+            nextStepBtn.addEventListener('click', () => {
+                if (currentCodeStep < algorithmSteps.length - 1) {
+                    displayCodeStep(currentCodeStep + 1);
+                }
+            });
+            
+            // Initialize display
+            initializeAlphabetLabels();
+            displayCodeStep(0);
+            updateStates(-1, null, null, 0, 'Initialize', 'Ready');
+            updateCountArrayVisualization(new Array(26).fill(0));
+            
+            // Welcome message
+            logWithType('🚀 Welcome! Enter an array of strings and click "Run Visualization" to see the Group Anagrams algorithm in action.', 'info');
+        });
+        
+        console.log('Group Anagrams script setup complete');
+    </script>
 </body>
 </html>

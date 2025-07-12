@@ -3,19 +3,947 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valid Anagram | LC 242 Visualizer</title>
+    <title>LeetCode 242: Valid Anagram</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+            color: #374151;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .log-container {
+            height: 150px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        .char-element {
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+            font-weight: 600;
+            margin: 3px;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            position: relative;
+        }
+        .char-element.current-s {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+        }
+        .char-element.current-t {
+            background-color: #fecaca;
+            border-color: #ef4444;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+        }
+        .char-element.processed {
+            background-color: #d1fae5;
+            border-color: #10b981;
+        }
+        .count-cell {
+            min-width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .count-cell.positive {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+        .count-cell.negative {
+            background-color: #fecaca;
+            border-color: #ef4444;
+            color: #dc2626;
+        }
+        .count-cell.zero {
+            background-color: #d1fae5;
+            border-color: #10b981;
+            color: #059669;
+        }
+        .count-cell.active {
+            transform: scale(1.2);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+            z-index: 10;
+        }
+        .alphabet-label {
+            min-width: 35px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .string-pointer {
+            position: absolute;
+            background-color: #ef4444;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transform: translateX(-50%);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .string-pointer::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #ef4444;
+        }
+        .string-pointer.s-pointer {
+            background-color: #f59e0b;
+        }
+        .string-pointer.s-pointer::after {
+            border-top-color: #f59e0b;
+        }
+        .code-step {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .code-step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .code-step-number {
+            flex-shrink: 0;
+            width: 2rem;
+            height: 2rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+        }
+        .log-info { color: #3b82f6; }
+        .log-success { color: #10b981; }
+        .log-warning { color: #f59e0b; }
+        .log-error { color: #ef4444; }
+        .state-value {
+            font-weight: bold;
+            color: #1f2937;
+        }
+        @keyframes pulse-positive {
+            0% { transform: scale(1.2); }
+            50% { transform: scale(1.3); background-color: #93c5fd; }
+            100% { transform: scale(1.2); }
+        }
+        @keyframes pulse-negative {
+            0% { transform: scale(1.2); }
+            50% { transform: scale(1.3); background-color: #f87171; }
+            100% { transform: scale(1.2); }
+        }
+        .count-cell.animate-positive {
+            animation: pulse-positive 0.6s ease-in-out;
+        }
+        .count-cell.animate-negative {
+            animation: pulse-negative 0.6s ease-in-out;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Valid Anagram | LC 242</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-8 rounded-lg mb-8 text-center">
+            <h1 class="text-4xl font-bold text-white">LeetCode 242: Valid Anagram</h1>
+            <p class="text-lg text-purple-100 mt-2">An Interactive Visual Explainer</p>
+            <p class="text-sm text-purple-200 mt-1">Idea By: Chetan Pachpande | Executed By: Claude</p>
+        </header>
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition">Back to Home</a>
+        </div>
+
+        <div id="problem-card" class="card">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Given two strings <code>s</code> and <code>t</code>, return <code>true</code> if <code>t</code> is an anagram of <code>s</code>, and <code>false</code> otherwise.</p>
+                <p>An <strong>Anagram</strong> is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.</p>
+                <div class="bg-gray-100 p-4 rounded-lg text-sm">
+                    <p><strong>Example 1:</strong></p>
+                    <p><strong>Input:</strong> s = "anagram", t = "nagaram"</p>
+                    <p><strong>Output:</strong> true</p>
+                    <p><strong>Explanation:</strong> Both strings contain the same characters with the same frequencies.</p>
+                    <br>
+                    <p><strong>Example 2:</strong></p>
+                    <p><strong>Input:</strong> s = "rat", t = "car"</p>
+                    <p><strong>Output:</strong> false</p>
+                    <p><strong>Explanation:</strong> Different characters: 'r','a','t' vs 'c','a','r'.</p>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Complexity Analysis</h3>
+                    <p><strong>Time Complexity:</strong> <code>O(N)</code><br><span class="text-sm text-gray-600">We iterate through both strings once. Each character operation is O(1).</span></p>
+                    <p class="mt-2"><strong>Space Complexity:</strong> <code>O(1)</code><br><span class="text-sm text-gray-600">We use a fixed-size array of 26 elements for lowercase English letters.</span></p>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Java Solution</h3>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>class Solution {
+    public boolean isAnagram(String s, String t) {
+        if (s.length() != t.length()) {
+            return false;  // Different lengths = not anagram
+        }
+        
+        int[] count = new int[26];  // Count array for a-z
+        
+        for (int i = 0; i &lt; s.length(); i++) {
+            count[s.charAt(i) - 'a']++;  // Increment for s
+            count[t.charAt(i) - 'a']--;  // Decrement for t
+        }
+        
+        for (int i = 0; i &lt; 26; i++) {
+            if (count[i] != 0) {
+                return false;  // Non-zero = different frequencies
+            }
+        }
+        
+        return true;  // All counts are zero = anagram
+    }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8 mt-8">
+
+            <!-- Left Column -->
+            <div class="lg:col-span-2">
+                <div id="intuition-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+                    <p class="mb-3">The key insight is that anagrams have <strong>identical character frequencies</strong>. We use a clever counting technique with a single array.</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><strong>Length Check:</strong> If strings have different lengths, they can't be anagrams.</li>
+                        <li><strong>Count Array:</strong> Use an array of size 26 for lowercase letters a-z.</li>
+                        <li><strong>Simultaneous Counting:</strong> For each position, increment count for string s and decrement for string t.</li>
+                        <li><strong>Balance Check:</strong> If strings are anagrams, all counts will be exactly zero.</li>
+                        <li><strong>Final Verification:</strong> Any non-zero count means different character frequencies.</li>
+                    </ol>
+                </div>
+
+                <div id="code-steps-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <div class="flex justify-between mt-6">
+                        <button id="prev-step-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">Previous</button>
+                        <button id="next-step-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-3">
+                <div id="visualization-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="string-s" class="block text-sm font-medium text-gray-700">String s</label>
+                            <input type="text" id="string-s" value="anagram" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="string-t" class="block text-sm font-medium text-gray-700">String t</label>
+                            <input type="text" id="string-t" value="nagaram" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <button id="run-btn" class="mt-2 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Run Visualization</button>
+                        </div>
+                    </div>
+
+                    <!-- String Visualizations -->
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <h3 class="font-semibold mb-2">String s:</h3>
+                            <div id="string-s-container" class="relative bg-yellow-50 p-4 rounded-lg min-h-[60px] border-2 border-yellow-200">
+                                <div id="string-s-vis" class="flex flex-wrap justify-center"></div>
+                                <div id="s-pointer" class="string-pointer s-pointer" style="display: none;">i</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">String t:</h3>
+                            <div id="string-t-container" class="relative bg-red-50 p-4 rounded-lg min-h-[60px] border-2 border-red-200">
+                                <div id="string-t-vis" class="flex flex-wrap justify-center"></div>
+                                <div id="t-pointer" class="string-pointer" style="display: none;">i</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Count Array Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Character Count Array (a-z):</h3>
+                        <div id="count-container" class="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                            <div id="alphabet-labels" class="flex flex-wrap justify-center mb-1"></div>
+                            <div id="count-array-vis" class="flex flex-wrap justify-center"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="algorithm-states-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Algorithm States</h2>
+                    <div class="space-y-3 text-base">
+                        <div class="grid grid-cols-2 gap-x-4">
+                            <span>Status:</span> <span id="state-status" class="state-value">Ready</span>
+                            <span>Current Index (i):</span> <span id="state-index" class="state-value">N/A</span>
+                            <span>Current Char in s:</span> <span id="state-char-s" class="state-value">N/A</span>
+                            <span>Current Char in t:</span> <span id="state-char-t" class="state-value">N/A</span>
+                            <span>Non-zero Counts:</span> <span id="state-nonzero" class="state-value">0</span>
+                            <span>Is Anagram:</span> <span id="state-result" class="state-value">Unknown</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="execution-commands-card" class="card">
+                     <h2 class="text-2xl font-bold mb-4 text-center">Execution Commands</h2>
+                    <div class="flex items-center justify-center space-x-4">
+                        <button id="step-back-btn" class="control-btn" title="Step Backward">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
+                        </button>
+                        <button id="play-pause-btn" class="control-btn w-16 h-16 bg-purple-500 text-white hover:bg-purple-600" title="Play/Pause">
+                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 hidden" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                        </button>
+                        <button id="reset-btn" class="control-btn" title="Reset">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-8">
+            <div id="log-card" class="card">
+                <h2 class="text-2xl font-bold mb-4">Execution Log</h2>
+                <div id="log-container" class="log-container">
+                    <div class="text-gray-500">Execution log will appear here...</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        console.log('Valid Anagram visualization loaded');
+        
+        // Global variables
+        let stringS = '';
+        let stringT = '';
+        let steps = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let currentCodeStep = 0;
+        
+        // Algorithm steps for code explanation
+        const algorithmSteps = [
+            {
+                title: "Length Check",
+                description: "First, check if both strings have the same length. Different lengths mean they can't be anagrams.",
+                code: `if (s.length() != t.length()) {
+    return false;
+}`
+            },
+            {
+                title: "Initialize Count Array",
+                description: "Create an integer array of size 26 to count frequency of each lowercase letter.",
+                code: `int[] count = new int[26];`
+            },
+            {
+                title: "Simultaneous Counting Loop",
+                description: "Iterate through both strings simultaneously, incrementing count for s and decrementing for t.",
+                code: `for (int i = 0; i < s.length(); i++) {
+    count[s.charAt(i) - 'a']++;  // +1 for s
+    count[t.charAt(i) - 'a']--;  // -1 for t
+}`
+            },
+            {
+                title: "Character Processing",
+                description: "For each character, convert to array index (a=0, b=1, ..., z=25) and update counts.",
+                code: `// Current characters
+char charS = s.charAt(i);
+char charT = t.charAt(i);
+// Update counts
+count[charS - 'a']++;
+count[charT - 'a']--;`
+            },
+            {
+                title: "Final Verification Loop",
+                description: "Check if all counts are zero. Any non-zero count means different character frequencies.",
+                code: `for (int i = 0; i < 26; i++) {
+    if (count[i] != 0) {
+        return false;
+    }
+}`
+            },
+            {
+                title: "Return Result",
+                description: "If all counts are zero, the strings are anagrams. Return true.",
+                code: `return true;  // All counts are zero`
+            }
+        ];
+        
+        // DOM elements
+        const stringSInput = document.getElementById('string-s');
+        const stringTInput = document.getElementById('string-t');
+        const runBtn = document.getElementById('run-btn');
+        const stringSVis = document.getElementById('string-s-vis');
+        const stringTVis = document.getElementById('string-t-vis');
+        const countArrayVis = document.getElementById('count-array-vis');
+        const alphabetLabels = document.getElementById('alphabet-labels');
+        const sPointer = document.getElementById('s-pointer');
+        const tPointer = document.getElementById('t-pointer');
+        const logContainer = document.getElementById('log-container');
+        const stepBackBtn = document.getElementById('step-back-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const stepForwardBtn = document.getElementById('step-forward-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const codeStepsContainer = document.getElementById('code-steps-container');
+        const prevStepBtn = document.getElementById('prev-step-btn');
+        const nextStepBtn = document.getElementById('next-step-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        
+        // State elements
+        const stateStatus = document.getElementById('state-status');
+        const stateIndex = document.getElementById('state-index');
+        const stateCharS = document.getElementById('state-char-s');
+        const stateCharT = document.getElementById('state-char-t');
+        const stateNonzero = document.getElementById('state-nonzero');
+        const stateResult = document.getElementById('state-result');
+        
+        function logWithType(message, type = 'info') {
+            console.log(message);
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function log(message) {
+            logWithType(message, 'info');
+        }
+        
+        function displayCodeStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= algorithmSteps.length) return;
+            
+            currentCodeStep = stepIndex;
+            const step = algorithmSteps[stepIndex];
+            
+            codeStepsContainer.innerHTML = `
+                <div class="code-step">
+                    <div class="code-step-header">
+                        <div class="code-step-number">${stepIndex + 1}</div>
+                        <div>
+                            <div class="font-bold">Step ${stepIndex + 1}: ${step.title}</div>
+                            <div class="text-sm text-gray-600 mt-1">${step.description}</div>
+                        </div>
+                    </div>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg text-sm overflow-x-auto mt-3"><code>${step.code}</code></pre>
+                </div>
+            `;
+            
+            prevStepBtn.disabled = currentCodeStep === 0;
+            nextStepBtn.disabled = currentCodeStep === algorithmSteps.length - 1;
+        }
+        
+        function initializeAlphabetLabels() {
+            alphabetLabels.innerHTML = '';
+            for (let i = 0; i < 26; i++) {
+                const label = document.createElement('div');
+                label.className = 'alphabet-label';
+                label.textContent = String.fromCharCode(97 + i); // a-z
+                alphabetLabels.appendChild(label);
+            }
+        }
+        
+        function updateStringVisualization(currentIndex = -1, processedIndices = []) {
+            // Update string s
+            stringSVis.innerHTML = '';
+            const sContainer = document.getElementById('string-s-container');
+            
+            for (let i = 0; i < stringS.length; i++) {
+                const element = document.createElement('div');
+                element.className = 'char-element';
+                element.textContent = stringS[i];
+                element.id = `s-char-${i}`;
+                
+                if (i === currentIndex) {
+                    element.classList.add('current-s');
+                } else if (processedIndices.includes(i)) {
+                    element.classList.add('processed');
+                }
+                
+                stringSVis.appendChild(element);
+            }
+            
+            // Update string t
+            stringTVis.innerHTML = '';
+            const tContainer = document.getElementById('string-t-container');
+            
+            for (let i = 0; i < stringT.length; i++) {
+                const element = document.createElement('div');
+                element.className = 'char-element';
+                element.textContent = stringT[i];
+                element.id = `t-char-${i}`;
+                
+                if (i === currentIndex) {
+                    element.classList.add('current-t');
+                } else if (processedIndices.includes(i)) {
+                    element.classList.add('processed');
+                }
+                
+                stringTVis.appendChild(element);
+            }
+            
+            // Position pointers
+            if (currentIndex >= 0) {
+                const sElement = document.getElementById(`s-char-${currentIndex}`);
+                const tElement = document.getElementById(`t-char-${currentIndex}`);
+                
+                if (sElement) {
+                    const rect = sElement.getBoundingClientRect();
+                    const containerRect = sContainer.getBoundingClientRect();
+                    sPointer.style.left = `${rect.left - containerRect.left + rect.width / 2}px`;
+                    sPointer.style.top = `${rect.top - containerRect.top - 30}px`;
+                    sPointer.style.display = 'block';
+                }
+                
+                if (tElement) {
+                    const rect = tElement.getBoundingClientRect();
+                    const containerRect = tContainer.getBoundingClientRect();
+                    tPointer.style.left = `${rect.left - containerRect.left + rect.width / 2}px`;
+                    tPointer.style.top = `${rect.top - containerRect.top - 30}px`;
+                    tPointer.style.display = 'block';
+                }
+            } else {
+                sPointer.style.display = 'none';
+                tPointer.style.display = 'none';
+            }
+        }
+        
+        function updateCountArrayVisualization(counts, activeIndex = -1, animationType = null) {
+            countArrayVis.innerHTML = '';
+            
+            for (let i = 0; i < 26; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'count-cell';
+                cell.textContent = counts[i];
+                cell.id = `count-${i}`;
+                
+                if (counts[i] > 0) {
+                    cell.classList.add('positive');
+                } else if (counts[i] < 0) {
+                    cell.classList.add('negative');
+                } else {
+                    cell.classList.add('zero');
+                }
+                
+                if (i === activeIndex) {
+                    cell.classList.add('active');
+                    if (animationType === 'positive') {
+                        cell.classList.add('animate-positive');
+                    } else if (animationType === 'negative') {
+                        cell.classList.add('animate-negative');
+                    }
+                }
+                
+                countArrayVis.appendChild(cell);
+            }
+        }
+        
+        function updateStates(index, charS, charT, nonZeroCount, result, status) {
+            if (stateStatus) stateStatus.textContent = status;
+            if (stateIndex) stateIndex.textContent = index >= 0 ? index : 'N/A';
+            if (stateCharS) stateCharS.textContent = charS || 'N/A';
+            if (stateCharT) stateCharT.textContent = charT || 'N/A';
+            if (stateNonzero) stateNonzero.textContent = nonZeroCount;
+            if (stateResult) stateResult.textContent = result;
+        }
+        
+        function generateSteps() {
+            steps = [];
+            
+            // Length check step
+            if (stringS.length !== stringT.length) {
+                steps.push({
+                    index: -1,
+                    charS: null,
+                    charT: null,
+                    counts: new Array(26).fill(0),
+                    processedIndices: [],
+                    activeIndex: -1,
+                    message: `❌ Length mismatch: s.length=${stringS.length}, t.length=${stringT.length}`,
+                    status: 'Length Check Failed',
+                    codeStep: 0,
+                    nonZeroCount: 0,
+                    result: 'false',
+                    animationType: null
+                });
+                return steps;
+            }
+            
+            steps.push({
+                index: -1,
+                charS: null,
+                charT: null,
+                counts: new Array(26).fill(0),
+                processedIndices: [],
+                activeIndex: -1,
+                message: `✅ Length check passed: both strings have length ${stringS.length}`,
+                status: 'Length Check Passed',
+                codeStep: 0,
+                nonZeroCount: 0,
+                result: 'Unknown',
+                animationType: null
+            });
+            
+            const counts = new Array(26).fill(0);
+            const processedIndices = [];
+            
+            // Initialize step
+            steps.push({
+                index: -1,
+                charS: null,
+                charT: null,
+                counts: [...counts],
+                processedIndices: [...processedIndices],
+                activeIndex: -1,
+                message: `🔧 Initialized count array of size 26`,
+                status: 'Initializing',
+                codeStep: 1,
+                nonZeroCount: 0,
+                result: 'Unknown',
+                animationType: null
+            });
+            
+            // Process each character
+            for (let i = 0; i < stringS.length; i++) {
+                const charS = stringS[i];
+                const charT = stringT[i];
+                const indexS = charS.charCodeAt(0) - 97; // a=0, b=1, etc.
+                const indexT = charT.charCodeAt(0) - 97;
+                
+                // Show current characters
+                steps.push({
+                    index: i,
+                    charS: charS,
+                    charT: charT,
+                    counts: [...counts],
+                    processedIndices: [...processedIndices],
+                    activeIndex: -1,
+                    message: `🔍 Processing index ${i}: s[${i}]='${charS}', t[${i}]='${charT}'`,
+                    status: 'Processing Characters',
+                    codeStep: 2,
+                    nonZeroCount: counts.filter(c => c !== 0).length,
+                    result: 'Unknown',
+                    animationType: null
+                });
+                
+                // Update count for s (increment)
+                counts[indexS]++;
+                steps.push({
+                    index: i,
+                    charS: charS,
+                    charT: charT,
+                    counts: [...counts],
+                    processedIndices: [...processedIndices],
+                    activeIndex: indexS,
+                    message: `➕ Increment count['${charS}'] = ${counts[indexS]} (from string s)`,
+                    status: 'Updating Count Array',
+                    codeStep: 3,
+                    nonZeroCount: counts.filter(c => c !== 0).length,
+                    result: 'Unknown',
+                    animationType: 'positive'
+                });
+                
+                // Update count for t (decrement)
+                counts[indexT]--;
+                steps.push({
+                    index: i,
+                    charS: charS,
+                    charT: charT,
+                    counts: [...counts],
+                    processedIndices: [...processedIndices],
+                    activeIndex: indexT,
+                    message: `➖ Decrement count['${charT}'] = ${counts[indexT]} (from string t)`,
+                    status: 'Updating Count Array',
+                    codeStep: 3,
+                    nonZeroCount: counts.filter(c => c !== 0).length,
+                    result: 'Unknown',
+                    animationType: 'negative'
+                });
+                
+                processedIndices.push(i);
+            }
+            
+            // Final verification
+            steps.push({
+                index: -1,
+                charS: null,
+                charT: null,
+                counts: [...counts],
+                processedIndices: [...processedIndices],
+                activeIndex: -1,
+                message: `🔍 Starting final verification: checking all 26 counts`,
+                status: 'Final Verification',
+                codeStep: 4,
+                nonZeroCount: counts.filter(c => c !== 0).length,
+                result: 'Unknown',
+                animationType: null
+            });
+            
+            // Check each count
+            let isAnagram = true;
+            for (let i = 0; i < 26; i++) {
+                if (counts[i] !== 0) {
+                    steps.push({
+                        index: -1,
+                        charS: null,
+                        charT: null,
+                        counts: [...counts],
+                        processedIndices: [...processedIndices],
+                        activeIndex: i,
+                        message: `❌ Found non-zero count: ${String.fromCharCode(97 + i)} = ${counts[i]}`,
+                        status: 'Non-zero Found',
+                        codeStep: 4,
+                        nonZeroCount: counts.filter(c => c !== 0).length,
+                        result: 'false',
+                        animationType: null
+                    });
+                    isAnagram = false;
+                    break;
+                }
+            }
+            
+            if (isAnagram) {
+                steps.push({
+                    index: -1,
+                    charS: null,
+                    charT: null,
+                    counts: [...counts],
+                    processedIndices: [...processedIndices],
+                    activeIndex: -1,
+                    message: `✅ All counts are zero - strings are anagrams!`,
+                    status: 'Anagram Confirmed',
+                    codeStep: 5,
+                    nonZeroCount: 0,
+                    result: 'true',
+                    animationType: null
+                });
+            }
+            
+            return steps;
+        }
+        
+        function renderStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= steps.length) return;
+            
+            const step = steps[stepIndex];
+            
+            // Update visualizations
+            updateStringVisualization(step.index, step.processedIndices);
+            updateCountArrayVisualization(step.counts, step.activeIndex, step.animationType);
+            updateStates(step.index, step.charS, step.charT, step.nonZeroCount, step.result, step.status);
+            
+            // Update code step
+            if (step.codeStep !== undefined) {
+                displayCodeStep(step.codeStep);
+            }
+            
+            // Log message
+            if (step.message.includes('❌')) {
+                logWithType(step.message, 'error');
+            } else if (step.message.includes('✅')) {
+                logWithType(step.message, 'success');
+            } else if (step.message.includes('➕') || step.message.includes('➖')) {
+                logWithType(step.message, 'warning');
+            } else if (step.message.includes('🔍')) {
+                logWithType(step.message, 'info');
+            } else {
+                logWithType(step.message, 'info');
+            }
+        }
+        
+        function runVisualization() {
+            logContainer.innerHTML = '';
+            log('🚀 Starting Valid Anagram visualization...');
+            
+            // Get input
+            stringS = stringSInput.value.trim().toLowerCase();
+            stringT = stringTInput.value.trim().toLowerCase();
+            
+            if (!stringS || !stringT) {
+                alert('Please enter both strings');
+                return;
+            }
+            
+            // Validate input
+            if (!/^[a-z]+$/.test(stringS) || !/^[a-z]+$/.test(stringT)) {
+                alert('Please enter only lowercase letters');
+                return;
+            }
+            
+            log(`📊 String s: "${stringS}"`);
+            log(`📊 String t: "${stringT}"`);
+            
+            // Generate steps
+            generateSteps();
+            
+            // Start visualization
+            currentStep = 0;
+            renderStep(currentStep);
+            
+            logWithType(`🎯 Generated ${steps.length} steps for visualization`, 'success');
+        }
+        
+        function stepForward() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep(currentStep);
+            } else {
+                stopAnimation();
+            }
+        }
+        
+        function stepBackward() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderStep(currentStep);
+            }
+        }
+        
+        function togglePlay() {
+            if (isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        }
+        
+        function startAnimation() {
+            isPlaying = true;
+            if (playIcon && pauseIcon) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            }
+            playInterval = setInterval(stepForward, 1400);
+        }
+        
+        function stopAnimation() {
+            isPlaying = false;
+            if (playIcon && pauseIcon) {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+            clearInterval(playInterval);
+        }
+        
+        function resetVisualization() {
+            stopAnimation();
+            currentStep = 0;
+            if (steps.length > 0) {
+                renderStep(currentStep);
+            }
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, adding event listeners');
+            
+            runBtn.addEventListener('click', runVisualization);
+            stepBackBtn.addEventListener('click', stepBackward);
+            playPauseBtn.addEventListener('click', togglePlay);
+            stepForwardBtn.addEventListener('click', stepForward);
+            resetBtn.addEventListener('click', resetVisualization);
+            
+            // Algorithm step navigation
+            prevStepBtn.addEventListener('click', () => {
+                if (currentCodeStep > 0) {
+                    displayCodeStep(currentCodeStep - 1);
+                }
+            });
+            
+            nextStepBtn.addEventListener('click', () => {
+                if (currentCodeStep < algorithmSteps.length - 1) {
+                    displayCodeStep(currentCodeStep + 1);
+                }
+            });
+            
+            // Initialize display
+            initializeAlphabetLabels();
+            displayCodeStep(0);
+            updateStates(-1, null, null, 0, 'Unknown', 'Ready');
+            updateCountArrayVisualization(new Array(26).fill(0));
+            
+            // Welcome message
+            logWithType('🚀 Welcome! Enter two strings and click "Run Visualization" to see the Valid Anagram algorithm in action.', 'info');
+        });
+        
+        console.log('Valid Anagram script setup complete');
+    </script>
 </body>
 </html>

@@ -7,15 +7,602 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Container With Most Water | LC 11</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+    <div class="container mx-auto p-8">
+        <!-- Header -->
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold text-center mb-2">Container With Most Water | LC 11</h1>
+            <p class="text-center text-gray-600 mb-4">Two-Pointers Algorithm Visualization</p>
+            <div class="text-center">
+                <a href="../../index.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">Back to Home</a>
+                <a href="../index.html" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Two-Pointers Category</a>
+            </div>
+        </header>
+
+        <!-- Problem Description -->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <p class="mb-4">
+                You are given an integer array <code class="bg-gray-200 px-2 py-1 rounded">height</code> of length <code class="bg-gray-200 px-2 py-1 rounded">n</code>. 
+                There are <code class="bg-gray-200 px-2 py-1 rounded">n</code> vertical lines drawn such that the two endpoints of the 
+                <code class="bg-gray-200 px-2 py-1 rounded">i<sup>th</sup></code> line are <code class="bg-gray-200 px-2 py-1 rounded">(i, 0)</code> 
+                and <code class="bg-gray-200 px-2 py-1 rounded">(i, height[i])</code>.
+            </p>
+            <p class="mb-4">
+                Find two lines that together with the x-axis form a container that can hold the most water.
+            </p>
+            <p class="font-semibold">Return the maximum amount of water a container can store.</p>
+            
+            <div class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
+                <p class="font-semibold">Note:</p>
+                <p>You may not slant the container.</p>
+            </div>
+        </section>
+
+        <!-- Controls -->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-bold mb-4">Controls</h2>
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button id="playPauseBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">▶ Play</button>
+                <button id="stepBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Step Forward</button>
+                <button id="resetBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Reset</button>
+                <select id="speedSelect" class="border px-3 py-2 rounded">
+                    <option value="1000">Slow</option>
+                    <option value="500" selected>Normal</option>
+                    <option value="250">Fast</option>
+                </select>
+            </div>
+            
+            <!-- Sample Inputs -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Sample Inputs:</label>
+                <div class="flex flex-wrap gap-2">
+                    <button class="sample-input bg-purple-100 border border-purple-300 px-3 py-2 rounded hover:bg-purple-200" 
+                            data-input="[1,8,6,2,5,4,8,3,7]">Example 1: [1,8,6,2,5,4,8,3,7]</button>
+                    <button class="sample-input bg-purple-100 border border-purple-300 px-3 py-2 rounded hover:bg-purple-200" 
+                            data-input="[1,1]">Example 2: [1,1]</button>
+                    <button class="sample-input bg-purple-100 border border-purple-300 px-3 py-2 rounded hover:bg-purple-200" 
+                            data-input="[4,3,2,1,4]">Example 3: [4,3,2,1,4]</button>
+                    <button class="sample-input bg-purple-100 border border-purple-300 px-3 py-2 rounded hover:bg-purple-200" 
+                            data-input="[1,2,1]">Example 4: [1,2,1]</button>
+                </div>
+            </div>
+            
+            <!-- Custom Input -->
+            <div class="mb-4">
+                <label for="arrayInput" class="block text-sm font-medium mb-2">Custom Input (comma-separated):</label>
+                <div class="flex gap-2">
+                    <input type="text" id="arrayInput" placeholder="e.g., 1,8,6,2,5,4,8,3,7" 
+                           class="flex-1 border px-3 py-2 rounded">
+                    <button id="setInputBtn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Set Input</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visualization -->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-bold mb-4">Visualization</h2>
+            <div id="visualizationContainer" class="border-2 border-gray-300 p-4 min-h-96 bg-gray-50 rounded">
+                <svg id="containerSvg" width="100%" height="400" class="border rounded"></svg>
+            </div>
+        </section>
+
+        <!-- Algorithm State -->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-bold mb-4">Algorithm State</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-blue-50 p-4 rounded">
+                    <div class="text-sm text-gray-600">Left Pointer</div>
+                    <div id="leftPointer" class="text-xl font-bold text-blue-600">0</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded">
+                    <div class="text-sm text-gray-600">Right Pointer</div>
+                    <div id="rightPointer" class="text-xl font-bold text-green-600">0</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded">
+                    <div class="text-sm text-gray-600">Current Area</div>
+                    <div id="currentArea" class="text-xl font-bold text-purple-600">0</div>
+                </div>
+                <div class="bg-red-50 p-4 rounded">
+                    <div class="text-sm text-gray-600">Max Area</div>
+                    <div id="maxArea" class="text-xl font-bold text-red-600">0</div>
+                </div>
+            </div>
+            
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-yellow-50 p-4 rounded">
+                    <div class="text-sm text-gray-600">Width</div>
+                    <div id="currentWidth" class="text-xl font-bold text-yellow-600">0</div>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded">
+                    <div class="text-sm text-gray-600">Height (min)</div>
+                    <div id="currentHeight" class="text-xl font-bold text-indigo-600">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step Explanation -->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-bold mb-4">Step-by-Step Explanation</h2>
+            <div id="stepExplanation" class="text-lg p-4 bg-gray-50 rounded border">
+                Click "Play" or "Step Forward" to see the algorithm in action!
+            </div>
+        </section>
+
+        <!-- Code Explanation -->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-bold mb-4">Algorithm Explanation</h2>
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-2">Two-Pointers Approach:</h3>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                    <li>Initialize two pointers: left at the beginning and right at the end</li>
+                    <li>Calculate the area between the two pointers: min(height[left], height[right]) × (right - left)</li>
+                    <li>Keep track of the maximum area seen so far</li>
+                    <li>Move the pointer with the smaller height inward (this maximizes potential for larger area)</li>
+                    <li>Repeat until the pointers meet</li>
+                </ol>
+            </div>
+            
+            <div class="bg-gray-100 p-4 rounded">
+                <h4 class="font-semibold mb-2">Why move the pointer with smaller height?</h4>
+                <p class="text-gray-700">
+                    If we move the pointer with the larger height, the width decreases and the height is limited by 
+                    the smaller height, so the area can only decrease. Moving the smaller height pointer gives us 
+                    a chance to find a taller line that could increase the area.
+                </p>
+            </div>
+        </section>
+
+        <!-- Code Display -->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-bold mb-4">Code Implementation</h2>
+            <pre class="bg-gray-900 text-green-400 p-4 rounded overflow-x-auto"><code>public int maxArea(int[] height) {
+    int left = 0;
+    int right = height.length - 1;
+    int maxArea = 0;
+    
+    while (left < right) {
+        // Calculate current area
+        int width = right - left;
+        int minHeight = Math.min(height[left], height[right]);
+        int currentArea = width * minHeight;
+        
+        // Update maximum area
+        maxArea = Math.max(maxArea, currentArea);
+        
+        // Move the pointer with smaller height
+        if (height[left] < height[right]) {
+            left++;
+        } else {
+            right--;
+        }
+    }
+    
+    return maxArea;
+}</code></pre>
+        </section>
+
+        <!-- Complexity Analysis -->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-bold mb-4">Complexity Analysis</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Time Complexity</h3>
+                    <p class="text-2xl font-bold text-blue-600 mb-2">O(n)</p>
+                    <p class="text-gray-700">We visit each element at most once with the two pointers.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Space Complexity</h3>
+                    <p class="text-2xl font-bold text-green-600 mb-2">O(1)</p>
+                    <p class="text-gray-700">Only a constant amount of extra space is used.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Execution Log -->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-bold mb-4">Execution Log</h2>
+            <div id="executionLog" class="bg-gray-50 p-4 rounded border max-h-64 overflow-y-auto font-mono text-sm">
+                <div class="text-gray-500">Algorithm execution will be logged here...</div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        class ContainerVisualization {
+            constructor() {
+                this.array = [1, 8, 6, 2, 5, 4, 8, 3, 7];
+                this.left = 0;
+                this.right = this.array.length - 1;
+                this.maxArea = 0;
+                this.currentArea = 0;
+                this.step = 0;
+                this.isPlaying = false;
+                this.speed = 500;
+                this.steps = [];
+                this.currentStepIndex = 0;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.generateSteps();
+                this.renderVisualization();
+                this.updateDisplay();
+            }
+            
+            initializeElements() {
+                this.svg = document.getElementById('containerSvg');
+                this.playPauseBtn = document.getElementById('playPauseBtn');
+                this.stepBtn = document.getElementById('stepBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.speedSelect = document.getElementById('speedSelect');
+                this.arrayInput = document.getElementById('arrayInput');
+                this.setInputBtn = document.getElementById('setInputBtn');
+                
+                this.leftPointerDisplay = document.getElementById('leftPointer');
+                this.rightPointerDisplay = document.getElementById('rightPointer');
+                this.currentAreaDisplay = document.getElementById('currentArea');
+                this.maxAreaDisplay = document.getElementById('maxArea');
+                this.currentWidthDisplay = document.getElementById('currentWidth');
+                this.currentHeightDisplay = document.getElementById('currentHeight');
+                this.stepExplanation = document.getElementById('stepExplanation');
+                this.executionLog = document.getElementById('executionLog');
+            }
+            
+            setupEventListeners() {
+                this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+                this.stepBtn.addEventListener('click', () => this.stepForward());
+                this.resetBtn.addEventListener('click', () => this.reset());
+                this.speedSelect.addEventListener('change', (e) => {
+                    this.speed = parseInt(e.target.value);
+                });
+                this.setInputBtn.addEventListener('click', () => this.setCustomInput());
+                
+                document.querySelectorAll('.sample-input').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const input = e.target.dataset.input;
+                        this.arrayInput.value = input.slice(1, -1); // Remove brackets
+                        this.setCustomInput();
+                    });
+                });
+            }
+            
+            setCustomInput() {
+                const input = this.arrayInput.value.trim();
+                if (!input) return;
+                
+                try {
+                    const newArray = input.split(',').map(num => parseInt(num.trim()));
+                    if (newArray.some(isNaN) || newArray.length < 2) {
+                        alert('Please enter at least 2 valid numbers separated by commas.');
+                        return;
+                    }
+                    
+                    this.array = newArray;
+                    this.reset();
+                } catch (error) {
+                    alert('Invalid input format. Please use comma-separated numbers.');
+                }
+            }
+            
+            generateSteps() {
+                this.steps = [];
+                let left = 0;
+                let right = this.array.length - 1;
+                let maxArea = 0;
+                
+                // Initial state
+                this.steps.push({
+                    left: left,
+                    right: right,
+                    maxArea: maxArea,
+                    currentArea: 0,
+                    width: right - left,
+                    height: 0,
+                    explanation: "Initialize two pointers: left at start, right at end",
+                    action: "initialization"
+                });
+                
+                while (left < right) {
+                    const width = right - left;
+                    const height = Math.min(this.array[left], this.array[right]);
+                    const currentArea = width * height;
+                    const newMaxArea = Math.max(maxArea, currentArea);
+                    const isNewMax = newMaxArea > maxArea;
+                    maxArea = newMaxArea;
+                    
+                    this.steps.push({
+                        left: left,
+                        right: right,
+                        maxArea: maxArea,
+                        currentArea: currentArea,
+                        width: width,
+                        height: height,
+                        explanation: `Calculate area: min(${this.array[left]}, ${this.array[right]}) × ${width} = ${currentArea}${isNewMax ? ' (New Maximum!)' : ''}`,
+                        action: "calculate",
+                        isNewMax: isNewMax
+                    });
+                    
+                    if (this.array[left] < this.array[right]) {
+                        this.steps.push({
+                            left: left,
+                            right: right,
+                            maxArea: maxArea,
+                            currentArea: currentArea,
+                            width: width,
+                            height: height,
+                            explanation: `height[${left}] = ${this.array[left]} < height[${right}] = ${this.array[right]}, move left pointer`,
+                            action: "move_left"
+                        });
+                        left++;
+                    } else {
+                        this.steps.push({
+                            left: left,
+                            right: right,
+                            maxArea: maxArea,
+                            currentArea: currentArea,
+                            width: width,
+                            height: height,
+                            explanation: `height[${left}] = ${this.array[left]} >= height[${right}] = ${this.array[right]}, move right pointer`,
+                            action: "move_right"
+                        });
+                        right--;
+                    }
+                }
+                
+                this.steps.push({
+                    left: left,
+                    right: right,
+                    maxArea: maxArea,
+                    currentArea: 0,
+                    width: 0,
+                    height: 0,
+                    explanation: `Algorithm complete! Maximum area found: ${maxArea}`,
+                    action: "complete"
+                });
+            }
+            
+            renderVisualization() {
+                const svg = this.svg;
+                const svgRect = svg.getBoundingClientRect();
+                const width = svgRect.width || 800;
+                const height = 350;
+                
+                svg.innerHTML = '';
+                svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+                
+                if (this.array.length === 0) return;
+                
+                const maxHeight = Math.max(...this.array);
+                const barWidth = Math.min(50, (width - 100) / this.array.length);
+                const chartHeight = height - 100;
+                const chartY = 50;
+                
+                // Draw bars
+                this.array.forEach((val, i) => {
+                    const x = 50 + i * barWidth;
+                    const barHeight = (val / maxHeight) * chartHeight;
+                    const y = chartY + chartHeight - barHeight;
+                    
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('x', x);
+                    rect.setAttribute('y', y);
+                    rect.setAttribute('width', barWidth - 2);
+                    rect.setAttribute('height', barHeight);
+                    rect.setAttribute('fill', '#e5e7eb');
+                    rect.setAttribute('stroke', '#9ca3af');
+                    rect.setAttribute('stroke-width', '1');
+                    rect.id = `bar-${i}`;
+                    svg.appendChild(rect);
+                    
+                    // Add height labels
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', x + barWidth / 2);
+                    text.setAttribute('y', y - 5);
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('font-size', '12');
+                    text.setAttribute('fill', '#374151');
+                    text.textContent = val;
+                    svg.appendChild(text);
+                    
+                    // Add index labels
+                    const indexText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    indexText.setAttribute('x', x + barWidth / 2);
+                    indexText.setAttribute('y', chartY + chartHeight + 20);
+                    indexText.setAttribute('text-anchor', 'middle');
+                    indexText.setAttribute('font-size', '12');
+                    indexText.setAttribute('fill', '#6b7280');
+                    indexText.textContent = i;
+                    svg.appendChild(indexText);
+                });
+                
+                // Container area rectangle (will be updated in updateVisualization)
+                const container = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                container.id = 'container-rect';
+                container.setAttribute('fill', 'rgba(59, 130, 246, 0.3)');
+                container.setAttribute('stroke', '#3b82f6');
+                container.setAttribute('stroke-width', '2');
+                container.style.display = 'none';
+                svg.appendChild(container);
+                
+                // Pointer indicators
+                const leftPointer = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                leftPointer.id = 'left-pointer';
+                leftPointer.setAttribute('fill', '#ef4444');
+                svg.appendChild(leftPointer);
+                
+                const rightPointer = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                rightPointer.id = 'right-pointer';
+                rightPointer.setAttribute('fill', '#10b981');
+                svg.appendChild(rightPointer);
+                
+                this.updateVisualization();
+            }
+            
+            updateVisualization() {
+                if (this.currentStepIndex >= this.steps.length) return;
+                
+                const currentStep = this.steps[this.currentStepIndex];
+                const svg = this.svg;
+                const svgRect = svg.getBoundingClientRect();
+                const width = svgRect.width || 800;
+                const height = 350;
+                const maxHeight = Math.max(...this.array);
+                const barWidth = Math.min(50, (width - 100) / this.array.length);
+                const chartHeight = height - 100;
+                const chartY = 50;
+                
+                // Reset bar colors
+                this.array.forEach((_, i) => {
+                    const bar = document.getElementById(`bar-${i}`);
+                    if (bar) {
+                        bar.setAttribute('fill', '#e5e7eb');
+                        bar.setAttribute('stroke', '#9ca3af');
+                    }
+                });
+                
+                // Highlight current pointers
+                if (currentStep.left < this.array.length) {
+                    const leftBar = document.getElementById(`bar-${currentStep.left}`);
+                    if (leftBar) {
+                        leftBar.setAttribute('fill', '#fecaca');
+                        leftBar.setAttribute('stroke', '#ef4444');
+                        leftBar.setAttribute('stroke-width', '2');
+                    }
+                }
+                
+                if (currentStep.right < this.array.length) {
+                    const rightBar = document.getElementById(`bar-${currentStep.right}`);
+                    if (rightBar) {
+                        rightBar.setAttribute('fill', '#bbf7d0');
+                        rightBar.setAttribute('stroke', '#10b981');
+                        rightBar.setAttribute('stroke-width', '2');
+                    }
+                }
+                
+                // Update container rectangle
+                const containerRect = document.getElementById('container-rect');
+                if (containerRect && currentStep.left < currentStep.right) {
+                    const leftX = 50 + currentStep.left * barWidth;
+                    const rightX = 50 + currentStep.right * barWidth;
+                    const containerWidth = rightX - leftX + barWidth - 2;
+                    const containerHeight = (currentStep.height / maxHeight) * chartHeight;
+                    const containerY = chartY + chartHeight - containerHeight;
+                    
+                    containerRect.setAttribute('x', leftX);
+                    containerRect.setAttribute('y', containerY);
+                    containerRect.setAttribute('width', containerWidth);
+                    containerRect.setAttribute('height', containerHeight);
+                    containerRect.style.display = currentStep.action === 'calculate' ? 'block' : 'none';
+                } else if (containerRect) {
+                    containerRect.style.display = 'none';
+                }
+                
+                // Update pointer arrows
+                const leftPointer = document.getElementById('left-pointer');
+                const rightPointer = document.getElementById('right-pointer');
+                
+                if (leftPointer && currentStep.left < this.array.length) {
+                    const x = 50 + currentStep.left * barWidth + barWidth / 2;
+                    const y = chartY + chartHeight + 35;
+                    leftPointer.setAttribute('points', `${x},${y} ${x-8},${y+15} ${x+8},${y+15}`);
+                }
+                
+                if (rightPointer && currentStep.right < this.array.length) {
+                    const x = 50 + currentStep.right * barWidth + barWidth / 2;
+                    const y = chartY + chartHeight + 35;
+                    rightPointer.setAttribute('points', `${x},${y} ${x-8},${y+15} ${x+8},${y+15}`);
+                }
+            }
+            
+            updateDisplay() {
+                if (this.currentStepIndex >= this.steps.length) return;
+                
+                const currentStep = this.steps[this.currentStepIndex];
+                
+                this.leftPointerDisplay.textContent = currentStep.left;
+                this.rightPointerDisplay.textContent = currentStep.right;
+                this.currentAreaDisplay.textContent = currentStep.currentArea;
+                this.maxAreaDisplay.textContent = currentStep.maxArea;
+                this.currentWidthDisplay.textContent = currentStep.width;
+                this.currentHeightDisplay.textContent = currentStep.height;
+                
+                this.stepExplanation.innerHTML = `
+                    <strong>Step ${this.currentStepIndex + 1}:</strong> ${currentStep.explanation}
+                `;
+                
+                if (currentStep.isNewMax) {
+                    this.stepExplanation.className = 'text-lg p-4 bg-green-100 rounded border border-green-300';
+                } else {
+                    this.stepExplanation.className = 'text-lg p-4 bg-gray-50 rounded border';
+                }
+                
+                // Update execution log
+                const logEntry = document.createElement('div');
+                logEntry.className = 'mb-1';
+                logEntry.innerHTML = `
+                    <span class="text-gray-500">[${this.currentStepIndex + 1}]</span> 
+                    <span class="text-blue-600">L=${currentStep.left}</span> 
+                    <span class="text-green-600">R=${currentStep.right}</span> 
+                    <span class="text-purple-600">Area=${currentStep.currentArea}</span> 
+                    <span class="text-red-600">Max=${currentStep.maxArea}</span>
+                    ${currentStep.isNewMax ? '<span class="text-green-600 font-bold">NEW MAX!</span>' : ''}
+                `;
+                this.executionLog.appendChild(logEntry);
+                this.executionLog.scrollTop = this.executionLog.scrollHeight;
+            }
+            
+            stepForward() {
+                if (this.currentStepIndex < this.steps.length - 1) {
+                    this.currentStepIndex++;
+                    this.updateVisualization();
+                    this.updateDisplay();
+                }
+                
+                if (this.currentStepIndex >= this.steps.length - 1) {
+                    this.isPlaying = false;
+                    this.playPauseBtn.textContent = '▶ Play';
+                }
+            }
+            
+            togglePlayPause() {
+                this.isPlaying = !this.isPlaying;
+                this.playPauseBtn.textContent = this.isPlaying ? '⏸ Pause' : '▶ Play';
+                
+                if (this.isPlaying) {
+                    this.play();
+                }
+            }
+            
+            play() {
+                if (!this.isPlaying || this.currentStepIndex >= this.steps.length - 1) {
+                    this.isPlaying = false;
+                    this.playPauseBtn.textContent = '▶ Play';
+                    return;
+                }
+                
+                setTimeout(() => {
+                    this.stepForward();
+                    this.play();
+                }, this.speed);
+            }
+            
+            reset() {
+                this.isPlaying = false;
+                this.currentStepIndex = 0;
+                this.playPauseBtn.textContent = '▶ Play';
+                
+                this.generateSteps();
+                this.renderVisualization();
+                this.updateDisplay();
+                
+                // Clear execution log
+                this.executionLog.innerHTML = '<div class="text-gray-500">Algorithm execution will be logged here...</div>';
+            }
+        }
+        
+        // Initialize visualization when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.containerViz = new ContainerVisualization();
+        });
+    </script>
 </body>
 </html>

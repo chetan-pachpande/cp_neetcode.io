@@ -3,19 +3,655 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Longest Consecutive Sequence | LC 128 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Longest Consecutive Sequence - LeetCode 128</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .problem-description {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .visualization-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .array-section {
+            flex: 1;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        .array-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .array-element {
+            min-width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9ecef;
+            border: 2px solid #adb5bd;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .array-element.current {
+            background-color: #ffc107;
+            border-color: #ff9800;
+            transform: scale(1.1);
+        }
+        .array-element.in-sequence {
+            background-color: #28a745;
+            border-color: #1e7e34;
+            color: white;
+        }
+        .array-element.checked {
+            background-color: #6c757d;
+            border-color: #495057;
+            color: white;
+        }
+        .hashset-section {
+            flex: 1;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        .hashset-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .hashset-element {
+            min-width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #17a2b8;
+            border: 2px solid #138496;
+            border-radius: 8px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .hashset-element.highlight {
+            background-color: #dc3545;
+            border-color: #c82333;
+            transform: scale(1.1);
+        }
+        .sequence-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .sequence-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .sequence-element {
+            min-width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #6f42c1;
+            border: 2px solid #5a2d91;
+            border-radius: 8px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .sequence-element.new {
+            background-color: #fd7e14;
+            border-color: #dc6545;
+            animation: bounce 0.5s ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .play-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .play-btn:hover {
+            background-color: #218838;
+        }
+        .pause-btn {
+            background-color: #ffc107;
+            color: black;
+        }
+        .pause-btn:hover {
+            background-color: #e0a800;
+        }
+        .reset-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .reset-btn:hover {
+            background-color: #c82333;
+        }
+        .step-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .step-btn:hover {
+            background-color: #138496;
+        }
+        .algorithm-steps {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .step {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #dee2e6;
+        }
+        .step.active {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        .step.completed {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+        }
+        .state-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        .sample-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .sample-input {
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .sample-input:hover {
+            background-color: #5a6268;
+        }
+        .complexity-info {
+            background-color: #d1ecf1;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #17a2b8;
+            margin-bottom: 20px;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid #adb5bd;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Longest Consecutive Sequence | LC 128</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body>
+    <div class="container">
+        <h1>Longest Consecutive Sequence - LeetCode 128</h1>
+        
+        <div class="problem-description">
+            <h3>Problem Description:</h3>
+            <p>Given an unsorted array of integers <code>nums</code>, return the length of the longest consecutive elements sequence.</p>
+            <p>You must write an algorithm that runs in <code>O(n)</code> time complexity.</p>
+            <p><strong>Example:</strong> Input: nums = [100,4,200,1,3,2] → Output: 4 (sequence: [1,2,3,4])</p>
+        </div>
+
+        <div class="complexity-info">
+            <h4>Algorithm Complexity:</h4>
+            <p><strong>Time Complexity:</strong> O(n) - Each element is visited at most twice</p>
+            <p><strong>Space Complexity:</strong> O(n) - HashSet to store all elements</p>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e9ecef; border-color: #adb5bd;"></div>
+                <span>Unprocessed</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ffc107; border-color: #ff9800;"></div>
+                <span>Current Element</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #28a745; border-color: #1e7e34;"></div>
+                <span>In Current Sequence</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #6c757d; border-color: #495057;"></div>
+                <span>Processed</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #17a2b8; border-color: #138496;"></div>
+                <span>In HashSet</span>
+            </div>
+        </div>
+
+        <div class="sample-inputs">
+            <button class="sample-input" onclick="loadSample([100,4,200,1,3,2])">Sample 1: [100,4,200,1,3,2]</button>
+            <button class="sample-input" onclick="loadSample([0,3,7,2,5,8,4,6,0,1])">Sample 2: [0,3,7,2,5,8,4,6,0,1]</button>
+            <button class="sample-input" onclick="loadSample([1,2,0,1])">Sample 3: [1,2,0,1]</button>
+            <button class="sample-input" onclick="loadSample([9,1,4,7,3,-1,0,5,8,-1,6])">Sample 4: [9,1,4,7,3,-1,0,5,8,-1,6]</button>
+        </div>
+
+        <div class="visualization-container">
+            <div class="array-section">
+                <h3>Input Array</h3>
+                <div class="array-container" id="arrayContainer"></div>
+            </div>
+            <div class="hashset-section">
+                <h3>HashSet</h3>
+                <div class="hashset-container" id="hashsetContainer"></div>
+            </div>
+        </div>
+
+        <div class="sequence-section">
+            <h3>Current Sequence</h3>
+            <div class="sequence-container" id="sequenceContainer"></div>
+            <div class="state-info" id="stateInfo"></div>
+        </div>
+
+        <div class="controls">
+            <button class="play-btn" id="playBtn" onclick="playAnimation()">Play</button>
+            <button class="pause-btn" id="pauseBtn" onclick="pauseAnimation()" style="display: none;">Pause</button>
+            <button class="step-btn" onclick="stepForward()">Step Forward</button>
+            <button class="step-btn" onclick="stepBackward()">Step Backward</button>
+            <button class="reset-btn" onclick="resetAnimation()">Reset</button>
+        </div>
+
+        <div class="algorithm-steps">
+            <h3>Algorithm Steps:</h3>
+            <div class="step" id="step0">1. Create HashSet and add all elements from array</div>
+            <div class="step" id="step1">2. For each element, check if it's the start of a sequence (num-1 not in set)</div>
+            <div class="step" id="step2">3. If start of sequence, count consecutive numbers (num+1, num+2, ...)</div>
+            <div class="step" id="step3">4. Update maximum sequence length if current sequence is longer</div>
+            <div class="step" id="step4">5. Return the maximum sequence length found</div>
+        </div>
+    </div>
+
+    <script>
+        let nums = [100, 4, 200, 1, 3, 2];
+        let numSet = new Set();
+        let currentIndex = 0;
+        let currentSequence = [];
+        let maxLength = 0;
+        let currentLength = 0;
+        let isPlaying = false;
+        let animationId = null;
+        let step = 0;
+        let sequenceStart = 0;
+        let steps = [];
+
+        function loadSample(sampleNums) {
+            nums = [...sampleNums];
+            resetAnimation();
+        }
+
+        function initializeVisualization() {
+            // Create steps for animation
+            steps = [];
+            
+            // Step 1: Create HashSet
+            steps.push({
+                type: 'init',
+                description: 'Initialize HashSet with all elements'
+            });
+            
+            // Step 2: Process each element
+            for (let i = 0; i < nums.length; i++) {
+                const num = nums[i];
+                
+                // Check if it's start of sequence
+                steps.push({
+                    type: 'check_start',
+                    index: i,
+                    value: num,
+                    description: `Check if ${num} is start of sequence (${num-1} not in set)`
+                });
+                
+                if (!numSet.has(num - 1)) {
+                    // Start of sequence - count consecutive numbers
+                    let currentNum = num;
+                    let length = 0;
+                    
+                    while (numSet.has(currentNum)) {
+                        steps.push({
+                            type: 'sequence_element',
+                            index: i,
+                            value: currentNum,
+                            length: length + 1,
+                            description: `Found ${currentNum} in sequence, length = ${length + 1}`
+                        });
+                        currentNum++;
+                        length++;
+                    }
+                    
+                    steps.push({
+                        type: 'sequence_complete',
+                        index: i,
+                        startValue: num,
+                        length: length,
+                        description: `Sequence starting at ${num} has length ${length}`
+                    });
+                }
+            }
+            
+            updateVisualization();
+        }
+
+        function updateVisualization() {
+            updateArrayDisplay();
+            updateHashSetDisplay();
+            updateSequenceDisplay();
+            updateStateInfo();
+            updateSteps();
+        }
+
+        function updateArrayDisplay() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            nums.forEach((num, index) => {
+                const element = document.createElement('div');
+                element.className = 'array-element';
+                element.textContent = num;
+                
+                if (step > 0 && steps[step-1]) {
+                    const currentStep = steps[step-1];
+                    if (currentStep.index === index) {
+                        element.classList.add('current');
+                    }
+                    if (currentStep.type === 'sequence_element' && currentSequence.includes(num)) {
+                        element.classList.add('in-sequence');
+                    }
+                    if (index < currentIndex) {
+                        element.classList.add('checked');
+                    }
+                }
+                
+                container.appendChild(element);
+            });
+        }
+
+        function updateHashSetDisplay() {
+            const container = document.getElementById('hashsetContainer');
+            container.innerHTML = '';
+            
+            const uniqueNums = [...numSet].sort((a, b) => a - b);
+            uniqueNums.forEach(num => {
+                const element = document.createElement('div');
+                element.className = 'hashset-element';
+                element.textContent = num;
+                
+                if (step > 0 && steps[step-1]) {
+                    const currentStep = steps[step-1];
+                    if (currentStep.type === 'check_start' && currentStep.value === num) {
+                        element.classList.add('highlight');
+                    }
+                    if (currentStep.type === 'sequence_element' && currentStep.value === num) {
+                        element.classList.add('highlight');
+                    }
+                }
+                
+                container.appendChild(element);
+            });
+        }
+
+        function updateSequenceDisplay() {
+            const container = document.getElementById('sequenceContainer');
+            container.innerHTML = '';
+            
+            currentSequence.forEach((num, index) => {
+                const element = document.createElement('div');
+                element.className = 'sequence-element';
+                element.textContent = num;
+                
+                if (step > 0 && steps[step-1] && steps[step-1].type === 'sequence_element') {
+                    if (index === currentSequence.length - 1) {
+                        element.classList.add('new');
+                    }
+                }
+                
+                container.appendChild(element);
+            });
+        }
+
+        function updateStateInfo() {
+            const stateInfo = document.getElementById('stateInfo');
+            
+            if (step === 0) {
+                stateInfo.innerHTML = `
+                    <strong>Algorithm State:</strong><br>
+                    Input Array: [${nums.join(', ')}]<br>
+                    HashSet: {${[...numSet].sort((a,b) => a-b).join(', ')}}<br>
+                    Current Sequence: []<br>
+                    Max Length: ${maxLength}
+                `;
+            } else if (step > 0 && steps[step-1]) {
+                const currentStep = steps[step-1];
+                stateInfo.innerHTML = `
+                    <strong>Algorithm State:</strong><br>
+                    Current Element: ${currentStep.value || 'N/A'}<br>
+                    Current Sequence: [${currentSequence.join(', ')}]<br>
+                    Current Length: ${currentLength}<br>
+                    Max Length: ${maxLength}<br>
+                    <strong>Action:</strong> ${currentStep.description}
+                `;
+            }
+        }
+
+        function updateSteps() {
+            for (let i = 0; i < 5; i++) {
+                const stepElement = document.getElementById(`step${i}`);
+                stepElement.classList.remove('active', 'completed');
+                
+                if (step === 0 && i === 0) {
+                    stepElement.classList.add('active');
+                } else if (step > 0 && steps[step-1]) {
+                    const currentStep = steps[step-1];
+                    if (currentStep.type === 'init' && i === 0) {
+                        stepElement.classList.add('completed');
+                    } else if (currentStep.type === 'check_start' && i === 1) {
+                        stepElement.classList.add('active');
+                    } else if (currentStep.type === 'sequence_element' && i === 2) {
+                        stepElement.classList.add('active');
+                    } else if (currentStep.type === 'sequence_complete' && i === 3) {
+                        stepElement.classList.add('active');
+                    } else if (i < 4) {
+                        stepElement.classList.add('completed');
+                    }
+                }
+            }
+        }
+
+        function playAnimation() {
+            if (!isPlaying) {
+                isPlaying = true;
+                document.getElementById('playBtn').style.display = 'none';
+                document.getElementById('pauseBtn').style.display = 'inline-block';
+                
+                animationId = setInterval(() => {
+                    if (step >= steps.length) {
+                        pauseAnimation();
+                        return;
+                    }
+                    stepForward();
+                }, 1500);
+            }
+        }
+
+        function pauseAnimation() {
+            isPlaying = false;
+            document.getElementById('playBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            
+            if (animationId) {
+                clearInterval(animationId);
+                animationId = null;
+            }
+        }
+
+        function stepForward() {
+            if (step < steps.length) {
+                const currentStep = steps[step];
+                
+                if (currentStep.type === 'init') {
+                    // Initialize HashSet
+                    numSet = new Set(nums);
+                    currentIndex = 0;
+                    currentSequence = [];
+                    maxLength = 0;
+                    currentLength = 0;
+                } else if (currentStep.type === 'check_start') {
+                    currentIndex = currentStep.index;
+                    currentSequence = [];
+                    currentLength = 0;
+                } else if (currentStep.type === 'sequence_element') {
+                    currentSequence.push(currentStep.value);
+                    currentLength = currentStep.length;
+                } else if (currentStep.type === 'sequence_complete') {
+                    if (currentStep.length > maxLength) {
+                        maxLength = currentStep.length;
+                    }
+                    currentSequence = [];
+                    currentLength = 0;
+                }
+                
+                step++;
+                updateVisualization();
+            }
+        }
+
+        function stepBackward() {
+            if (step > 0) {
+                step--;
+                
+                if (step === 0) {
+                    numSet = new Set();
+                    currentIndex = 0;
+                    currentSequence = [];
+                    maxLength = 0;
+                    currentLength = 0;
+                } else {
+                    const currentStep = steps[step-1];
+                    
+                    if (currentStep.type === 'init') {
+                        numSet = new Set(nums);
+                        currentIndex = 0;
+                        currentSequence = [];
+                        maxLength = 0;
+                        currentLength = 0;
+                    } else if (currentStep.type === 'check_start') {
+                        currentIndex = currentStep.index;
+                        currentSequence = [];
+                        currentLength = 0;
+                    } else if (currentStep.type === 'sequence_element') {
+                        currentSequence = [];
+                        for (let i = 0; i < step; i++) {
+                            if (steps[i].type === 'sequence_element' && steps[i].index === currentStep.index) {
+                                currentSequence.push(steps[i].value);
+                            }
+                        }
+                        currentLength = currentSequence.length;
+                    } else if (currentStep.type === 'sequence_complete') {
+                        // Recalculate maxLength up to this point
+                        maxLength = 0;
+                        for (let i = 0; i < step; i++) {
+                            if (steps[i].type === 'sequence_complete') {
+                                maxLength = Math.max(maxLength, steps[i].length);
+                            }
+                        }
+                        currentSequence = [];
+                        currentLength = 0;
+                    }
+                }
+                
+                updateVisualization();
+            }
+        }
+
+        function resetAnimation() {
+            pauseAnimation();
+            step = 0;
+            numSet = new Set();
+            currentIndex = 0;
+            currentSequence = [];
+            maxLength = 0;
+            currentLength = 0;
+            sequenceStart = 0;
+            
+            initializeVisualization();
+        }
+
+        // Initialize the visualization
+        resetAnimation();
+    </script>
 </body>
 </html>

@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 105: Construct Binary Tree from Preorder and Inorder Traversal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+            color: #374151;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .vis-array-element {
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ccc;
+            background-color: #f9fafb;
+            font-weight: 600;
+            margin: 2px;
+            border-radius: 4px;
+            transition: all 0.3s ease-in-out;
+        }
+        .vis-array-element.highlight-pre {
+            background-color: #fef9c3;
+            border-color: #f59e0b;
+            border-width: 2px;
+        }
+        .vis-array-element.highlight-in-range {
+            background-color: #dbeafe;
+            border-color: #60a5fa;
+        }
+        .vis-array-element.highlight-in-root {
+            background-color: #bbf7d0;
+            border-color: #4ade80;
+            border-width: 2px;
+        }
+        .tree-node circle {
+            fill: white;
+            stroke: #333;
+            stroke-width: 2;
+            transition: all 0.3s ease-in-out;
+        }
+        .tree-node text {
+            text-anchor: middle;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .tree-node.current > circle {
+            stroke: #2563eb;
+            stroke-width: 4;
+            fill: #dbeafe;
+        }
+        .tree-node.new > circle {
+            fill: #bbf7d0;
+            stroke: #22c55e;
+            stroke-width: 3;
+            animation: pulse 1.5s ease-in-out;
+        }
+        .tree-edge {
+            stroke: #666;
+            stroke-width: 2;
+            transition: all 0.3s ease-in-out;
+        }
+        .tree-edge.new {
+            stroke: #22c55e;
+            stroke-width: 3;
+            animation: pulse 1.5s ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        .log-container {
+            height: 150px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        .recursion-stack-item {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            border-radius: 0.375rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            transition: all 0.3s ease-in-out;
+        }
+        .recursion-stack-item.active {
+            background-color: #f59e0b;
+            transform: scale(1.02);
+        }
+        .flowchart-node-highlight {
+            fill: #fef9c3 !important;
+            stroke: #f59e0b !important;
+            stroke-width: 3px !important;
+        }
+        .highlight-code {
+            background-color: #fefce8;
+            color: #854d0e;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">105. Construct Binary Tree from Preorder and Inorder Traversal</h1>
+            <p class="text-lg text-gray-600 mt-2">An Interactive Visual Explainer</p>
+        </header>
+        <div class="text-center text-sm text-gray-500 mb-8">
+            Idea By: Chetan Pachpande | Executed By: Gemini
+        </div>
+
+        <div id="problem-card" class="card">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Given two integer arrays <code>preorder</code> and <code>inorder</code> where <code>preorder</code> is the preorder traversal of a binary tree and <code>inorder</code> is the inorder traversal of the same tree, construct and return the binary tree.</p>
+                 <div class="my-4">
+                    <h3 class="text-lg font-semibold mb-2">Complexity Analysis</h3>
+                    <div class="bg-gray-100 p-3 rounded-lg border border-gray-200 text-sm">
+                        <p><strong>Time Complexity:</strong> O(N)</p>
+                        <p class="text-gray-600 ml-4">We visit each node once. The HashMap lookup for the inorder index is O(1).</p>
+                        <p class="mt-2"><strong>Space Complexity:</strong> O(N)</p>
+                        <p class="text-gray-600 ml-4">O(N) for the HashMap and O(H) for the recursion stack, where H is the height of the tree. In the worst case (a skewed tree), H can be N.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+            <div class="lg:col-span-2 flex flex-col gap-8">
+                <div id="intuition-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+                    <div class="space-y-4 text-gray-700">
+                        <p>The key to this problem lies in understanding the properties of preorder and inorder traversals:</p>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong>Preorder Traversal (Root, Left, Right):</strong> The very first element in the preorder array is always the root of the current tree (or subtree).</li>
+                            <li><strong>Inorder Traversal (Left, Root, Right):</strong> Once we know the root, we can find it in the inorder array. All elements to the left of the root in the inorder array belong to the left subtree, and all elements to the right belong to the right subtree.</li>
+                        </ul>
+                        <p>This gives us a recursive strategy:</p>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>Pick the next element from `preorder` as the current root.</li>
+                            <li>Find this root's index in `inorder`. This splits `inorder` into left and right sub-problems.</li>
+                            <li>Recursively call the function to build the left subtree using the left part of the `inorder` array.</li>
+                            <li>Recursively call the function to build the right subtree using the right part of the `inorder` array.</li>
+                        </ol>
+                        <p>To avoid re-scanning the `inorder` array every time, we can pre-process it into a HashMap for O(1) index lookups.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <div class="flex justify-between mt-6">
+                        <button id="prev-step-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                        <button id="next-step-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                    </div>
+                </div>
+
+                <div id="call-stack-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Recursion Stack</h2>
+                    <div id="call-stack-container" class="space-y-2 h-40 overflow-y-auto bg-gray-50 p-2 rounded-lg">
+                        <p class="text-gray-500 text-center">Stack is empty</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-3 flex flex-col gap-8">
+                
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization & Controls</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="preorder-input" class="block text-sm font-medium text-gray-700">Preorder</label>
+                            <input type="text" id="preorder-input" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" value="3,9,20,15,7">
+                        </div>
+                        <div>
+                            <label for="inorder-input" class="block text-sm font-medium text-gray-700">Inorder</label>
+                            <input type="text" id="inorder-input" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" value="9,3,15,20,7">
+                        </div>
+                    </div>
+                     <button id="run-btn" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-semibold">Run Visualization</button>
+                    
+                    <div class="mt-6 p-4 border-2 border-gray-200 rounded-lg bg-gray-50 min-h-[400px]">
+                        <div class="mb-4">
+                            <h3 class="font-semibold text-center mb-2">Preorder Traversal</h3>
+                            <div id="preorder-vis" class="flex justify-center flex-wrap"></div>
+                        </div>
+                        <div class="mb-4">
+                            <h3 class="font-semibold text-center mb-2">Inorder Traversal</h3>
+                            <div id="inorder-vis" class="flex justify-center flex-wrap"></div>
+                        </div>
+                        <div class="border-t pt-4">
+                             <h3 class="font-semibold text-center mb-2">Constructed Tree</h3>
+                             <div id="tree-container" class="min-h-[200px] bg-white rounded-lg p-2 overflow-auto">
+                                 <svg id="tree-svg" width="100%" height="300"></svg>
+                             </div>
+                        </div>
+                    </div>
+                     
+                     <div class="mt-6 pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-3 text-center text-gray-800">Execution Controls</h3>
+                        <div class="flex justify-center items-center gap-8">
+                            <button id="step-backward-btn" class="control-btn" title="Step Backward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                            </button>
+                            <button id="play-pause-btn" class="control-btn !w-16 !h-16 bg-blue-600 text-white hover:bg-blue-700" title="Run/Pause">
+                                <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="hidden"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                            </button>
+                            <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="flowchart-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Algorithm Flowchart</h2>
+                    <div class="mermaid text-center" id="flowchart-diagram">
+                        flowchart TD
+                            A[Start: buildTree] --> B[Create HashMap of inorder indices]
+                            B --> C[Call dfs with full range]
+                            C --> D{left > right?}
+                            D -->|Yes| E[Return null]
+                            D -->|No| F[Get root from preorder[index]]
+                            F --> G[Create TreeNode with root value]
+                            G --> H[Find root position in inorder]
+                            H --> I[Recursively build left subtree]
+                            I --> J[Recursively build right subtree]
+                            J --> K[Return constructed node]
+                            E --> L[End]
+                            K --> L
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="mt-8 space-y-8">
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Execution Log</h2>
+                <div id="log-container" class="log-container"></div>
+            </div>
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Commented Java Code</h2>
+                <div id="commented-code-container" class="bg-gray-100 p-4 rounded-md">
+                    <pre><code class="language-java"></code></pre>
+                </div>
+            </div>
+            <div class="card">
+                 <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Full Explanation Script (for Narration)</h2>
+                    <button id="narrate-btn" class="p-2 rounded-full hover:bg-gray-200 transition" title="Narrate full explanation">
+                        <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                         <svg id="stop-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 10h6" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="narration-script" class="text-gray-700 space-y-2">
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+            // --- DOM ELEMENTS ---
+            const preorderInput = document.getElementById('preorder-input');
+            const inorderInput = document.getElementById('inorder-input');
+            const runBtn = document.getElementById('run-btn');
+            const logContainer = document.getElementById('log-container');
+            const codeStepsContainer = document.getElementById('code-steps-container');
+            const commentedCodeContainer = document.getElementById('commented-code-container');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+            const stepForwardBtn = document.getElementById('step-forward-btn');
+            const stepBackwardBtn = document.getElementById('step-backward-btn');
+            const narrateBtn = document.getElementById('narrate-btn');
+            const speakerIcon = document.getElementById('speaker-icon');
+            const stopIcon = document.getElementById('stop-icon');
+            const narrationScriptContainer = document.getElementById('narration-script');
+            const preorderVis = document.getElementById('preorder-vis');
+            const inorderVis = document.getElementById('inorder-vis');
+            const treeVis = document.getElementById('tree-svg');
+            const prevStepBtn = document.getElementById('prev-step-btn');
+            const nextStepBtn = document.getElementById('next-step-btn');
+            const callStackContainer = document.getElementById('call-stack-container');
+
+            // --- GLOBAL STATE ---
+            let stateHistory = [];
+            let currentStateIndex = -1;
+            let isPlaying = false;
+            let animationInterval = null;
+            let preorder = [], inorder = [];
+            let currentCodeStep = 0;
+            let treeNodes = new Map();
+            let nodePositions = new Map();
+            let recursionStack = [];
+
+            // --- CODE STEPS ---
+            const codeSteps = [
+                { 
+                    title: 'Main Function', 
+                    explanation: 'Initialize a HashMap to store inorder indices for O(1) lookup. Then start the recursive `dfs` process.', 
+                    code: `public TreeNode buildTree(int[] preorder, int[] inorder) {\n    for (int i=0; i<inorder.length; i++) {\n        indices.put(inorder[i], i);\n    }\n    return dfs(preorder, 0, inorder.length - 1);\n}`,
+                    flowchartNodeId: 'A'
+                },
+                { 
+                    title: 'DFS Base Case', 
+                    explanation: 'The recursion stops when the left pointer crosses the right pointer, indicating an empty subtree. Return `null` in this case.', 
+                    code: `private TreeNode dfs(int[] preorder, int l, int r) {\n    if(l > r) {\n        return null;\n    }\n ...`,
+                    flowchartNodeId: 'D'
+                },
+                { 
+                    title: 'Get Root from Preorder', 
+                    explanation: 'The current root is always the next available element in the `preorder` array. We create a new `TreeNode` with this value and advance our preorder index.', 
+                    code: `int root_val = preorder[preorderIndex++];\nTreeNode root = new TreeNode(root_val);`,
+                    flowchartNodeId: 'F'
+                },
+                { 
+                    title: 'Find Root in Inorder', 
+                    explanation: 'Use the HashMap to find the index of the root value in the `inorder` array. This index splits the array into left and right subtrees.', 
+                    code: `int mid = indices.get(root_val);`,
+                    flowchartNodeId: 'H'
+                },
+                { 
+                    title: 'Recurse for Left Subtree', 
+                    explanation: 'Recursively call `dfs` for the left part of the inorder array (from `l` to `mid - 1`). The result becomes the left child of the current root.', 
+                    code: `root.left = dfs(preorder, l, mid - 1);`,
+                    flowchartNodeId: 'I'
+                },
+                { 
+                    title: 'Recurse for Right Subtree', 
+                    explanation: 'Recursively call `dfs` for the right part of the inorder array (from `mid + 1` to `r`). The result becomes the right child.', 
+                    code: `root.right = dfs(preorder, mid + 1, r);`,
+                    flowchartNodeId: 'J'
+                },
+                { 
+                    title: 'Return Root', 
+                    explanation: 'After building the left and right subtrees, return the constructed root node up the call stack.', 
+                    code: `return root;`,
+                    flowchartNodeId: 'K'
+                }
+            ];
+            
+            function displayCodeStep(index) {
+                if (index < 0 || index >= codeSteps.length) return;
+                currentCodeStep = index;
+                const step = codeSteps[index];
+                codeStepsContainer.innerHTML = `
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-blue-600 mb-2">Step ${index + 1}: ${step.title}</h3>
+                        <pre class="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto"><code class="language-java">${step.code}</code></pre>
+                        <p class="text-gray-600 mt-2">${step.explanation}</p>
+                    </div>
+                `;
+                prevStepBtn.disabled = currentCodeStep === 0;
+                nextStepBtn.disabled = currentCodeStep === codeSteps.length - 1;
+            }
+
+            function updateRecursionStack() {
+                if (recursionStack.length === 0) {
+                    callStackContainer.innerHTML = '<p class="text-gray-500 text-center">Stack is empty</p>';
+                } else {
+                    callStackContainer.innerHTML = recursionStack.map((call, index) => 
+                        `<div class="recursion-stack-item ${index === recursionStack.length - 1 ? 'active' : ''}">${call}</div>`
+                    ).reverse().join('');
+                }
+                callStackContainer.scrollTop = callStackContainer.scrollHeight;
+            }
+
+            function runVisualization() {
+                stopAnimation();
+                preorder = preorderInput.value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+                inorder = inorderInput.value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+
+                if (preorder.length !== inorder.length || preorder.length === 0) {
+                    alert("Please provide valid, equal-length preorder and inorder arrays.");
+                    return;
+                }
+
+                stateHistory = [];
+                currentStateIndex = -1;
+                recursionStack = [];
+                
+                const inorderMap = new Map();
+                for (let i = 0; i < inorder.length; i++) {
+                    inorderMap.set(inorder[i], i);
+                }
+
+                let preorderIndex = 0;
+                let treeLinks = [];
+                let nodeCounter = 0;
+
+                function dfs(l, r, depth = 0) {
+                    const indent = '  '.repeat(depth);
+                    recursionStack.push(`${indent}dfs(${l}, ${r})`);
+                    captureState(preorderIndex, l, r, treeLinks, `Calling dfs(left=${l}, right=${r})`, 1, -1, [...recursionStack]);
+
+                    if (l > r) {
+                        recursionStack.pop();
+                        captureState(preorderIndex, l, r, treeLinks, `Base case: left > right. Returning null.`, 1, -1, [...recursionStack]);
+                        return null;
+                    }
+
+                    const rootVal = preorder[preorderIndex];
+                    const rootNodeId = `N${nodeCounter++}`;
+                    preorderIndex++;
+                    captureState(preorderIndex, l, r, treeLinks, `Root is preorder[${preorderIndex-1}] = ${rootVal}. Creating node.`, 2, -1, [...recursionStack]);
+
+                    const mid = inorderMap.get(rootVal);
+                    captureState(preorderIndex, l, r, treeLinks, `Found ${rootVal} at inorder index ${mid}.`, 3, mid, [...recursionStack]);
+
+                    captureState(preorderIndex, l, r, treeLinks, `Recursing for left subtree (indices ${l} to ${mid - 1}).`, 4, mid, [...recursionStack]);
+                    const leftChild = dfs(l, mid - 1, depth + 1);
+                    if (leftChild) {
+                        treeLinks.push({ from: rootNodeId, to: leftChild.id, val: leftChild.val });
+                    }
+                    captureState(preorderIndex, l, r, treeLinks, `Returned from left subtree recursion. Current root: ${rootVal}.`, 4, mid, [...recursionStack]);
+
+                    captureState(preorderIndex, l, r, treeLinks, `Recursing for right subtree (indices ${mid + 1} to ${r}).`, 5, mid, [...recursionStack]);
+                    const rightChild = dfs(mid + 1, r, depth + 1);
+                    if (rightChild) {
+                        treeLinks.push({ from: rootNodeId, to: rightChild.id, val: rightChild.val });
+                    }
+                    captureState(preorderIndex, l, r, treeLinks, `Returned from right subtree recursion. Current root: ${rootVal}.`, 5, mid, [...recursionStack]);
+                    
+                    recursionStack.pop();
+                    captureState(preorderIndex, l, r, treeLinks, `Finished constructing subtree for root ${rootVal}. Returning node.`, 6, mid, [...recursionStack]);
+                    
+                    return { id: rootNodeId, val: rootVal, left: leftChild, right: rightChild };
+                }
+
+                dfs(0, inorder.length - 1);
+                
+                if (stateHistory.length > 0) {
+                    currentStateIndex = 0;
+                    renderState(stateHistory[0]);
+                }
+            }
+
+            function captureState(preorderIndex, l, r, links, message, codeStepIndex, inMid = -1, stack = []) {
+                stateHistory.push({
+                    preorderIndex,
+                    l,
+                    r,
+                    links: JSON.parse(JSON.stringify(links)),
+                    message,
+                    codeStepIndex,
+                    inMid,
+                    recursionStack: [...stack]
+                });
+            }
+
+            function calculateNodePositions(node, x, y, dx) {
+                if (!node) return;
+                nodePositions.set(node.id, { x, y });
+                
+                if (node.left) {
+                    calculateNodePositions(node.left, x - dx, y + 90, dx / 2);
+                }
+                if (node.right) {
+                    calculateNodePositions(node.right, x + dx, y + 90, dx / 2);
+                }
+            }
+
+            function buildTreeFromLinks(links) {
+                if (links.length === 0) return null;
+                
+                const nodes = new Map();
+                const children = new Set();
+                
+                // Create all nodes
+                links.forEach(link => {
+                    if (!nodes.has(link.from)) {
+                        const val = parseInt(link.from.replace('N', ''));
+                        nodes.set(link.from, { id: link.from, val, left: null, right: null });
+                    }
+                    if (!nodes.has(link.to)) {
+                        nodes.set(link.to, { id: link.to, val: link.val, left: null, right: null });
+                    }
+                    children.add(link.to);
+                });
+                
+                // Set up parent-child relationships
+                links.forEach(link => {
+                    const parent = nodes.get(link.from);
+                    const child = nodes.get(link.to);
+                    const parentVal = parent.val;
+                    const childVal = child.val;
+                    
+                    // Use inorder traversal to determine left/right
+                    const parentInorderIndex = inorder.indexOf(parentVal);
+                    const childInorderIndex = inorder.indexOf(childVal);
+                    
+                    if (childInorderIndex < parentInorderIndex) {
+                        parent.left = child;
+                    } else {
+                        parent.right = child;
+                    }
+                });
+                
+                // Find root (node that's not a child of any other node)
+                for (const [nodeId, node] of nodes) {
+                    if (!children.has(nodeId)) {
+                        return node;
+                    }
+                }
+                
+                return null;
+            }
+
+            function drawTree(rootNode) {
+                treeVis.innerHTML = '';
+                if (!rootNode) return;
+
+                const width = treeVis.clientWidth || 600;
+                const height = Math.max(300, Math.ceil(Math.log2(preorder.length + 1)) * 90);
+                treeVis.setAttribute('height', height);
+                nodePositions.clear();
+                
+                calculateNodePositions(rootNode, width / 2, 60, Math.max(width / 4, 80));
+
+                // Draw edges first
+                function drawEdges(node) {
+                    if (!node) return;
+                    
+                    const pos = nodePositions.get(node.id);
+                    if (node.left) {
+                        const leftPos = nodePositions.get(node.left.id);
+                        if (leftPos) {
+                            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', pos.x);
+                            line.setAttribute('y1', pos.y);
+                            line.setAttribute('x2', leftPos.x);
+                            line.setAttribute('y2', leftPos.y);
+                            line.setAttribute('class', 'tree-edge');
+                            treeVis.appendChild(line);
+                        }
+                        drawEdges(node.left);
+                    }
+                    if (node.right) {
+                        const rightPos = nodePositions.get(node.right.id);
+                        if (rightPos) {
+                            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', pos.x);
+                            line.setAttribute('y1', pos.y);
+                            line.setAttribute('x2', rightPos.x);
+                            line.setAttribute('y2', rightPos.y);
+                            line.setAttribute('class', 'tree-edge');
+                            treeVis.appendChild(line);
+                        }
+                        drawEdges(node.right);
+                    }
+                }
+
+                // Draw nodes
+                function drawNodes(node) {
+                    if (!node) return;
+                    
+                    const pos = nodePositions.get(node.id);
+                    if (pos) {
+                        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                        g.setAttribute('class', 'tree-node');
+                        g.setAttribute('id', `node-${node.id}`);
+
+                        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        circle.setAttribute('cx', pos.x);
+                        circle.setAttribute('cy', pos.y);
+                        circle.setAttribute('r', 25);
+                        
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('x', pos.x);
+                        text.setAttribute('y', pos.y + 5);
+                        text.textContent = node.val;
+
+                        g.appendChild(circle);
+                        g.appendChild(text);
+                        treeVis.appendChild(g);
+                    }
+                    
+                    if (node.left) drawNodes(node.left);
+                    if (node.right) drawNodes(node.right);
+                }
+
+                drawEdges(rootNode);
+                drawNodes(rootNode);
+            }
+
+            async function renderState(state) {
+                if (!state) return;
+
+                const { preorderIndex, l, r, links, message, codeStepIndex, inMid, recursionStack: stack } = state;
+
+                preorderVis.innerHTML = preorder.map((val, i) => `
+                    <div class="vis-array-element ${i === preorderIndex - 1 ? 'highlight-pre' : ''}">${val}</div>
+                `).join('');
+
+                inorderVis.innerHTML = inorder.map((val, i) => {
+                    let classes = 'vis-array-element';
+                    if (i >= l && i <= r && l >= 0 && r >= 0) classes += ' highlight-in-range';
+                    if (i === inMid) classes += ' highlight-in-root';
+                    return `<div class="${classes}">${val}</div>`;
+                }).join('');
+
+                // Update recursion stack
+                recursionStack = stack || [];
+                updateRecursionStack();
+
+                // Update tree visualization
+                const rootNode = buildTreeFromLinks(links);
+                drawTree(rootNode);
+
+                // Update code/flowchart highlights
+                displayCodeStep(codeStepIndex - 1);
+                updateFlowchartHighlight(codeSteps[codeStepIndex - 1]?.flowchartNodeId);
+
+                log(message);
+            }
+
+            function updateFlowchartHighlight(nodeId) {
+                document.querySelectorAll('.flowchart-node-highlight').forEach(el => el.classList.remove('flowchart-node-highlight'));
+                if (nodeId) {
+                    const nodeElement = document.querySelector(`[id^="${nodeId}"]`);
+                    if(nodeElement) nodeElement.classList.add('flowchart-node-highlight');
+                }
+            }
+
+            function log(message) {
+                if (currentStateIndex === 0) logContainer.innerHTML = '';
+                const logEntry = document.createElement('div');
+                logEntry.innerHTML = `&gt; ${message}`;
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+
+            function stepForward() {
+                if (currentStateIndex < stateHistory.length - 1) {
+                    currentStateIndex++;
+                    renderState(stateHistory[currentStateIndex]);
+                } else {
+                    stopAnimation();
+                }
+            }
+
+            function stepBackward() {
+                if (currentStateIndex > 0) {
+                    currentStateIndex--;
+                    renderState(stateHistory[currentStateIndex]);
+                }
+            }
+
+            function togglePlayPause() {
+                if (isPlaying) {
+                    stopAnimation();
+                } else {
+                    isPlaying = true;
+                    playIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                    animationInterval = setInterval(stepForward, 1200);
+                }
+            }
+
+            function stopAnimation() {
+                clearInterval(animationInterval);
+                isPlaying = false;
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+
+            function setupNarration() {
+                const fullCode = `/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode(int val) { this.val = val; }
+ * }
+ */
+class Solution {
+    int preorderIndex = 0;
+    HashMap<Integer, Integer> indices = new HashMap<>();
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        // Build a map from inorder value to its index for O(1) lookup
+        for (int i = 0; i < inorder.length; i++) {
+            indices.put(inorder[i], i);
+        }
+        // Start the recursive construction
+        return dfs(preorder, 0, inorder.length - 1);
+    }
+
+    private TreeNode dfs(int[] preorder, int l, int r) {
+        // Base case: if the pointers cross, the subtree is empty
+        if (l > r) {
+            return null;
+        }
+
+        // The current root's value is the next element in the preorder traversal
+        int root_val = preorder[preorderIndex++];
+        TreeNode root = new TreeNode(root_val);
+
+        // Find the root's index in the inorder array to split into subtrees
+        int mid = indices.get(root_val);
+
+        // Recursively build the left subtree
+        // The left subtree consists of elements from 'l' to 'mid - 1' in inorder
+        root.left = dfs(preorder, l, mid - 1);
+        
+        // Recursively build the right subtree
+        // The right subtree consists of elements from 'mid + 1' to 'r' in inorder
+        root.right = dfs(preorder, mid + 1, r);
+
+        return root;
+    }
+}`;
+                commentedCodeContainer.querySelector('code').textContent = fullCode;
+
+                const narrationText = `
+                    <p><strong>Problem Description:</strong> Given the preorder and inorder traversals of a binary tree, we need to reconstruct the original tree.</p>
+                    <p><strong>Complexity Analysis:</strong> The time complexity is O(N), where N is the number of nodes. This is because we process each node exactly once. By using a HashMap to store the indices of the inorder traversal, we can find the root's position in O(1) time. The space complexity is also O(N), required for the HashMap and for the recursion stack, which in the worst case (a skewed tree) can be of depth N.</p>
+                    <p><strong>Intuition:</strong> The core idea is to leverage the unique properties of the two traversal types. Preorder traversal always starts with the root of a tree. Inorder traversal always has the root in the middle, with all left subtree elements to its left and all right subtree elements to its right. We can use this recursively. We take the first element of our current preorder segment as the root. Then, we find that root in our inorder segment. This splits the inorder segment into two parts, which correspond exactly to the left and right subtrees. We then repeat this process for the left and right subtrees.</p>
+                    <p><strong>Code Logic:</strong> The solution uses a global index for the preorder array, preorderIndex, to keep track of the current root. A HashMap is first created to map each inorder value to its index, allowing for quick lookups. The main work is done in a recursive helper function, dfs, which takes the left and right boundaries of the current inorder segment. The base case is when the left boundary crosses the right, meaning the subtree is empty. Otherwise, it takes the next value from the preorder array as the root, finds its index in the inorder map, and then makes two recursive calls: one for the left subtree using the inorder part to the left of the root's index and one for the right subtree using the part to the right.</p>
+                `;
+                narrationScriptContainer.innerHTML = narrationText;
+
+                narrateBtn.addEventListener('click', () => {
+                    if (window.speechSynthesis.speaking) {
+                        window.speechSynthesis.cancel();
+                        speakerIcon.classList.remove('hidden');
+                        stopIcon.classList.add('hidden');
+                    } else {
+                        const scriptText = narrationScriptContainer.innerText;
+                        const utterance = new SpeechSynthesisUtterance(scriptText);
+                        utterance.onstart = () => {
+                            speakerIcon.classList.add('hidden');
+                            stopIcon.classList.remove('hidden');
+                        };
+                        utterance.onend = () => {
+                            speakerIcon.classList.remove('hidden');
+                            stopIcon.classList.add('hidden');
+                        };
+                        window.speechSynthesis.speak(utterance);
+                    }
+                });
+            }
+
+            // --- EVENT LISTENERS ---
+            runBtn.addEventListener('click', runVisualization);
+            stepForwardBtn.addEventListener('click', stepForward);
+            stepBackwardBtn.addEventListener('click', stepBackward);
+            playPauseBtn.addEventListener('click', togglePlayPause);
+            prevStepBtn.addEventListener('click', () => displayCodeStep(currentCodeStep - 1));
+            nextStepBtn.addEventListener('click', () => displayCodeStep(currentCodeStep + 1));
+
+            // --- INITIALIZATION ---
+            displayCodeStep(0);
+            setupNarration();
+            runVisualization();
+        });
+    </script>
+
+</body>
+</html>

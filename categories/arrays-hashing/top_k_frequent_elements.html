@@ -5,17 +5,914 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Top K Frequent Elements | LC 347 Visualizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+            color: #374151;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .log-container {
+            height: 150px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        .element-box {
+            min-width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+            font-weight: 600;
+            margin: 3px;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            position: relative;
+        }
+        .element-box.current {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+        .element-box.processed {
+            background-color: #d1fae5;
+            border-color: #10b981;
+        }
+        .freq-entry {
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin: 0.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: monospace;
+            transition: all 0.3s ease;
+        }
+        .freq-entry.active {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+            transform: scale(1.02);
+        }
+        .freq-entry.processing {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+        }
+        .heap-node {
+            min-width: 60px;
+            height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #8b5cf6;
+            background-color: #f3e8ff;
+            font-weight: 600;
+            margin: 3px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            position: relative;
+        }
+        .heap-node.new {
+            background-color: #bbf7d0;
+            border-color: #10b981;
+            animation: pulse 1s ease-in-out;
+        }
+        .heap-node.removed {
+            background-color: #fecaca;
+            border-color: #ef4444;
+            animation: fadeOut 0.5s ease-in-out;
+        }
+        .result-item {
+            background-color: #dcfce7;
+            border: 2px solid #16a34a;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin: 0.25rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .result-item.new {
+            animation: slideIn 0.5s ease-in-out;
+        }
+        .code-step {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .code-step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .code-step-number {
+            flex-shrink: 0;
+            width: 2rem;
+            height: 2rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+        }
+        .log-info { color: #3b82f6; }
+        .log-success { color: #10b981; }
+        .log-warning { color: #f59e0b; }
+        .log-error { color: #ef4444; }
+        .state-value {
+            font-weight: bold;
+            color: #1f2937;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+        @keyframes slideIn {
+            0% { transform: translateX(-20px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+        .heap-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 120px;
+            background-color: #faf5ff;
+            border: 2px dashed #8b5cf6;
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+        .heap-level {
+            display: flex;
+            justify-content: center;
+            margin: 0.25rem 0;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Top K Frequent Elements | LC 347</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-8 rounded-lg mb-8 text-center">
+            <h1 class="text-4xl font-bold text-white">LeetCode 347: Top K Frequent Elements</h1>
+            <p class="text-lg text-purple-100 mt-2">An Interactive Visual Explainer</p>
+            <p class="text-sm text-purple-200 mt-1">Idea By: Chetan Pachpande | Executed By: Claude</p>
+        </header>
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition">Back to Home</a>
+        </div>
+
+        <div id="problem-card" class="card">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p><strong>Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.</strong></p>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p><strong>Example:</strong></p>
+                    <p><code>Input: nums = [1,1,1,2,2,3], k = 2</code></p>
+                    <p><code>Output: [1,2]</code></p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p><strong>Constraints:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>1 ≤ nums.length ≤ 10⁵</li>
+                        <li>k is in the range [1, unique elements in nums]</li>
+                        <li>-10⁴ ≤ nums[i] ≤ 10⁴</li>
+                        <li>It is guaranteed that the answer is unique</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8 mt-8">
+
+            <!-- Left Column -->
+            <div class="lg:col-span-2">
+                <div id="intuition-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+                    <p class="mb-3">The solution uses a <strong>HashMap + Min-Heap</strong> approach to efficiently find the top K frequent elements.</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><strong>Count Frequencies:</strong> Use HashMap to count frequency of each element.</li>
+                        <li><strong>Min-Heap:</strong> Use PriorityQueue (min-heap) to maintain top K frequent elements.</li>
+                        <li><strong>Heap Size Control:</strong> Keep heap size ≤ K by removing least frequent elements.</li>
+                        <li><strong>Result Extraction:</strong> Extract all elements from the heap as the final result.</li>
+                    </ol>
+                    <div class="mt-4 p-3 bg-yellow-50 rounded-lg">
+                        <p class="text-sm"><strong>Time:</strong> O(N log K) | <strong>Space:</strong> O(N + K)</p>
+                    </div>
+                </div>
+
+                <div id="code-steps-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <div class="flex justify-between mt-6">
+                        <button id="prev-step-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">Previous</button>
+                        <button id="next-step-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-3">
+                <div id="visualization-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label for="array-input" class="block text-sm font-medium text-gray-700">Input Array (comma-separated)</label>
+                            <input type="text" id="array-input" value="1,1,1,2,2,3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="k-input" class="block text-sm font-medium text-gray-700">K Value</label>
+                            <input type="number" id="k-input" value="2" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="flex items-end">
+                            <button id="run-btn" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Run Visualization</button>
+                        </div>
+                    </div>
+
+                    <!-- Input Array Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Input Array:</h3>
+                        <div id="input-container" class="relative bg-gray-50 p-4 rounded-lg min-h-[80px] flex items-center justify-center">
+                            <div id="input-vis" class="flex flex-wrap justify-center"></div>
+                        </div>
+                    </div>
+
+                    <!-- Frequency Map Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Frequency HashMap:</h3>
+                        <div id="frequency-container" class="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200 min-h-[100px]">
+                            <div id="frequency-vis" class="space-y-2">
+                                <div class="text-gray-500 text-center">Frequency map will appear here...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Min-Heap Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Min-Heap (Size ≤ K = <span id="k-display">2</span>):</h3>
+                        <div id="heap-container" class="heap-container">
+                            <div class="text-gray-500 text-center">Min-heap will appear here...</div>
+                        </div>
+                    </div>
+
+                    <!-- Result Visualization -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Top K Frequent Elements:</h3>
+                        <div id="result-container" class="bg-green-50 p-4 rounded-lg border-2 border-green-200 min-h-[80px]">
+                            <div id="result-vis" class="flex flex-wrap justify-center">
+                                <div class="text-gray-500 text-center">Result will appear here...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="algorithm-states-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Algorithm States</h2>
+                    <div class="space-y-3 text-base">
+                        <div class="grid grid-cols-2 gap-x-4">
+                            <span>Status:</span> <span id="state-status" class="state-value">Ready</span>
+                            <span>Current Index:</span> <span id="state-index" class="state-value">N/A</span>
+                            <span>Current Element:</span> <span id="state-element" class="state-value">N/A</span>
+                            <span>Current Frequency:</span> <span id="state-frequency" class="state-value">N/A</span>
+                            <span>Heap Size:</span> <span id="state-heap-size" class="state-value">0</span>
+                            <span>Processing Phase:</span> <span id="state-phase" class="state-value">Initialize</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="execution-commands-card" class="card">
+                     <h2 class="text-2xl font-bold mb-4 text-center">Execution Commands</h2>
+                    <div class="flex items-center justify-center space-x-4">
+                        <button id="step-back-btn" class="control-btn" title="Step Backward">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
+                        </button>
+                        <button id="play-pause-btn" class="control-btn w-16 h-16 bg-purple-500 text-white hover:bg-purple-600" title="Play/Pause">
+                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 hidden" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                        </button>
+                        <button id="reset-btn" class="control-btn" title="Reset">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-8">
+            <div id="log-card" class="card">
+                <h2 class="text-2xl font-bold mb-4">Execution Log</h2>
+                <div id="log-container" class="log-container">
+                    <div class="text-gray-500">Execution log will appear here...</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        console.log('Top K Frequent Elements visualization loaded');
+        
+        // Global variables
+        let inputArray = [];
+        let k = 2;
+        let steps = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let currentCodeStep = 0;
+        
+        // Algorithm steps for code explanation
+        const algorithmSteps = [
+            {
+                title: "Early Return Check",
+                description: "If k equals the array length, return the entire array as all elements are the top k frequent.",
+                code: `if (k == nums.length) {
+    return nums;
+}`
+            },
+            {
+                title: "Count Frequencies",
+                description: "Use HashMap to count the frequency of each element in the array.",
+                code: `Map<Integer, Integer> count = new HashMap<>();
+for (int n : nums) {
+    count.put(n, count.getOrDefault(n, 0) + 1);
+}`
+            },
+            {
+                title: "Initialize Min-Heap",
+                description: "Create a min-heap that compares elements by their frequencies. The element with lowest frequency will be at the root.",
+                code: `Queue<Integer> heap = new PriorityQueue<>(
+    (a, b) -> count.get(a) - count.get(b)
+);`
+            },
+            {
+                title: "Process Frequency Entries",
+                description: "Add each unique element to the heap. If heap size exceeds k, remove the element with minimum frequency.",
+                code: `for (int n : count.keySet()) {
+    heap.add(n);
+    if (heap.size() > k) {
+        heap.poll();
+    }
+}`
+            },
+            {
+                title: "Build Result Array",
+                description: "Extract all elements from the heap to build the result array containing top k frequent elements.",
+                code: `int[] ans = new int[k];
+for (int i = 0; i < k; i++) {
+    ans[i] = heap.poll();
+}
+return ans;`
+            }
+        ];
+        
+        // DOM elements
+        const arrayInput = document.getElementById('array-input');
+        const kInput = document.getElementById('k-input');
+        const runBtn = document.getElementById('run-btn');
+        const inputVis = document.getElementById('input-vis');
+        const frequencyVis = document.getElementById('frequency-vis');
+        const heapContainer = document.getElementById('heap-container');
+        const resultVis = document.getElementById('result-vis');
+        const kDisplay = document.getElementById('k-display');
+        const logContainer = document.getElementById('log-container');
+        const stepBackBtn = document.getElementById('step-back-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const stepForwardBtn = document.getElementById('step-forward-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const codeStepsContainer = document.getElementById('code-steps-container');
+        const prevStepBtn = document.getElementById('prev-step-btn');
+        const nextStepBtn = document.getElementById('next-step-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        
+        // State elements
+        const stateStatus = document.getElementById('state-status');
+        const stateIndex = document.getElementById('state-index');
+        const stateElement = document.getElementById('state-element');
+        const stateFrequency = document.getElementById('state-frequency');
+        const stateHeapSize = document.getElementById('state-heap-size');
+        const statePhase = document.getElementById('state-phase');
+        
+        function logWithType(message, type = 'info') {
+            console.log(message);
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function log(message) {
+            logWithType(message, 'info');
+        }
+        
+        function displayCodeStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= algorithmSteps.length) return;
+            
+            currentCodeStep = stepIndex;
+            const step = algorithmSteps[stepIndex];
+            
+            codeStepsContainer.innerHTML = `
+                <div class="code-step">
+                    <div class="code-step-header">
+                        <div class="code-step-number">${stepIndex + 1}</div>
+                        <div>
+                            <div class="font-bold">Step ${stepIndex + 1}: ${step.title}</div>
+                            <div class="text-sm text-gray-600 mt-1">${step.description}</div>
+                        </div>
+                    </div>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg text-sm overflow-x-auto mt-3"><code>${step.code}</code></pre>
+                </div>
+            `;
+            
+            prevStepBtn.disabled = currentCodeStep === 0;
+            nextStepBtn.disabled = currentCodeStep === algorithmSteps.length - 1;
+        }
+        
+        function updateInputVisualization(currentIndex = -1) {
+            inputVis.innerHTML = '';
+            
+            for (let i = 0; i < inputArray.length; i++) {
+                const element = document.createElement('div');
+                element.className = 'element-box';
+                element.textContent = inputArray[i];
+                element.id = `input-${i}`;
+                
+                if (i === currentIndex) {
+                    element.classList.add('current');
+                } else if (i < currentIndex) {
+                    element.classList.add('processed');
+                }
+                
+                inputVis.appendChild(element);
+            }
+        }
+        
+        function updateFrequencyVisualization(frequencies, activeElement = null) {
+            frequencyVis.innerHTML = '';
+            
+            if (Object.keys(frequencies).length === 0) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'text-gray-500 text-center';
+                placeholder.textContent = 'Frequency map will appear here...';
+                frequencyVis.appendChild(placeholder);
+                return;
+            }
+            
+            Object.entries(frequencies).forEach(([element, freq]) => {
+                const entry = document.createElement('div');
+                entry.className = 'freq-entry';
+                if (element == activeElement) {
+                    entry.classList.add('active');
+                }
+                
+                entry.innerHTML = `
+                    <span class="font-medium">${element}</span>
+                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">${freq}</span>
+                `;
+                
+                frequencyVis.appendChild(entry);
+            });
+        }
+        
+        function updateHeapVisualization(heap, newElement = null, removedElement = null) {
+            heapContainer.innerHTML = '';
+            
+            if (heap.length === 0) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'text-gray-500 text-center';
+                placeholder.textContent = 'Min-heap will appear here...';
+                heapContainer.appendChild(placeholder);
+                return;
+            }
+            
+            // Display heap as a simple array for now (could be enhanced to show tree structure)
+            const heapDisplay = document.createElement('div');
+            heapDisplay.className = 'flex flex-wrap justify-center gap-2';
+            
+            heap.forEach((element, index) => {
+                const node = document.createElement('div');
+                node.className = 'heap-node';
+                
+                if (element === newElement) {
+                    node.classList.add('new');
+                } else if (element === removedElement) {
+                    node.classList.add('removed');
+                }
+                
+                node.innerHTML = `
+                    <div class="text-lg font-bold">${element}</div>
+                    <div class="text-xs text-gray-600">freq: ${steps[currentStep]?.frequencies?.[element] || 0}</div>
+                `;
+                
+                heapDisplay.appendChild(node);
+            });
+            
+            heapContainer.appendChild(heapDisplay);
+        }
+        
+        function updateResultVisualization(result, newElement = null) {
+            resultVis.innerHTML = '';
+            
+            if (result.length === 0) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'text-gray-500 text-center';
+                placeholder.textContent = 'Result will appear here...';
+                resultVis.appendChild(placeholder);
+                return;
+            }
+            
+            result.forEach(element => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                if (element === newElement) {
+                    item.classList.add('new');
+                }
+                item.textContent = element;
+                resultVis.appendChild(item);
+            });
+        }
+        
+        function updateStates(index, element, frequency, heapSize, phase, status) {
+            if (stateStatus) stateStatus.textContent = status;
+            if (stateIndex) stateIndex.textContent = index >= 0 ? index : 'N/A';
+            if (stateElement) stateElement.textContent = element !== null ? element : 'N/A';
+            if (stateFrequency) stateFrequency.textContent = frequency !== null ? frequency : 'N/A';
+            if (stateHeapSize) stateHeapSize.textContent = heapSize;
+            if (statePhase) statePhase.textContent = phase;
+        }
+        
+        function generateSteps() {
+            steps = [];
+            
+            // Count frequencies
+            const frequencies = {};
+            for (let num of inputArray) {
+                frequencies[num] = (frequencies[num] || 0) + 1;
+            }
+            
+            // Initial step
+            steps.push({
+                index: -1,
+                element: null,
+                frequencies: {},
+                heap: [],
+                result: [],
+                message: '🚀 Starting Top K Frequent Elements algorithm...',
+                status: 'Initializing',
+                phase: 'Initialize',
+                codeStep: 0
+            });
+            
+            // Early return check
+            if (k === inputArray.length) {
+                steps.push({
+                    index: -1,
+                    element: null,
+                    frequencies: frequencies,
+                    heap: [],
+                    result: [...inputArray],
+                    message: `✅ k equals array length (${k}), returning entire array`,
+                    status: 'Early Return',
+                    phase: 'Complete',
+                    codeStep: 0
+                });
+                return steps;
+            }
+            
+            // Count frequencies phase
+            for (let i = 0; i < inputArray.length; i++) {
+                const num = inputArray[i];
+                const currentFreqs = {};
+                for (let j = 0; j <= i; j++) {
+                    const n = inputArray[j];
+                    currentFreqs[n] = (currentFreqs[n] || 0) + 1;
+                }
+                
+                steps.push({
+                    index: i,
+                    element: num,
+                    frequencies: currentFreqs,
+                    heap: [],
+                    result: [],
+                    message: `🔍 Processing element ${num}, frequency now: ${currentFreqs[num]}`,
+                    status: 'Counting Frequencies',
+                    phase: 'Count Phase',
+                    codeStep: 1
+                });
+            }
+            
+            // Heap processing phase
+            const heap = [];
+            const uniqueElements = Object.keys(frequencies);
+            
+            steps.push({
+                index: -1,
+                element: null,
+                frequencies: frequencies,
+                heap: [],
+                result: [],
+                message: `🎯 Frequency counting complete. Processing ${uniqueElements.length} unique elements with min-heap`,
+                status: 'Starting Heap Phase',
+                phase: 'Heap Phase',
+                codeStep: 2
+            });
+            
+            for (let i = 0; i < uniqueElements.length; i++) {
+                const element = parseInt(uniqueElements[i]);
+                heap.push(element);
+                
+                // Sort heap by frequency (min-heap)
+                heap.sort((a, b) => frequencies[a] - frequencies[b]);
+                
+                steps.push({
+                    index: i,
+                    element: element,
+                    frequencies: frequencies,
+                    heap: [...heap],
+                    result: [],
+                    newElement: element,
+                    message: `➕ Added element ${element} (freq: ${frequencies[element]}) to heap`,
+                    status: 'Adding to Heap',
+                    phase: 'Heap Phase',
+                    codeStep: 3
+                });
+                
+                if (heap.length > k) {
+                    const removed = heap.shift(); // Remove min element
+                    steps.push({
+                        index: i,
+                        element: element,
+                        frequencies: frequencies,
+                        heap: [...heap],
+                        result: [],
+                        removedElement: removed,
+                        message: `➖ Heap size > k, removed ${removed} (freq: ${frequencies[removed]})`,
+                        status: 'Removing from Heap',
+                        phase: 'Heap Phase',
+                        codeStep: 3
+                    });
+                }
+            }
+            
+            // Extract result
+            const result = [];
+            const finalHeap = [...heap];
+            
+            for (let i = 0; i < k && finalHeap.length > 0; i++) {
+                const element = finalHeap.shift();
+                result.push(element);
+                
+                steps.push({
+                    index: i,
+                    element: element,
+                    frequencies: frequencies,
+                    heap: [...finalHeap],
+                    result: [...result],
+                    newElement: element,
+                    message: `🎉 Extracted ${element} as #${i + 1} most frequent element`,
+                    status: 'Building Result',
+                    phase: 'Result Phase',
+                    codeStep: 4
+                });
+            }
+            
+            // Final step
+            steps.push({
+                index: -1,
+                element: null,
+                frequencies: frequencies,
+                heap: [],
+                result: result,
+                message: `✅ Algorithm complete! Top ${k} frequent elements: [${result.join(', ')}]`,
+                status: 'Complete',
+                phase: 'Complete',
+                codeStep: 4
+            });
+            
+            return steps;
+        }
+        
+        function renderStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= steps.length) return;
+            
+            const step = steps[stepIndex];
+            
+            // Update visualizations
+            updateInputVisualization(step.index);
+            updateFrequencyVisualization(step.frequencies, step.element);
+            updateHeapVisualization(step.heap, step.newElement, step.removedElement);
+            updateResultVisualization(step.result, step.newElement);
+            
+            // Update states
+            updateStates(step.index, step.element, step.frequencies[step.element], step.heap.length, step.phase, step.status);
+            
+            // Update code step
+            if (step.codeStep !== undefined) {
+                displayCodeStep(step.codeStep);
+            }
+            
+            // Log message
+            if (step.message.includes('✅')) {
+                logWithType(step.message, 'success');
+            } else if (step.message.includes('🔍') || step.message.includes('🎯')) {
+                logWithType(step.message, 'info');
+            } else if (step.message.includes('➕')) {
+                logWithType(step.message, 'success');
+            } else if (step.message.includes('➖')) {
+                logWithType(step.message, 'warning');
+            } else if (step.message.includes('🎉')) {
+                logWithType(step.message, 'success');
+            } else {
+                logWithType(step.message, 'info');
+            }
+        }
+        
+        function runVisualization() {
+            logContainer.innerHTML = '';
+            log('🚀 Starting Top K Frequent Elements visualization...');
+            
+            // Parse input
+            const inputStr = arrayInput.value.trim();
+            const kValue = parseInt(kInput.value);
+            
+            if (!inputStr) {
+                alert('Please enter an array');
+                return;
+            }
+            
+            if (!kValue || kValue < 1) {
+                alert('Please enter a valid k value (≥ 1)');
+                return;
+            }
+            
+            try {
+                inputArray = inputStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            } catch (e) {
+                alert('Invalid input format. Please use comma-separated integers.');
+                return;
+            }
+            
+            if (inputArray.length === 0) {
+                alert('Array must contain at least one element');
+                return;
+            }
+            
+            k = kValue;
+            kDisplay.textContent = k;
+            
+            if (k > inputArray.length) {
+                alert(`k (${k}) cannot be greater than array length (${inputArray.length})`);
+                return;
+            }
+            
+            log(`📊 Input array: [${inputArray.join(', ')}], k = ${k}`);
+            
+            // Generate steps
+            generateSteps();
+            
+            // Start visualization
+            currentStep = 0;
+            renderStep(currentStep);
+            
+            logWithType(`🎯 Generated ${steps.length} steps for visualization`, 'success');
+        }
+        
+        // ...existing code... (stepForward, stepBackward, togglePlay, etc. - same as previous visualizations)
+
+        function stepForward() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep(currentStep);
+            } else {
+                stopAnimation();
+            }
+        }
+        
+        function stepBackward() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderStep(currentStep);
+            }
+        }
+        
+        function togglePlay() {
+            if (isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        }
+        
+        function startAnimation() {
+            isPlaying = true;
+            if (playIcon && pauseIcon) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            }
+            playInterval = setInterval(stepForward, 1400);
+        }
+        
+        function stopAnimation() {
+            isPlaying = false;
+            if (playIcon && pauseIcon) {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+            clearInterval(playInterval);
+        }
+        
+        function resetVisualization() {
+            stopAnimation();
+            currentStep = 0;
+            if (steps.length > 0) {
+                renderStep(currentStep);
+            }
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, adding event listeners');
+            
+            runBtn.addEventListener('click', runVisualization);
+            stepBackBtn.addEventListener('click', stepBackward);
+            playPauseBtn.addEventListener('click', togglePlay);
+            stepForwardBtn.addEventListener('click', stepForward);
+            resetBtn.addEventListener('click', resetVisualization);
+            
+            // Algorithm step navigation
+            prevStepBtn.addEventListener('click', () => {
+                if (currentCodeStep > 0) {
+                    displayCodeStep(currentCodeStep - 1);
+                }
+            });
+            
+            nextStepBtn.addEventListener('click', () => {
+                if (currentCodeStep < algorithmSteps.length - 1) {
+                    displayCodeStep(currentCodeStep + 1);
+                }
+            });
+            
+            // Initialize display
+            displayCodeStep(0);
+            updateStates(-1, null, null, 0, 'Initialize', 'Ready');
+            updateFrequencyVisualization({});
+            updateHeapVisualization([]);
+            updateResultVisualization([]);
+            
+            // Welcome message
+            logWithType('🚀 Welcome! Enter an array and k value, then click "Run Visualization" to see the Top K Frequent Elements algorithm in action.', 'info');
+        });
+        
+        console.log('Top K Frequent Elements script setup complete');
+    </script>
 </body>
 </html>

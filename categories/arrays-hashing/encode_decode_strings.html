@@ -5,17 +5,587 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Encode and Decode Strings | LC 271 (Premium) Visualizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code-line { transition: all 0.3s ease; }
+        .active-line { background-color: #fef3c7; border-left: 4px solid #f59e0b; }
+        .string-item { 
+            padding: 8px 12px; 
+            margin: 4px; 
+            border-radius: 6px; 
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .string-processing { background-color: #fef3c7; border: 2px solid #f59e0b; }
+        .string-done { background-color: #dcfce7; border: 2px solid #16a34a; }
+        .encoded-char { 
+            display: inline-block; 
+            padding: 2px 4px; 
+            margin: 1px; 
+            border-radius: 3px; 
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .normal-char { background-color: #e5e7eb; }
+        .separator-char { background-color: #fecaca; color: #dc2626; font-weight: bold; }
+        .special-char { background-color: #fde68a; color: #d97706; font-weight: bold; }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Encode and Decode Strings | LC 271 (Premium)</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Encode and Decode Strings</h1>
+            <p class="text-lg text-gray-600 mb-4">LC 271 (Premium) - Interactive Visualization</p>
+            <div class="bg-white rounded-lg shadow-lg p-4 max-w-4xl mx-auto">
+                <div class="text-sm text-gray-600 mb-4">
+                    <strong>Algorithm:</strong> Character separation using special delimiter (ASCII 257)
+                    <br><strong>Time Complexity:</strong> O(n) for encode/decode where n is total length
+                    <br><strong>Space Complexity:</strong> O(n) for storing encoded string
+                    <br><strong>Key Insight:</strong> Use non-printable characters as delimiters to handle any input safely
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <!-- Input/Control Panel -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Input & Controls</h2>
+                    
+                    <!-- Input Section -->
+                    <div class="mb-6 space-y-4">
+                        <div>
+                            <label class="text-sm font-medium block mb-2">String List (one per line):</label>
+                            <textarea id="stringInput" class="w-full h-32 p-3 border border-gray-300 rounded-lg font-mono text-sm" 
+                                placeholder="hello&#10;world&#10;test&#10;"></textarea>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <button id="encodeBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+                                🔒 Encode
+                            </button>
+                            <button id="decodeBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                                🔓 Decode
+                            </button>
+                            <button id="resetBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
+                                🔄 Reset
+                            </button>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button id="sampleBtn1" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition-colors">
+                                Sample 1
+                            </button>
+                            <button id="sampleBtn2" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition-colors">
+                                Sample 2
+                            </button>
+                            <button id="sampleBtn3" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition-colors">
+                                Edge Case
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Animation Controls -->
+                    <div class="mb-6 space-y-4">
+                        <div class="flex flex-wrap gap-2">
+                            <button id="playBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                                ▶ Play
+                            </button>
+                            <button id="pauseBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">
+                                ⏸ Pause
+                            </button>
+                            <button id="stepBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+                                ⏭ Step
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="text-sm font-medium">Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5" class="w-32">
+                            <span id="speedValue" class="text-sm">5x</span>
+                        </div>
+                    </div>
+
+                    <!-- Current Status -->
+                    <div class="space-y-2">
+                        <div id="currentOperation" class="text-lg font-semibold">Ready</div>
+                        <div id="currentStep" class="text-gray-600">Select operation to begin</div>
+                    </div>
+                </div>
+
+                <!-- Visualization Panel -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Visual Process</h2>
+                    
+                    <!-- Original Strings -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-2">Original String List</h3>
+                        <div id="originalStrings" class="bg-gray-50 p-4 rounded-lg min-h-20">
+                            <!-- Original strings will be displayed here -->
+                        </div>
+                    </div>
+
+                    <!-- Encoded String -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-2">Encoded String</h3>
+                        <div id="encodedString" class="bg-gray-50 p-4 rounded-lg min-h-20 font-mono text-sm">
+                            <!-- Encoded string will be displayed here -->
+                        </div>
+                    </div>
+
+                    <!-- Decoded Strings -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-2">Decoded String List</h3>
+                        <div id="decodedStrings" class="bg-gray-50 p-4 rounded-lg min-h-20">
+                            <!-- Decoded strings will be displayed here -->
+                        </div>
+                    </div>
+
+                    <!-- Character Analysis -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Character Analysis</h3>
+                        <div class="text-xs space-y-1">
+                            <div><span class="normal-char encoded-char">a</span> Normal characters</div>
+                            <div><span class="separator-char encoded-char">※</span> Separator (ASCII 257)</div>
+                            <div><span class="special-char encoded-char">∅</span> Empty list marker (ASCII 258)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Panel -->
+            <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Java Implementation</h2>
+                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+                    <pre id="codeDisplay" class="text-sm"><code>public class Codec {
+
+    // Encodes a list of strings to a single string.
+    public String encode(List&lt;String&gt; strs) {
+        // Handle empty list case
+        if (strs.size() == 0) {
+            return Character.toString((char)258);
+        }
+        
+        // Use ASCII 257 as separator (non-printable character)
+        String separator = Character.toString((char)257);
+        StringBuilder sb = new StringBuilder();
+        
+        // Append each string with separator
+        for (String s : strs) {
+            sb.append(s);
+            sb.append(separator);
+        }
+        
+        // Remove last separator
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
+    // Decodes a single string to a list of strings.
+    public List&lt;String&gt; decode(String s) {
+        // Handle empty list case
+        if (s.equals(Character.toString((char)258))) {
+            return new ArrayList&lt;&gt;();
+        }
+        
+        String separator = Character.toString((char)257);
+        
+        // Split by separator, keeping empty strings
+        return Arrays.asList(s.split(separator, -1));
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- Execution Log -->
+            <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Execution Log</h2>
+                <div id="executionLog" class="bg-gray-50 p-4 rounded-lg h-40 overflow-y-auto font-mono text-sm">
+                    <!-- Execution steps will be logged here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Algorithm state
+        let currentStep = 0;
+        let isPlaying = false;
+        let animationSpeed = 500;
+        let currentOperation = 'none'; // 'encode' or 'decode'
+        let originalStrings = [];
+        let encodedString = '';
+        let decodedStrings = [];
+        let currentStepIndex = 0;
+
+        // Special characters
+        const SEPARATOR = String.fromCharCode(257);
+        const EMPTY_MARKER = String.fromCharCode(258);
+
+        // Sample data
+        const samples = {
+            1: ['hello', 'world', 'test'],
+            2: ['', 'a', '', 'b'],
+            3: [] // Empty list
+        };
+
+        // Animation steps for encoding
+        let encodeSteps = [];
+        let decodeSteps = [];
+
+        // Initialize the visualization
+        function initializeVisualization() {
+            resetVisualization();
+            setupEventListeners();
+            loadSample(1);
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('encodeBtn').addEventListener('click', startEncode);
+            document.getElementById('decodeBtn').addEventListener('click', startDecode);
+            document.getElementById('resetBtn').addEventListener('click', resetVisualization);
+            
+            document.getElementById('sampleBtn1').addEventListener('click', () => loadSample(1));
+            document.getElementById('sampleBtn2').addEventListener('click', () => loadSample(2));
+            document.getElementById('sampleBtn3').addEventListener('click', () => loadSample(3));
+            
+            document.getElementById('playBtn').addEventListener('click', playAnimation);
+            document.getElementById('pauseBtn').addEventListener('click', pauseAnimation);
+            document.getElementById('stepBtn').addEventListener('click', stepAnimation);
+            
+            document.getElementById('speedSlider').addEventListener('input', (e) => {
+                animationSpeed = parseInt(e.target.value);
+                document.getElementById('speedValue').textContent = `${animationSpeed}x`;
+            });
+        }
+
+        // Load sample data
+        function loadSample(num) {
+            const sample = samples[num];
+            document.getElementById('stringInput').value = sample.join('\n');
+            originalStrings = [...sample];
+            updateOriginalStringsDisplay();
+            resetVisualization();
+        }
+
+        // Parse input strings
+        function parseInputStrings() {
+            const input = document.getElementById('stringInput').value;
+            return input.split('\n').filter(line => line !== null);
+        }
+
+        // Update original strings display
+        function updateOriginalStringsDisplay() {
+            const container = document.getElementById('originalStrings');
+            container.innerHTML = '';
+            
+            if (originalStrings.length === 0) {
+                container.innerHTML = '<span class="text-gray-500 italic">Empty list</span>';
+                return;
+            }
+
+            originalStrings.forEach((str, index) => {
+                const item = document.createElement('div');
+                item.className = 'string-item bg-blue-100';
+                item.textContent = str === '' ? '(empty string)' : `"${str}"`;
+                item.id = `original-${index}`;
+                container.appendChild(item);
+            });
+        }
+
+        // Update encoded string display
+        function updateEncodedStringDisplay() {
+            const container = document.getElementById('encodedString');
+            container.innerHTML = '';
+            
+            if (!encodedString) {
+                container.innerHTML = '<span class="text-gray-500 italic">No encoded string</span>';
+                return;
+            }
+
+            for (let i = 0; i < encodedString.length; i++) {
+                const char = encodedString[i];
+                const span = document.createElement('span');
+                span.className = 'encoded-char';
+                
+                if (char === SEPARATOR) {
+                    span.className += ' separator-char';
+                    span.textContent = '※';
+                    span.title = `Separator (ASCII 257)`;
+                } else if (char === EMPTY_MARKER) {
+                    span.className += ' special-char';
+                    span.textContent = '∅';
+                    span.title = `Empty marker (ASCII 258)`;
+                } else {
+                    span.className += ' normal-char';
+                    span.textContent = char === '' ? '⌀' : char;
+                }
+                
+                container.appendChild(span);
+            }
+        }
+
+        // Update decoded strings display
+        function updateDecodedStringsDisplay() {
+            const container = document.getElementById('decodedStrings');
+            container.innerHTML = '';
+            
+            if (decodedStrings.length === 0) {
+                container.innerHTML = '<span class="text-gray-500 italic">No decoded strings</span>';
+                return;
+            }
+
+            decodedStrings.forEach((str, index) => {
+                const item = document.createElement('div');
+                item.className = 'string-item bg-green-100';
+                item.textContent = str === '' ? '(empty string)' : `"${str}"`;
+                item.id = `decoded-${index}`;
+                container.appendChild(item);
+            });
+        }
+
+        // Start encoding process
+        function startEncode() {
+            originalStrings = parseInputStrings();
+            updateOriginalStringsDisplay();
+            
+            currentOperation = 'encode';
+            currentStepIndex = 0;
+            isPlaying = false;
+            
+            document.getElementById('currentOperation').textContent = 'Encoding';
+            document.getElementById('currentStep').textContent = 'Preparing to encode...';
+            
+            // Generate encode steps
+            generateEncodeSteps();
+            log('🔒 Starting encode operation');
+        }
+
+        // Start decoding process
+        function startDecode() {
+            if (!encodedString) {
+                alert('Please encode a string first!');
+                return;
+            }
+            
+            currentOperation = 'decode';
+            currentStepIndex = 0;
+            isPlaying = false;
+            
+            document.getElementById('currentOperation').textContent = 'Decoding';
+            document.getElementById('currentStep').textContent = 'Preparing to decode...';
+            
+            // Generate decode steps
+            generateDecodeSteps();
+            log('🔓 Starting decode operation');
+        }
+
+        // Generate encoding steps
+        function generateEncodeSteps() {
+            encodeSteps = [];
+            
+            if (originalStrings.length === 0) {
+                encodeSteps.push({
+                    type: 'empty_case',
+                    description: 'Handle empty list case',
+                    action: () => {
+                        encodedString = EMPTY_MARKER;
+                        updateEncodedStringDisplay();
+                    }
+                });
+                return;
+            }
+
+            encodeSteps.push({
+                type: 'start',
+                description: 'Initialize StringBuilder and separator',
+                action: () => {}
+            });
+
+            originalStrings.forEach((str, index) => {
+                encodeSteps.push({
+                    type: 'process_string',
+                    index: index,
+                    string: str,
+                    description: `Processing string ${index + 1}: "${str}"`,
+                    action: () => {
+                        // Highlight current string
+                        document.querySelectorAll('.string-item').forEach(el => {
+                            el.classList.remove('string-processing');
+                        });
+                        const currentEl = document.getElementById(`original-${index}`);
+                        if (currentEl) currentEl.classList.add('string-processing');
+                        
+                        // Build encoded string progressively
+                        let partial = '';
+                        for (let i = 0; i <= index; i++) {
+                            partial += originalStrings[i];
+                            if (i < index) partial += SEPARATOR;
+                        }
+                        encodedString = partial;
+                        updateEncodedStringDisplay();
+                    }
+                });
+            });
+
+            encodeSteps.push({
+                type: 'finalize',
+                description: 'Encoding complete',
+                action: () => {
+                    document.querySelectorAll('.string-item').forEach(el => {
+                        el.classList.remove('string-processing');
+                        el.classList.add('string-done');
+                    });
+                }
+            });
+        }
+
+        // Generate decoding steps
+        function generateDecodeSteps() {
+            decodeSteps = [];
+            
+            if (encodedString === EMPTY_MARKER) {
+                decodeSteps.push({
+                    type: 'empty_case',
+                    description: 'Handle empty list marker',
+                    action: () => {
+                        decodedStrings = [];
+                        updateDecodedStringsDisplay();
+                    }
+                });
+                return;
+            }
+
+            decodeSteps.push({
+                type: 'start',
+                description: 'Starting decode with separator split',
+                action: () => {
+                    decodedStrings = [];
+                    updateDecodedStringsDisplay();
+                }
+            });
+
+            const parts = encodedString.split(SEPARATOR);
+            parts.forEach((part, index) => {
+                decodeSteps.push({
+                    type: 'decode_part',
+                    index: index,
+                    part: part,
+                    description: `Extracting part ${index + 1}: "${part}"`,
+                    action: () => {
+                        decodedStrings = parts.slice(0, index + 1);
+                        updateDecodedStringsDisplay();
+                    }
+                });
+            });
+
+            decodeSteps.push({
+                type: 'finalize',
+                description: 'Decoding complete',
+                action: () => {
+                    document.querySelectorAll('#decodedStrings .string-item').forEach(el => {
+                        el.classList.add('string-done');
+                    });
+                }
+            });
+        }
+
+        // Play animation
+        function playAnimation() {
+            if (currentOperation === 'none') {
+                alert('Please select encode or decode first!');
+                return;
+            }
+            
+            isPlaying = true;
+            animate();
+        }
+
+        // Pause animation
+        function pauseAnimation() {
+            isPlaying = false;
+        }
+
+        // Step animation
+        function stepAnimation() {
+            if (currentOperation === 'none') {
+                alert('Please select encode or decode first!');
+                return;
+            }
+            
+            executeStep();
+        }
+
+        // Execute current step
+        function executeStep() {
+            const steps = currentOperation === 'encode' ? encodeSteps : decodeSteps;
+            
+            if (currentStepIndex >= steps.length) {
+                isPlaying = false;
+                document.getElementById('currentStep').textContent = 'Operation complete';
+                return false;
+            }
+
+            const step = steps[currentStepIndex];
+            document.getElementById('currentStep').textContent = step.description;
+            
+            step.action();
+            log(`Step ${currentStepIndex + 1}: ${step.description}`);
+            
+            currentStepIndex++;
+            return true;
+        }
+
+        // Animation loop
+        function animate() {
+            if (isPlaying && executeStep()) {
+                setTimeout(animate, 1100 - animationSpeed * 100);
+            } else {
+                isPlaying = false;
+            }
+        }
+
+        // Log execution step
+        function log(message) {
+            const logContainer = document.getElementById('executionLog');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'mb-1';
+            logEntry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Reset visualization
+        function resetVisualization() {
+            currentStep = 0;
+            currentStepIndex = 0;
+            isPlaying = false;
+            currentOperation = 'none';
+            encodedString = '';
+            decodedStrings = [];
+            encodeSteps = [];
+            decodeSteps = [];
+            
+            document.getElementById('currentOperation').textContent = 'Ready';
+            document.getElementById('currentStep').textContent = 'Select operation to begin';
+            document.getElementById('executionLog').innerHTML = '';
+            
+            updateEncodedStringDisplay();
+            updateDecodedStringsDisplay();
+            
+            // Clear highlighting
+            document.querySelectorAll('.string-item').forEach(el => {
+                el.classList.remove('string-processing', 'string-done');
+            });
+            
+            log('🔄 Visualization reset');
+        }
+
+        // Initialize on page load
+        initializeVisualization();
+    </script>
 </body>
 </html>

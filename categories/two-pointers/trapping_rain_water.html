@@ -3,19 +3,648 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trapping Rain Water | LC 42 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>LeetCode 42: Trapping Rain Water - Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1f2937;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        /* General style for inline code snippets */
+        code {
+            font-family: 'SF Mono', 'Courier New', monospace;
+            background-color: #e5e7eb;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+        }
+        /* Remove background for code inside a pre block to avoid conflicts */
+        pre > code {
+            background-color: transparent;
+            padding: 0;
+        }
+        
+        /* Navigation Button */
+        .nav-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            transition: background-color 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        .nav-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Layout Specific Classes from Guide */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header p {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .problem-description, .java-code, .log-of-execution, .full-explanation-script {
+            width: 100%;
+        }
+        .two-column-layout {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .left-column {
+            width: 40%;
+        }
+        .right-column {
+            width: 60%;
+        }
+        
+        /* Component Specific Styling */
+        .code-block {
+            background-color: #1f2937;
+            color: #d1d5db;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+        }
+        .code-block .comment {
+            color: #6b7280;
+        }
+        .highlight-line {
+            background-color: #4a5568;
+            display: block;
+            margin: 0 -1rem;
+            padding: 0 1rem;
+            border-left: 4px solid #f59e0b;
+        }
+        .visualization-container {
+            width: 100%;
+            height: 320px;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .controls-container {
+            margin-bottom: 1rem;
+        }
+        .controls-container input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+        }
+        .controls-container button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+        }
+        .execution-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .icon-btn {
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover {
+            background-color: #d1d5db;
+        }
+        .icon-btn svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+        .play-pause-btn {
+            background-color: #4f46e5;
+            color: white;
+            width: 4rem;
+            height: 4rem;
+        }
+        .play-pause-btn:hover {
+            background-color: #4338ca;
+        }
+        .log-console {
+            width: 100%;
+            height: 160px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .state-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        .state-display div p:first-child {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+         .state-display div p:last-child {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Trapping Rain Water | LC 42</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body>
+    <div class="container">
+        <a href="../../index.html" class="nav-button">← Back to Home</a>
+        
+        <header class="header">
+            <h1>Trapping Rain Water</h1>
+            <p>An Interactive Visual Explainer</p>
+        </header>
+
+        <div class="problem-description card">
+            <h2>Problem: LeetCode 42</h2>
+            <p>Given <code>n</code> non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.</p>
+            <p style="margin-top: 1rem;"><strong>Example:</strong> Input: <code>height = [0,1,0,2,1,0,1,3,2,1,2,1]</code>, Output: <code>6</code></p>
+        </div>
+
+        <div class="java-code card">
+            <h2>Java Solution Code</h2>
+            <pre class="code-block"><code><span class="comment">// class Solution { ...</span>
+    public int trap(int[] height) {
+        if (height == null || height.length == 0) return 0;
+
+        <span class="comment">// Step 1: Initialization</span>
+        int left = 0;
+        int right = height.length - 1;
+        int total = 0;
+        int leftMax = height[left];
+        int rightMax = height[right];
+        
+        <span class="comment">// Step 2: Loop until pointers meet</span>
+        while(left < right){
+            <span class="comment">// Step 3: Compare heights to find the bottleneck</span>
+            if(height[left] < height[right]){
+                <span class="comment">// Step 4: Process the left side</span>
+                left++;
+                leftMax = Math.max(leftMax, height[left]);
+                if(leftMax - height[left] > 0){
+                    total += leftMax - height[left];
+                }
+            }
+            else{
+                <span class="comment">// Step 5: Process the right side</span>
+                right--;
+                rightMax = Math.max(rightMax, height[right]);
+                if(rightMax - height[right] > 0){
+                    total += rightMax - height[right];
+                }
+            }
+        }
+        <span class="comment">// Step 6: Return the total trapped water</span>
+        return total;
+    }
+<span class="comment">// }</span></code></pre>
+        </div>
+
+        <div class="two-column-layout">
+            <div class="left-column">
+                <div class="intuition-section card">
+                    <h2>Intuition</h2>
+                    <p>The amount of water trapped above any bar is determined by the height of the walls on its left and right. Specifically, it's limited by the shorter of the two highest walls (<code>leftMax</code> and <code>rightMax</code>) surrounding it.</p>
+                    <p style="margin-top: 0.5rem;">We use a two-pointer approach, starting from the edges of the array. At each step, we process the side with the lower height, as it's the bottleneck for trapping water. We move the corresponding pointer inward, update the max height for that side, and add any trapped water to our total.</p>
+                </div>
+                <div class="step-by-step-code card">
+                    <h2>Step-by-Step Code</h2>
+                    <div id="step-content"></div>
+                </div>
+            </div>
+            <div class="right-column">
+                <div class="live-visualization card">
+                    <h2>Live Visualization & Controls</h2>
+                    <div class="controls-container" style="display: flex; gap: 1rem; align-items: flex-end;">
+                        <div style="flex-grow: 1;">
+                            <label for="height-input" style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">Heights Array:</label>
+                            <input type="text" id="height-input" value="0,1,0,2,1,0,1,3,2,1,2,1">
+                        </div>
+                        <button id="run-btn">Run</button>
+                    </div>
+                    <div class="visualization-container">
+                        <svg id="viz-svg" width="100%" height="100%"></svg>
+                    </div>
+                    <div class="algorithm-state" style="margin-top: 1.5rem;">
+                        <h3>Algorithm State</h3>
+                        <div class="state-display">
+                            <div><p>Left Pointer</p><p id="state-left">-</p></div>
+                            <div><p>Right Pointer</p><p id="state-right">-</p></div>
+                            <div><p>Left Max</p><p id="state-leftMax" style="color: #3b82f6;">-</p></div>
+                            <div><p>Right Max</p><p id="state-rightMax" style="color: #16a34a;">-</p></div>
+                            <div><p>Added Water</p><p id="state-addedWater" style="color: #06b6d4;">-</p></div>
+                            <div><p>Total Water</p><p id="state-total" style="color: #4f46e5;">-</p></div>
+                        </div>
+                    </div>
+                    <div class="execution-controls">
+                        <button id="backward-btn" class="icon-btn" title="Step Backward"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg></button>
+                        <button id="play-pause-btn" class="icon-btn play-pause-btn" title="Run/Pause">
+                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" /></svg>
+                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-6-13.5v13.5" /></svg>
+                        </button>
+                        <button id="forward-btn" class="icon-btn" title="Step Forward"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-of-execution card">
+            <h2>Log of Step Execution</h2>
+            <div id="log-console" class="log-console">Welcome! Enter heights and press "Run" to start.</div>
+        </div>
+
+        <div class="full-explanation-script card">
+            <h2>Full Explanation Script (for Narration)</h2>
+            <div id="narration-script">
+                <p>Hello, and welcome to the interactive explainer for LeetCode problem 42: Trapping Rain Water.</p>
+                <p style="margin-top: 0.5rem;">The problem asks us to calculate how much rainwater can be trapped by a series of bars of different heights. We're given these heights in an array.</p>
+                <p style="margin-top: 0.5rem;">The core idea, or intuition, behind solving this is to realize that the water trapped above any single bar is limited by the height of the walls around it. More specifically, it's the minimum of the highest wall to its left and the highest wall to its right. The water level can only rise to the height of the shorter of these two "boundary" walls.</p>
+                <p style="margin-top: 0.5rem;">To implement this efficiently, we use a two-pointer approach. We start with a 'left' pointer at the very beginning of the array and a 'right' pointer at the very end. We also keep track of the maximum height seen so far from the left, called 'leftMax', and from the right, 'rightMax'.</p>
+                <p style="margin-top: 0.5rem;">The algorithm proceeds in a loop as long as the left pointer is to the left of the right pointer. In each step, we check which wall is shorter: the one at the left pointer or the one at the right pointer.</p>
+                <p style="margin-top: 0.5rem;">If the height at the left pointer is less than the height at the right pointer, we focus on the left side. This is because we know the right wall is taller, so the trapping boundary on the left side is determined solely by the 'leftMax'. We first move the left pointer, then update the leftMax, and finally check if this new position can trap water. If the current bar is shorter than 'leftMax', it traps water. The amount is 'leftMax' minus the current bar's height.</p>
+                <p style="margin-top: 0.5rem;">Conversely, if the height at the right pointer is less than or equal to the height on the left, we focus on the right side. The logic is symmetrical. We move the right pointer, update 'rightMax', and then check for trapped water. If the current right bar is shorter than 'rightMax', it traps water equal to 'rightMax' minus its height.</p>
+                <p style="margin-top: 0.5rem;">This process repeats, adding up the trapped water at each step, until the pointers meet in the middle. The final accumulated total is our answer. This method is highly efficient, running in linear time, O(N), because we traverse the array just once, and it uses constant extra space, O(1), for our variables.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const heightInput = document.getElementById('height-input');
+            const runBtn = document.getElementById('run-btn');
+            const svg = document.getElementById('viz-svg');
+            const logConsole = document.getElementById('log-console');
+            const stepContentEl = document.getElementById('step-content');
+            
+            const stateElements = {
+                left: document.getElementById('state-left'),
+                right: document.getElementById('state-right'),
+                leftMax: document.getElementById('state-leftMax'),
+                rightMax: document.getElementById('state-rightMax'),
+                addedWater: document.getElementById('state-addedWater'),
+                total: document.getElementById('state-total'),
+            };
+
+            const controlBtns = {
+                playPause: document.getElementById('play-pause-btn'),
+                forward: document.getElementById('forward-btn'),
+                backward: document.getElementById('backward-btn'),
+            };
+            
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+
+            // --- State ---
+            let states = [];
+            let currentStateIndex = -1;
+            let isPlaying = false;
+            let intervalId = null;
+
+            const codeSteps = [
+                {
+                    key: 'initialization',
+                    title: 'Step 1: Initialization',
+                    explanation: 'Set up initial variables. `left` and `right` pointers start at the ends of the array. `leftMax` and `rightMax` are initialized with the heights at the pointers. `total` water is 0.',
+                    code: `int left = 0;
+int right = height.length - 1;
+int total = 0;
+int leftMax = height[left];
+int rightMax = height[right];`
+                },
+                {
+                    key: 'loop',
+                    title: 'Step 2: Loop Until Pointers Meet',
+                    explanation: 'We iterate as long as the `left` pointer is to the left of the `right` pointer. The loop terminates when they meet or cross.',
+                    code: `while(left < right){`
+                },
+                {
+                    key: 'compare',
+                    title: 'Step 3: Compare Heights',
+                    explanation: 'Compare the heights at the two pointers. The smaller one is the bottleneck for trapping water, so we will process that side.',
+                    code: `if(height[left] < height[right]){`
+                },
+                {
+                    key: 'processLeft',
+                    title: 'Step 4: Process the Left Side',
+                    explanation: 'First, move the left pointer inward. Then, update `leftMax` to be the maximum height seen so far from the left. Finally, if the new `leftMax` is taller than the current bar, it means water can be trapped. Add the difference to `total`.',
+                    code: `left++;
+leftMax = Math.max(leftMax, height[left]);
+if(leftMax - height[left] > 0){
+    total += leftMax - height[left];
+}`
+                },
+                {
+                    key: 'processRight',
+                    title: 'Step 5: Process the Right Side',
+                    explanation: 'This logic is symmetrical to the left side. Move the right pointer inward, update `rightMax`, and if `rightMax` is taller than the current bar, add the trapped water amount to `total`.',
+                    code: `right--;
+rightMax = Math.max(rightMax, height[right]);
+if(rightMax - height[right] > 0){
+    total += rightMax - height[right];
+}`
+                },
+                {
+                    key: 'end',
+                    title: 'End of Loop',
+                    explanation: 'Once the `left` and `right` pointers meet, the loop condition `left < right` is false, and the loop terminates.',
+                    code: `}`
+                },
+                {
+                    key: 'return',
+                    title: 'Step 6: Return Result',
+                    explanation: 'The `total` variable now holds the complete amount of trapped water, which we return as the final answer.',
+                    code: `return total;`
+                }
+            ];
+
+            // --- Logic ---
+            function logMessage(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                logConsole.innerHTML += `<p><span style="color: #9ca3af;">${timestamp}</span> <span style="color: #6ee7b7;">> ${message}</span></p>`;
+                logConsole.scrollTop = logConsole.scrollHeight;
+            }
+
+            function generateStates() {
+                const heightsStr = heightInput.value.trim();
+                const heights = heightsStr.split(',').map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n) && n >= 0);
+
+                if (heights.length === 0) {
+                    logMessage("Invalid input array.");
+                    return [];
+                }
+
+                let history = [];
+                let left = 0;
+                let right = heights.length - 1;
+                let total = 0;
+                let leftMax = heights[left];
+                let rightMax = heights[right];
+                let water = new Array(heights.length).fill(0);
+
+                history.push({
+                    heights: [...heights], water: [...water], left, right, leftMax, rightMax, total, addedWater: 0,
+                    log: `Initial state. left=${left}, right=${right}, leftMax=${leftMax}, rightMax=${rightMax}`,
+                    stepKey: 'initialization',
+                });
+
+                while (left < right) {
+                    history.push({ ...history[history.length - 1], log: `Loop check: ${left} < ${right} is true.`, stepKey: 'loop' });
+                    history.push({ ...history[history.length - 1], log: `Comparing heights: height[${left}] (${heights[left]}) vs height[${right}] (${heights[right]})`, stepKey: 'compare' });
+
+                    let addedWater = 0;
+                    if (heights[left] < heights[right]) {
+                        left++;
+                        const oldLeftMax = leftMax;
+                        leftMax = Math.max(leftMax, heights[left]);
+                        addedWater = leftMax - heights[left];
+                        if (addedWater > 0) {
+                            total += addedWater;
+                            water[left] = addedWater;
+                        }
+                        history.push({
+                            heights: [...heights], water: [...water], left, right, leftMax, rightMax, total, addedWater,
+                            log: `Processed left. New left=${left}, leftMax=${leftMax}. Added ${addedWater > 0 ? addedWater : 0} water.`,
+                            stepKey: 'processLeft'
+                        });
+                    } else {
+                        right--;
+                        const oldRightMax = rightMax;
+                        rightMax = Math.max(rightMax, heights[right]);
+                        addedWater = rightMax - heights[right];
+                        if (addedWater > 0) {
+                            total += addedWater;
+                            water[right] = addedWater;
+                        }
+                        history.push({
+                            heights: [...heights], water: [...water], left, right, leftMax, rightMax, total, addedWater,
+                            log: `Processed right. New right=${right}, rightMax=${rightMax}. Added ${addedWater > 0 ? addedWater : 0} water.`,
+                            stepKey: 'processRight'
+                        });
+                    }
+                }
+
+                history.push({ ...history[history.length - 1], log: `Loop check: ${left} < ${right} is false. Loop ends.`, stepKey: 'end' });
+                history.push({ ...history[history.length - 1], log: `Return total trapped water: ${total}.`, stepKey: 'return' });
+                
+                return history;
+            }
+
+            // --- UI Update Functions ---
+            function drawVisualization(state) {
+                if (!state) return;
+                svg.innerHTML = '';
+                const { heights, water, left, right } = state;
+                const n = heights.length;
+                const svgWidth = svg.clientWidth;
+                const svgHeight = svg.clientHeight;
+                const barWidth = Math.max(1, svgWidth / (n + 1));
+                const maxH = Math.max(...heights, 1);
+                
+                heights.forEach((h, i) => {
+                    const barHeight = (h / maxH) * (svgHeight - 40);
+                    const x = i * barWidth;
+                    const y = svgHeight - barHeight - 20;
+
+                    const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    bar.setAttribute('x', x);
+                    bar.setAttribute('y', y);
+                    bar.setAttribute('width', barWidth - 1);
+                    bar.setAttribute('height', barHeight);
+                    bar.setAttribute('fill', '#4b5563');
+                    svg.appendChild(bar);
+
+                    if (water[i] > 0) {
+                        const waterHeight = (water[i] / maxH) * (svgHeight - 40);
+                        const waterY = y - waterHeight;
+                        const waterRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        waterRect.setAttribute('x', x);
+                        waterRect.setAttribute('y', waterY);
+                        waterRect.setAttribute('width', barWidth - 1);
+                        waterRect.setAttribute('height', waterHeight);
+                        waterRect.setAttribute('fill', '#38bdf8');
+                        waterRect.setAttribute('opacity', '0.7');
+                        svg.appendChild(waterRect);
+                    }
+                });
+
+                function createPointer(index, color, label) {
+                    const x = index * barWidth + (barWidth / 2);
+                    const pointer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    pointer.setAttribute('transform', `translate(${x}, 15)`);
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('fill', color);
+                    text.setAttribute('text-anchor', 'middle');
+                    text.style.fontSize = '14px';
+                    text.style.fontWeight = 'bold';
+                    text.textContent = label;
+                    const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    arrow.setAttribute('d', 'M0 -10 L-5 -15 L5 -15 Z');
+                    arrow.setAttribute('fill', color);
+                    arrow.setAttribute('transform', 'rotate(180)');
+                    pointer.appendChild(text);
+                    pointer.appendChild(arrow);
+                    return pointer;
+                }
+                if (left < n) svg.appendChild(createPointer(left, '#3b82f6', 'L'));
+                if (right >= 0) svg.appendChild(createPointer(right, '#16a34a', 'R'));
+            }
+
+            function updateCodeStepUI(stepKey) {
+                const step = codeSteps.find(s => s.key === stepKey);
+                if (!step) return;
+
+                let html = `<h3>${step.title}</h3>`;
+                html += `<p style="margin-bottom: 1rem; color: #4b5563;">${step.explanation}</p>`;
+                html += `<pre class="code-block"><code>${step.code}</code></pre>`;
+                
+                stepContentEl.innerHTML = html;
+            }
+
+            function updateUI(stateIndex) {
+                if (stateIndex < 0 || stateIndex >= states.length) return;
+                
+                currentStateIndex = stateIndex;
+                const state = states[currentStateIndex];
+                
+                stateElements.left.textContent = state.left;
+                stateElements.right.textContent = state.right;
+                stateElements.leftMax.textContent = state.leftMax;
+                stateElements.rightMax.textContent = state.rightMax;
+                stateElements.addedWater.textContent = state.addedWater;
+                stateElements.total.textContent = state.total;
+                
+                logMessage(state.log);
+                drawVisualization(state);
+                updateCodeStepUI(state.stepKey);
+            }
+            
+            // --- Control Functions ---
+            function stepForward() {
+                if (currentStateIndex < states.length - 1) {
+                    updateUI(currentStateIndex + 1);
+                } else {
+                    pause();
+                }
+            }
+
+            function stepBackward() {
+                if (currentStateIndex > 0) {
+                    updateUI(currentStateIndex - 1);
+                }
+            }
+            
+            function play() {
+                if (isPlaying) return;
+                isPlaying = true;
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+                
+                if (currentStateIndex >= states.length - 1) {
+                    currentStateIndex = -1;
+                }
+                
+                intervalId = setInterval(stepForward, 700);
+            }
+            
+            function pause() {
+                isPlaying = false;
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+
+            function handleRun() {
+                pause();
+                states = generateStates();
+                logConsole.innerHTML = '';
+                if (states.length > 0) {
+                   updateUI(0);
+                }
+            }
+
+            // --- Event Listeners ---
+            runBtn.addEventListener('click', handleRun);
+            controlBtns.playPause.addEventListener('click', () => {
+                if (isPlaying) pause();
+                else {
+                    if (states.length === 0 || currentStateIndex >= states.length - 1) handleRun();
+                    play();
+                }
+            });
+            controlBtns.forward.addEventListener('click', () => { pause(); stepForward(); });
+            controlBtns.backward.addEventListener('click', () => { pause(); stepBackward(); });
+            
+            // --- Initial setup ---
+            handleRun();
+        });
+    </script>
 </body>
 </html>

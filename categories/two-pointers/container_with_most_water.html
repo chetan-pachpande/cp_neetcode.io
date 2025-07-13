@@ -3,605 +3,668 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Container With Most Water | LC 11 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>LeetCode 11: Container With Most Water - Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1f2937;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        /* General style for inline code snippets */
+        code {
+            font-family: 'SF Mono', 'Courier New', monospace;
+            background-color: #e5e7eb;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+        }
+        /* Remove background for code inside a pre block to avoid conflicts */
+        pre > code {
+            background-color: transparent;
+            padding: 0;
+        }
+        
+        /* Navigation Button */
+        .nav-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            transition: background-color 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        .nav-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Layout Specific Classes */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header p {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .problem-description, .java-code, .log-of-execution, .full-explanation-script {
+            width: 100%;
+        }
+        .two-column-layout {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .left-column {
+            width: 40%;
+        }
+        .right-column {
+            width: 60%;
+        }
+        
+        /* Component Specific Styling */
+        .code-block {
+            background-color: #1f2937;
+            color: #d1d5db;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+        }
+        .code-block .comment {
+            color: #6b7280;
+        }
+        .visualization-container {
+            width: 100%;
+            height: 320px;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .controls-container {
+            margin-bottom: 1rem;
+        }
+        .controls-container input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+        }
+        .controls-container button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+        }
+        .execution-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .icon-btn {
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover {
+            background-color: #d1d5db;
+        }
+        .icon-btn svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+        .play-pause-btn {
+            background-color: #4f46e5;
+            color: white;
+            width: 4rem;
+            height: 4rem;
+        }
+        .play-pause-btn:hover {
+            background-color: #4338ca;
+        }
+        .log-console {
+            width: 100%;
+            height: 160px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .state-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        .state-display div p:first-child {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+         .state-display div p:last-child {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-    <div class="container mx-auto p-8">
-        <!-- Header -->
-        <header class="mb-8">
-            <h1 class="text-4xl font-bold text-center mb-2">Container With Most Water | LC 11</h1>
-            <p class="text-center text-gray-600 mb-4">Two-Pointers Algorithm Visualization</p>
-            <div class="text-center">
-                <a href="../../index.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">Back to Home</a>
-                <a href="../index.html" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Two-Pointers Category</a>
-            </div>
+<body>
+    <div class="container">
+        <a href="../../index.html" class="nav-button">← Back to Home</a>
+        
+        <header class="header">
+            <h1>Container With Most Water</h1>
+            <p>An Interactive Visual Explainer</p>
         </header>
 
-        <!-- Problem Description -->
-        <section class="mb-8 bg-white p-6 rounded-lg shadow">
-            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
-            <p class="mb-4">
-                You are given an integer array <code class="bg-gray-200 px-2 py-1 rounded">height</code> of length <code class="bg-gray-200 px-2 py-1 rounded">n</code>. 
-                There are <code class="bg-gray-200 px-2 py-1 rounded">n</code> vertical lines drawn such that the two endpoints of the 
-                <code class="bg-gray-200 px-2 py-1 rounded">i<sup>th</sup></code> line are <code class="bg-gray-200 px-2 py-1 rounded">(i, 0)</code> 
-                and <code class="bg-gray-200 px-2 py-1 rounded">(i, height[i])</code>.
-            </p>
-            <p class="mb-4">
-                Find two lines that together with the x-axis form a container that can hold the most water.
-            </p>
-            <p class="font-semibold">Return the maximum amount of water a container can store.</p>
-            
-            <div class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
-                <p class="font-semibold">Note:</p>
-                <p>You may not slant the container.</p>
-            </div>
-        </section>
+        <div class="problem-description card">
+            <h2>Problem: LeetCode 11</h2>
+            <p>You are given an integer array <code>height</code> of length <code>n</code>. There are <code>n</code> vertical lines drawn such that the two endpoints of the <code>i<sup>th</sup></code> line are <code>(i, 0)</code> and <code>(i, height[i])</code>.</p>
+            <p style="margin-top: 1rem;">Find two lines that together with the x-axis form a container that can hold the most water.</p>
+            <p style="margin-top: 1rem;"><strong>Example:</strong> Input: <code>height = [1,8,6,2,5,4,8,3,7]</code>, Output: <code>49</code></p>
+        </div>
 
-        <!-- Controls -->
-        <section class="mb-8 bg-white p-6 rounded-lg shadow">
-            <h2 class="text-2xl font-bold mb-4">Controls</h2>
-            <div class="flex flex-wrap gap-2 mb-4">
-                <button id="playPauseBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">▶ Play</button>
-                <button id="stepBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Step Forward</button>
-                <button id="resetBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Reset</button>
-                <select id="speedSelect" class="border px-3 py-2 rounded">
-                    <option value="1000">Slow</option>
-                    <option value="500" selected>Normal</option>
-                    <option value="250">Fast</option>
-                </select>
-            </div>
-            
-            <!-- Sample Inputs -->
-            <div class="mb-4">
-                <label class="block text-sm font-medium mb-2">Sample Inputs:</label>
-                <div class="flex flex-wrap gap-2">
-                    <button class="sample-input bg-purple-100 border border-purple-300 px-3 py-2 rounded hover:bg-purple-200" 
-                            data-input="[1,8,6,2,5,4,8,3,7]">Example 1: [1,8,6,2,5,4,8,3,7]</button>
-                    <button class="sample-input bg-purple-100 border border-purple-300 px-3 py-2 rounded hover:bg-purple-200" 
-                            data-input="[1,1]">Example 2: [1,1]</button>
-                    <button class="sample-input bg-purple-100 border border-purple-300 px-3 py-2 rounded hover:bg-purple-200" 
-                            data-input="[4,3,2,1,4]">Example 3: [4,3,2,1,4]</button>
-                    <button class="sample-input bg-purple-100 border border-purple-300 px-3 py-2 rounded hover:bg-purple-200" 
-                            data-input="[1,2,1]">Example 4: [1,2,1]</button>
-                </div>
-            </div>
-            
-            <!-- Custom Input -->
-            <div class="mb-4">
-                <label for="arrayInput" class="block text-sm font-medium mb-2">Custom Input (comma-separated):</label>
-                <div class="flex gap-2">
-                    <input type="text" id="arrayInput" placeholder="e.g., 1,8,6,2,5,4,8,3,7" 
-                           class="flex-1 border px-3 py-2 rounded">
-                    <button id="setInputBtn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Set Input</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Visualization -->
-        <section class="mb-8 bg-white p-6 rounded-lg shadow">
-            <h2 class="text-2xl font-bold mb-4">Visualization</h2>
-            <div id="visualizationContainer" class="border-2 border-gray-300 p-4 min-h-96 bg-gray-50 rounded">
-                <svg id="containerSvg" width="100%" height="400" class="border rounded"></svg>
-            </div>
-        </section>
-
-        <!-- Algorithm State -->
-        <section class="mb-8 bg-white p-6 rounded-lg shadow">
-            <h2 class="text-2xl font-bold mb-4">Algorithm State</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-blue-50 p-4 rounded">
-                    <div class="text-sm text-gray-600">Left Pointer</div>
-                    <div id="leftPointer" class="text-xl font-bold text-blue-600">0</div>
-                </div>
-                <div class="bg-green-50 p-4 rounded">
-                    <div class="text-sm text-gray-600">Right Pointer</div>
-                    <div id="rightPointer" class="text-xl font-bold text-green-600">0</div>
-                </div>
-                <div class="bg-purple-50 p-4 rounded">
-                    <div class="text-sm text-gray-600">Current Area</div>
-                    <div id="currentArea" class="text-xl font-bold text-purple-600">0</div>
-                </div>
-                <div class="bg-red-50 p-4 rounded">
-                    <div class="text-sm text-gray-600">Max Area</div>
-                    <div id="maxArea" class="text-xl font-bold text-red-600">0</div>
-                </div>
-            </div>
-            
-            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-yellow-50 p-4 rounded">
-                    <div class="text-sm text-gray-600">Width</div>
-                    <div id="currentWidth" class="text-xl font-bold text-yellow-600">0</div>
-                </div>
-                <div class="bg-indigo-50 p-4 rounded">
-                    <div class="text-sm text-gray-600">Height (min)</div>
-                    <div id="currentHeight" class="text-xl font-bold text-indigo-600">0</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Step Explanation -->
-        <section class="mb-8 bg-white p-6 rounded-lg shadow">
-            <h2 class="text-2xl font-bold mb-4">Step-by-Step Explanation</h2>
-            <div id="stepExplanation" class="text-lg p-4 bg-gray-50 rounded border">
-                Click "Play" or "Step Forward" to see the algorithm in action!
-            </div>
-        </section>
-
-        <!-- Code Explanation -->
-        <section class="mb-8 bg-white p-6 rounded-lg shadow">
-            <h2 class="text-2xl font-bold mb-4">Algorithm Explanation</h2>
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold mb-2">Two-Pointers Approach:</h3>
-                <ol class="list-decimal list-inside space-y-2 text-gray-700">
-                    <li>Initialize two pointers: left at the beginning and right at the end</li>
-                    <li>Calculate the area between the two pointers: min(height[left], height[right]) × (right - left)</li>
-                    <li>Keep track of the maximum area seen so far</li>
-                    <li>Move the pointer with the smaller height inward (this maximizes potential for larger area)</li>
-                    <li>Repeat until the pointers meet</li>
-                </ol>
-            </div>
-            
-            <div class="bg-gray-100 p-4 rounded">
-                <h4 class="font-semibold mb-2">Why move the pointer with smaller height?</h4>
-                <p class="text-gray-700">
-                    If we move the pointer with the larger height, the width decreases and the height is limited by 
-                    the smaller height, so the area can only decrease. Moving the smaller height pointer gives us 
-                    a chance to find a taller line that could increase the area.
-                </p>
-            </div>
-        </section>
-
-        <!-- Code Display -->
-        <section class="mb-8 bg-white p-6 rounded-lg shadow">
-            <h2 class="text-2xl font-bold mb-4">Code Implementation</h2>
-            <pre class="bg-gray-900 text-green-400 p-4 rounded overflow-x-auto"><code>public int maxArea(int[] height) {
-    int left = 0;
-    int right = height.length - 1;
-    int maxArea = 0;
-    
-    while (left < right) {
-        // Calculate current area
-        int width = right - left;
-        int minHeight = Math.min(height[left], height[right]);
-        int currentArea = width * minHeight;
+        <div class="java-code card">
+            <h2>Java Solution Code</h2>
+            <pre class="code-block"><code><span class="comment">// class Solution { ...</span>
+    public int maxArea(int[] height) {
+        <span class="comment">// Step 1: Initialization</span>
+        int left = 0;
+        int right = height.length - 1;
+        int maxArea = 0;
         
-        // Update maximum area
-        maxArea = Math.max(maxArea, currentArea);
-        
-        // Move the pointer with smaller height
-        if (height[left] < height[right]) {
-            left++;
-        } else {
-            right--;
+        <span class="comment">// Step 2: Loop until pointers meet</span>
+        while(left < right){
+            <span class="comment">// Step 3: Calculate current area</span>
+            int width = right - left;
+            int minHeight = Math.min(height[left], height[right]);
+            int currentArea = width * minHeight;
+            
+            <span class="comment">// Step 4: Update maximum area</span>
+            maxArea = Math.max(maxArea, currentArea);
+            
+            <span class="comment">// Step 5: Move pointer with smaller height</span>
+            if(height[left] < height[right]){
+                left++;
+            } else {
+                right--;
+            }
         }
+        <span class="comment">// Step 6: Return the maximum area</span>
+        return maxArea;
     }
-    
-    return maxArea;
-}</code></pre>
-        </section>
+<span class="comment">// }</span></code></pre>
+        </div>
 
-        <!-- Complexity Analysis -->
-        <section class="mb-8 bg-white p-6 rounded-lg shadow">
-            <h2 class="text-2xl font-bold mb-4">Complexity Analysis</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">Time Complexity</h3>
-                    <p class="text-2xl font-bold text-blue-600 mb-2">O(n)</p>
-                    <p class="text-gray-700">We visit each element at most once with the two pointers.</p>
+        <div class="two-column-layout">
+            <div class="left-column">
+                <div class="intuition-section card">
+                    <h2>Intuition</h2>
+                    <p>The key insight is that the area of water that can be contained is determined by the distance between two lines (width) and the height of the shorter line.</p>
+                    <p style="margin-top: 0.5rem;">Using a two-pointer approach, we start from the widest possible container (leftmost and rightmost lines). At each step, we move the pointer with the smaller height inward, as moving the taller one would only decrease the area since the height is still limited by the shorter line.</p>
                 </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">Space Complexity</h3>
-                    <p class="text-2xl font-bold text-green-600 mb-2">O(1)</p>
-                    <p class="text-gray-700">Only a constant amount of extra space is used.</p>
+                <div class="step-by-step-code card">
+                    <h2>Step-by-Step Code</h2>
+                    <div id="step-content"></div>
                 </div>
             </div>
-        </section>
-
-        <!-- Execution Log -->
-        <section class="mb-8 bg-white p-6 rounded-lg shadow">
-            <h2 class="text-2xl font-bold mb-4">Execution Log</h2>
-            <div id="executionLog" class="bg-gray-50 p-4 rounded border max-h-64 overflow-y-auto font-mono text-sm">
-                <div class="text-gray-500">Algorithm execution will be logged here...</div>
+            <div class="right-column">
+                <div class="live-visualization card">
+                    <h2>Live Visualization & Controls</h2>
+                    <div class="controls-container" style="display: flex; gap: 1rem; align-items: flex-end;">
+                        <div style="flex-grow: 1;">
+                            <label for="height-input" style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">Heights Array:</label>
+                            <input type="text" id="height-input" value="1,8,6,2,5,4,8,3,7">
+                        </div>
+                        <button id="run-btn">Run</button>
+                    </div>
+                    <div class="visualization-container">
+                        <svg id="viz-svg" width="100%" height="100%"></svg>
+                    </div>
+                    <div class="algorithm-state" style="margin-top: 1.5rem;">
+                        <h3>Algorithm State</h3>
+                        <div class="state-display">
+                            <div><p>Left Pointer</p><p id="state-left">-</p></div>
+                            <div><p>Right Pointer</p><p id="state-right">-</p></div>
+                            <div><p>Current Area</p><p id="state-currentArea" style="color: #3b82f6;">-</p></div>
+                            <div><p>Max Area</p><p id="state-maxArea" style="color: #16a34a;">-</p></div>
+                            <div><p>Width</p><p id="state-width" style="color: #06b6d4;">-</p></div>
+                            <div><p>Min Height</p><p id="state-minHeight" style="color: #4f46e5;">-</p></div>
+                        </div>
+                    </div>
+                    <div class="execution-controls">
+                        <button id="backward-btn" class="icon-btn" title="Step Backward"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg></button>
+                        <button id="play-pause-btn" class="icon-btn play-pause-btn" title="Run/Pause">
+                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" /></svg>
+                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-6-13.5v13.5" /></svg>
+                        </button>
+                        <button id="forward-btn" class="icon-btn" title="Step Forward"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg></button>
+                    </div>
+                </div>
             </div>
-        </section>
+        </div>
+
+        <div class="log-of-execution card">
+            <h2>Log of Step Execution</h2>
+            <div id="log-console" class="log-console">Welcome! Enter heights and press "Run" to start.</div>
+        </div>
+
+        <div class="full-explanation-script card">
+            <h2>Full Explanation Script (for Narration)</h2>
+            <div id="narration-script">
+                <p>Hello, and welcome to the interactive explainer for LeetCode problem 11: Container With Most Water.</p>
+                <p style="margin-top: 0.5rem;">The problem asks us to find two lines that, together with the x-axis, form a container that can hold the most water. We're given heights of vertical lines in an array.</p>
+                <p style="margin-top: 0.5rem;">The core insight is that the area of water contained depends on two factors: the distance between the lines (width) and the height of the shorter line. The water level can only be as high as the shorter of the two boundary lines.</p>
+                <p style="margin-top: 0.5rem;">To solve this efficiently, we use a two-pointer approach. We start with the widest possible container by placing pointers at the leftmost and rightmost positions. This gives us the maximum width to start with.</p>
+                <p style="margin-top: 0.5rem;">The algorithm proceeds by calculating the current area using the formula: width × min(height[left], height[right]). We keep track of the maximum area seen so far.</p>
+                <p style="margin-top: 0.5rem;">The key decision is which pointer to move next. We always move the pointer that points to the shorter line. Why? Because if we moved the pointer pointing to the taller line, we would decrease the width while the height remains limited by the shorter line, guaranteeing a smaller or equal area.</p>
+                <p style="margin-top: 0.5rem;">By moving the pointer with the shorter height, we maintain the possibility of finding a taller line that could potentially increase the overall area, even as the width decreases.</p>
+                <p style="margin-top: 0.5rem;">This process continues until the two pointers meet, ensuring we've considered all possible containers. The algorithm runs in O(n) time since we visit each element at most once, and uses O(1) extra space.</p>
+            </div>
+        </div>
     </div>
 
     <script>
-        class ContainerVisualization {
-            constructor() {
-                this.array = [1, 8, 6, 2, 5, 4, 8, 3, 7];
-                this.left = 0;
-                this.right = this.array.length - 1;
-                this.maxArea = 0;
-                this.currentArea = 0;
-                this.step = 0;
-                this.isPlaying = false;
-                this.speed = 500;
-                this.steps = [];
-                this.currentStepIndex = 0;
-                
-                this.initializeElements();
-                this.setupEventListeners();
-                this.generateSteps();
-                this.renderVisualization();
-                this.updateDisplay();
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const heightInput = document.getElementById('height-input');
+            const runBtn = document.getElementById('run-btn');
+            const svg = document.getElementById('viz-svg');
+            const logConsole = document.getElementById('log-console');
+            const stepContentEl = document.getElementById('step-content');
             
-            initializeElements() {
-                this.svg = document.getElementById('containerSvg');
-                this.playPauseBtn = document.getElementById('playPauseBtn');
-                this.stepBtn = document.getElementById('stepBtn');
-                this.resetBtn = document.getElementById('resetBtn');
-                this.speedSelect = document.getElementById('speedSelect');
-                this.arrayInput = document.getElementById('arrayInput');
-                this.setInputBtn = document.getElementById('setInputBtn');
-                
-                this.leftPointerDisplay = document.getElementById('leftPointer');
-                this.rightPointerDisplay = document.getElementById('rightPointer');
-                this.currentAreaDisplay = document.getElementById('currentArea');
-                this.maxAreaDisplay = document.getElementById('maxArea');
-                this.currentWidthDisplay = document.getElementById('currentWidth');
-                this.currentHeightDisplay = document.getElementById('currentHeight');
-                this.stepExplanation = document.getElementById('stepExplanation');
-                this.executionLog = document.getElementById('executionLog');
-            }
+            const stateElements = {
+                left: document.getElementById('state-left'),
+                right: document.getElementById('state-right'),
+                currentArea: document.getElementById('state-currentArea'),
+                maxArea: document.getElementById('state-maxArea'),
+                width: document.getElementById('state-width'),
+                minHeight: document.getElementById('state-minHeight'),
+            };
+
+            const controlBtns = {
+                playPause: document.getElementById('play-pause-btn'),
+                forward: document.getElementById('forward-btn'),
+                backward: document.getElementById('backward-btn'),
+            };
             
-            setupEventListeners() {
-                this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
-                this.stepBtn.addEventListener('click', () => this.stepForward());
-                this.resetBtn.addEventListener('click', () => this.reset());
-                this.speedSelect.addEventListener('change', (e) => {
-                    this.speed = parseInt(e.target.value);
-                });
-                this.setInputBtn.addEventListener('click', () => this.setCustomInput());
-                
-                document.querySelectorAll('.sample-input').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const input = e.target.dataset.input;
-                        this.arrayInput.value = input.slice(1, -1); // Remove brackets
-                        this.setCustomInput();
-                    });
-                });
-            }
-            
-            setCustomInput() {
-                const input = this.arrayInput.value.trim();
-                if (!input) return;
-                
-                try {
-                    const newArray = input.split(',').map(num => parseInt(num.trim()));
-                    if (newArray.some(isNaN) || newArray.length < 2) {
-                        alert('Please enter at least 2 valid numbers separated by commas.');
-                        return;
-                    }
-                    
-                    this.array = newArray;
-                    this.reset();
-                } catch (error) {
-                    alert('Invalid input format. Please use comma-separated numbers.');
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+
+            // --- State ---
+            let states = [];
+            let currentStateIndex = -1;
+            let isPlaying = false;
+            let intervalId = null;
+
+            const codeSteps = [
+                {
+                    key: 'initialization',
+                    title: 'Step 1: Initialization',
+                    explanation: 'Set up initial variables. `left` pointer starts at index 0, `right` pointer starts at the last index. `maxArea` is initialized to 0.',
+                    code: `int left = 0;
+int right = height.length - 1;
+int maxArea = 0;`
+                },
+                {
+                    key: 'loop',
+                    title: 'Step 2: Loop Until Pointers Meet',
+                    explanation: 'We iterate as long as the `left` pointer is to the left of the `right` pointer. The loop terminates when they meet or cross.',
+                    code: `while(left < right){`
+                },
+                {
+                    key: 'calculate',
+                    title: 'Step 3: Calculate Current Area',
+                    explanation: 'Calculate the area formed by the current two lines. Width is the distance between pointers, height is the minimum of the two line heights.',
+                    code: `int width = right - left;
+int minHeight = Math.min(height[left], height[right]);
+int currentArea = width * minHeight;`
+                },
+                {
+                    key: 'update',
+                    title: 'Step 4: Update Maximum Area',
+                    explanation: 'Compare the current area with the maximum area seen so far and update if current area is larger.',
+                    code: `maxArea = Math.max(maxArea, currentArea);`
+                },
+                {
+                    key: 'move',
+                    title: 'Step 5: Move Pointer',
+                    explanation: 'Move the pointer that points to the shorter line. This gives us the best chance of finding a larger area in subsequent iterations.',
+                    code: `if(height[left] < height[right]){
+    left++;
+} else {
+    right--;
+}`
+                },
+                {
+                    key: 'return',
+                    title: 'Step 6: Return Result',
+                    explanation: 'Once the pointers meet, we have checked all possible containers. Return the maximum area found.',
+                    code: `return maxArea;`
                 }
+            ];
+
+            // --- Logic ---
+            function logMessage(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                logConsole.innerHTML += `<p><span style="color: #9ca3af;">${timestamp}</span> <span style="color: #6ee7b7;">> ${message}</span></p>`;
+                logConsole.scrollTop = logConsole.scrollHeight;
             }
-            
-            generateSteps() {
-                this.steps = [];
+
+            function generateStates() {
+                const heightsStr = heightInput.value.trim();
+                const heights = heightsStr.split(',').map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n) && n >= 0);
+
+                if (heights.length < 2) {
+                    logMessage("Invalid input array. Need at least 2 heights.");
+                    return [];
+                }
+
+                let history = [];
                 let left = 0;
-                let right = this.array.length - 1;
+                let right = heights.length - 1;
                 let maxArea = 0;
-                
-                // Initial state
-                this.steps.push({
-                    left: left,
-                    right: right,
-                    maxArea: maxArea,
-                    currentArea: 0,
-                    width: right - left,
-                    height: 0,
-                    explanation: "Initialize two pointers: left at start, right at end",
-                    action: "initialization"
+
+                history.push({
+                    heights: [...heights], left, right, maxArea, currentArea: 0, width: right - left, minHeight: 0,
+                    log: `Initial state. left=${left}, right=${right}, maxArea=${maxArea}`,
+                    stepKey: 'initialization',
                 });
-                
+
                 while (left < right) {
-                    const width = right - left;
-                    const height = Math.min(this.array[left], this.array[right]);
-                    const currentArea = width * height;
-                    const newMaxArea = Math.max(maxArea, currentArea);
-                    const isNewMax = newMaxArea > maxArea;
-                    maxArea = newMaxArea;
+                    history.push({ ...history[history.length - 1], log: `Loop check: ${left} < ${right} is true.`, stepKey: 'loop' });
                     
-                    this.steps.push({
-                        left: left,
-                        right: right,
-                        maxArea: maxArea,
-                        currentArea: currentArea,
-                        width: width,
-                        height: height,
-                        explanation: `Calculate area: min(${this.array[left]}, ${this.array[right]}) × ${width} = ${currentArea}${isNewMax ? ' (New Maximum!)' : ''}`,
-                        action: "calculate",
+                    const width = right - left;
+                    const minHeight = Math.min(heights[left], heights[right]);
+                    const currentArea = width * minHeight;
+                    
+                    history.push({
+                        heights: [...heights], left, right, maxArea, currentArea, width, minHeight,
+                        log: `Calculate area: width=${width}, minHeight=${minHeight}, currentArea=${currentArea}`,
+                        stepKey: 'calculate'
+                    });
+
+                    const oldMaxArea = maxArea;
+                    maxArea = Math.max(maxArea, currentArea);
+                    const isNewMax = maxArea > oldMaxArea;
+
+                    history.push({
+                        heights: [...heights], left, right, maxArea, currentArea, width, minHeight,
+                        log: `Update maxArea: ${oldMaxArea} -> ${maxArea}${isNewMax ? ' (NEW MAXIMUM!)' : ''}`,
+                        stepKey: 'update',
                         isNewMax: isNewMax
                     });
-                    
-                    if (this.array[left] < this.array[right]) {
-                        this.steps.push({
-                            left: left,
-                            right: right,
-                            maxArea: maxArea,
-                            currentArea: currentArea,
-                            width: width,
-                            height: height,
-                            explanation: `height[${left}] = ${this.array[left]} < height[${right}] = ${this.array[right]}, move left pointer`,
-                            action: "move_left"
+
+                    if (heights[left] < heights[right]) {
+                        history.push({
+                            heights: [...heights], left, right, maxArea, currentArea, width, minHeight,
+                            log: `height[${left}]=${heights[left]} < height[${right}]=${heights[right]}, move left pointer`,
+                            stepKey: 'move'
                         });
                         left++;
                     } else {
-                        this.steps.push({
-                            left: left,
-                            right: right,
-                            maxArea: maxArea,
-                            currentArea: currentArea,
-                            width: width,
-                            height: height,
-                            explanation: `height[${left}] = ${this.array[left]} >= height[${right}] = ${this.array[right]}, move right pointer`,
-                            action: "move_right"
+                        history.push({
+                            heights: [...heights], left, right, maxArea, currentArea, width, minHeight,
+                            log: `height[${left}]=${heights[left]} >= height[${right}]=${heights[right]}, move right pointer`,
+                            stepKey: 'move'
                         });
                         right--;
                     }
                 }
-                
-                this.steps.push({
-                    left: left,
-                    right: right,
-                    maxArea: maxArea,
-                    currentArea: 0,
-                    width: 0,
-                    height: 0,
-                    explanation: `Algorithm complete! Maximum area found: ${maxArea}`,
-                    action: "complete"
+
+                history.push({ 
+                    heights: [...heights], left, right, maxArea, currentArea: 0, width: 0, minHeight: 0,
+                    log: `Loop check: ${left} < ${right} is false. Algorithm complete. Maximum area: ${maxArea}`, 
+                    stepKey: 'return' 
                 });
+                
+                return history;
             }
-            
-            renderVisualization() {
-                const svg = this.svg;
-                const svgRect = svg.getBoundingClientRect();
-                const width = svgRect.width || 800;
-                const height = 350;
-                
+
+            // --- UI Update Functions ---
+            function drawVisualization(state) {
+                if (!state) return;
                 svg.innerHTML = '';
-                svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+                const { heights, left, right, currentArea, maxArea } = state;
+                const n = heights.length;
+                const svgWidth = svg.clientWidth;
+                const svgHeight = svg.clientHeight;
+                const barWidth = Math.max(1, svgWidth / (n + 2));
+                const maxH = Math.max(...heights, 1);
                 
-                if (this.array.length === 0) return;
-                
-                const maxHeight = Math.max(...this.array);
-                const barWidth = Math.min(50, (width - 100) / this.array.length);
-                const chartHeight = height - 100;
-                const chartY = 50;
-                
-                // Draw bars
-                this.array.forEach((val, i) => {
-                    const x = 50 + i * barWidth;
-                    const barHeight = (val / maxHeight) * chartHeight;
-                    const y = chartY + chartHeight - barHeight;
+                heights.forEach((h, i) => {
+                    const barHeight = (h / maxH) * (svgHeight - 60);
+                    const x = (i + 1) * barWidth;
+                    const y = svgHeight - barHeight - 30;
+
+                    // Bar
+                    const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    bar.setAttribute('x', x);
+                    bar.setAttribute('y', y);
+                    bar.setAttribute('width', barWidth - 2);
+                    bar.setAttribute('height', barHeight);
                     
-                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    rect.setAttribute('x', x);
-                    rect.setAttribute('y', y);
-                    rect.setAttribute('width', barWidth - 2);
-                    rect.setAttribute('height', barHeight);
-                    rect.setAttribute('fill', '#e5e7eb');
-                    rect.setAttribute('stroke', '#9ca3af');
-                    rect.setAttribute('stroke-width', '1');
-                    rect.id = `bar-${i}`;
-                    svg.appendChild(rect);
+                    // Color coding
+                    if (i === left) {
+                        bar.setAttribute('fill', '#ef4444');
+                        bar.setAttribute('stroke', '#dc2626');
+                    } else if (i === right) {
+                        bar.setAttribute('fill', '#10b981');
+                        bar.setAttribute('stroke', '#059669');
+                    } else {
+                        bar.setAttribute('fill', '#6b7280');
+                        bar.setAttribute('stroke', '#4b5563');
+                    }
                     
-                    // Add height labels
+                    bar.setAttribute('stroke-width', '2');
+                    svg.appendChild(bar);
+
+                    // Height labels
                     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    text.setAttribute('x', x + barWidth / 2);
+                    text.setAttribute('x', x + (barWidth - 2) / 2);
                     text.setAttribute('y', y - 5);
                     text.setAttribute('text-anchor', 'middle');
                     text.setAttribute('font-size', '12');
                     text.setAttribute('fill', '#374151');
-                    text.textContent = val;
+                    text.textContent = h;
                     svg.appendChild(text);
-                    
-                    // Add index labels
+
+                    // Index labels
                     const indexText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    indexText.setAttribute('x', x + barWidth / 2);
-                    indexText.setAttribute('y', chartY + chartHeight + 20);
+                    indexText.setAttribute('x', x + (barWidth - 2) / 2);
+                    indexText.setAttribute('y', svgHeight - 10);
                     indexText.setAttribute('text-anchor', 'middle');
                     indexText.setAttribute('font-size', '12');
                     indexText.setAttribute('fill', '#6b7280');
                     indexText.textContent = i;
                     svg.appendChild(indexText);
                 });
+
+                // Draw container area if valid
+                if (left < right && state.stepKey === 'calculate') {
+                    const leftX = (left + 1) * barWidth;
+                    const rightX = (right + 1) * barWidth;
+                    const containerWidth = rightX - leftX + (barWidth - 2);
+                    const containerHeight = (state.minHeight / maxH) * (svgHeight - 60);
+                    const containerY = svgHeight - containerHeight - 30;
+
+                    const container = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    container.setAttribute('x', leftX);
+                    container.setAttribute('y', containerY);
+                    container.setAttribute('width', containerWidth);
+                    container.setAttribute('height', containerHeight);
+                    container.setAttribute('fill', 'rgba(59, 130, 246, 0.3)');
+                    container.setAttribute('stroke', '#3b82f6');
+                    container.setAttribute('stroke-width', '2');
+                    svg.appendChild(container);
+                }
+
+                // Pointer labels
+                function createPointer(index, color, label) {
+                    const x = (index + 1) * barWidth + (barWidth - 2) / 2;
+                    const pointer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    pointer.setAttribute('transform', `translate(${x}, 15)`);
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('fill', color);
+                    text.setAttribute('text-anchor', 'middle');
+                    text.style.fontSize = '14px';
+                    text.style.fontWeight = 'bold';
+                    text.textContent = label;
+                    const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    arrow.setAttribute('d', 'M0 5 L-5 0 L5 0 Z');
+                    arrow.setAttribute('fill', color);
+                    pointer.appendChild(text);
+                    pointer.appendChild(arrow);
+                    return pointer;
+                }
+                if (left < n) svg.appendChild(createPointer(left, '#ef4444', 'L'));
+                if (right >= 0) svg.appendChild(createPointer(right, '#10b981', 'R'));
+            }
+
+            function updateCodeStepUI(stepKey) {
+                const step = codeSteps.find(s => s.key === stepKey);
+                if (!step) return;
+
+                let html = `<h3>${step.title}</h3>`;
+                html += `<p style="margin-bottom: 1rem; color: #4b5563;">${step.explanation}</p>`;
+                html += `<pre class="code-block"><code>${step.code}</code></pre>`;
                 
-                // Container area rectangle (will be updated in updateVisualization)
-                const container = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                container.id = 'container-rect';
-                container.setAttribute('fill', 'rgba(59, 130, 246, 0.3)');
-                container.setAttribute('stroke', '#3b82f6');
-                container.setAttribute('stroke-width', '2');
-                container.style.display = 'none';
-                svg.appendChild(container);
+                stepContentEl.innerHTML = html;
+            }
+
+            function updateUI(stateIndex) {
+                if (stateIndex < 0 || stateIndex >= states.length) return;
                 
-                // Pointer indicators
-                const leftPointer = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-                leftPointer.id = 'left-pointer';
-                leftPointer.setAttribute('fill', '#ef4444');
-                svg.appendChild(leftPointer);
+                currentStateIndex = stateIndex;
+                const state = states[currentStateIndex];
                 
-                const rightPointer = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-                rightPointer.id = 'right-pointer';
-                rightPointer.setAttribute('fill', '#10b981');
-                svg.appendChild(rightPointer);
+                stateElements.left.textContent = state.left;
+                stateElements.right.textContent = state.right;
+                stateElements.currentArea.textContent = state.currentArea;
+                stateElements.maxArea.textContent = state.maxArea;
+                stateElements.width.textContent = state.width;
+                stateElements.minHeight.textContent = state.minHeight;
                 
-                this.updateVisualization();
+                logMessage(state.log);
+                drawVisualization(state);
+                updateCodeStepUI(state.stepKey);
             }
             
-            updateVisualization() {
-                if (this.currentStepIndex >= this.steps.length) return;
-                
-                const currentStep = this.steps[this.currentStepIndex];
-                const svg = this.svg;
-                const svgRect = svg.getBoundingClientRect();
-                const width = svgRect.width || 800;
-                const height = 350;
-                const maxHeight = Math.max(...this.array);
-                const barWidth = Math.min(50, (width - 100) / this.array.length);
-                const chartHeight = height - 100;
-                const chartY = 50;
-                
-                // Reset bar colors
-                this.array.forEach((_, i) => {
-                    const bar = document.getElementById(`bar-${i}`);
-                    if (bar) {
-                        bar.setAttribute('fill', '#e5e7eb');
-                        bar.setAttribute('stroke', '#9ca3af');
-                    }
-                });
-                
-                // Highlight current pointers
-                if (currentStep.left < this.array.length) {
-                    const leftBar = document.getElementById(`bar-${currentStep.left}`);
-                    if (leftBar) {
-                        leftBar.setAttribute('fill', '#fecaca');
-                        leftBar.setAttribute('stroke', '#ef4444');
-                        leftBar.setAttribute('stroke-width', '2');
-                    }
-                }
-                
-                if (currentStep.right < this.array.length) {
-                    const rightBar = document.getElementById(`bar-${currentStep.right}`);
-                    if (rightBar) {
-                        rightBar.setAttribute('fill', '#bbf7d0');
-                        rightBar.setAttribute('stroke', '#10b981');
-                        rightBar.setAttribute('stroke-width', '2');
-                    }
-                }
-                
-                // Update container rectangle
-                const containerRect = document.getElementById('container-rect');
-                if (containerRect && currentStep.left < currentStep.right) {
-                    const leftX = 50 + currentStep.left * barWidth;
-                    const rightX = 50 + currentStep.right * barWidth;
-                    const containerWidth = rightX - leftX + barWidth - 2;
-                    const containerHeight = (currentStep.height / maxHeight) * chartHeight;
-                    const containerY = chartY + chartHeight - containerHeight;
-                    
-                    containerRect.setAttribute('x', leftX);
-                    containerRect.setAttribute('y', containerY);
-                    containerRect.setAttribute('width', containerWidth);
-                    containerRect.setAttribute('height', containerHeight);
-                    containerRect.style.display = currentStep.action === 'calculate' ? 'block' : 'none';
-                } else if (containerRect) {
-                    containerRect.style.display = 'none';
-                }
-                
-                // Update pointer arrows
-                const leftPointer = document.getElementById('left-pointer');
-                const rightPointer = document.getElementById('right-pointer');
-                
-                if (leftPointer && currentStep.left < this.array.length) {
-                    const x = 50 + currentStep.left * barWidth + barWidth / 2;
-                    const y = chartY + chartHeight + 35;
-                    leftPointer.setAttribute('points', `${x},${y} ${x-8},${y+15} ${x+8},${y+15}`);
-                }
-                
-                if (rightPointer && currentStep.right < this.array.length) {
-                    const x = 50 + currentStep.right * barWidth + barWidth / 2;
-                    const y = chartY + chartHeight + 35;
-                    rightPointer.setAttribute('points', `${x},${y} ${x-8},${y+15} ${x+8},${y+15}`);
-                }
-            }
-            
-            updateDisplay() {
-                if (this.currentStepIndex >= this.steps.length) return;
-                
-                const currentStep = this.steps[this.currentStepIndex];
-                
-                this.leftPointerDisplay.textContent = currentStep.left;
-                this.rightPointerDisplay.textContent = currentStep.right;
-                this.currentAreaDisplay.textContent = currentStep.currentArea;
-                this.maxAreaDisplay.textContent = currentStep.maxArea;
-                this.currentWidthDisplay.textContent = currentStep.width;
-                this.currentHeightDisplay.textContent = currentStep.height;
-                
-                this.stepExplanation.innerHTML = `
-                    <strong>Step ${this.currentStepIndex + 1}:</strong> ${currentStep.explanation}
-                `;
-                
-                if (currentStep.isNewMax) {
-                    this.stepExplanation.className = 'text-lg p-4 bg-green-100 rounded border border-green-300';
+            // --- Control Functions ---
+            function stepForward() {
+                if (currentStateIndex < states.length - 1) {
+                    updateUI(currentStateIndex + 1);
                 } else {
-                    this.stepExplanation.className = 'text-lg p-4 bg-gray-50 rounded border';
+                    pause();
                 }
-                
-                // Update execution log
-                const logEntry = document.createElement('div');
-                logEntry.className = 'mb-1';
-                logEntry.innerHTML = `
-                    <span class="text-gray-500">[${this.currentStepIndex + 1}]</span> 
-                    <span class="text-blue-600">L=${currentStep.left}</span> 
-                    <span class="text-green-600">R=${currentStep.right}</span> 
-                    <span class="text-purple-600">Area=${currentStep.currentArea}</span> 
-                    <span class="text-red-600">Max=${currentStep.maxArea}</span>
-                    ${currentStep.isNewMax ? '<span class="text-green-600 font-bold">NEW MAX!</span>' : ''}
-                `;
-                this.executionLog.appendChild(logEntry);
-                this.executionLog.scrollTop = this.executionLog.scrollHeight;
             }
-            
-            stepForward() {
-                if (this.currentStepIndex < this.steps.length - 1) {
-                    this.currentStepIndex++;
-                    this.updateVisualization();
-                    this.updateDisplay();
-                }
-                
-                if (this.currentStepIndex >= this.steps.length - 1) {
-                    this.isPlaying = false;
-                    this.playPauseBtn.textContent = '▶ Play';
+
+            function stepBackward() {
+                if (currentStateIndex > 0) {
+                    updateUI(currentStateIndex - 1);
                 }
             }
             
-            togglePlayPause() {
-                this.isPlaying = !this.isPlaying;
-                this.playPauseBtn.textContent = this.isPlaying ? '⏸ Pause' : '▶ Play';
+            function play() {
+                if (isPlaying) return;
+                isPlaying = true;
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
                 
-                if (this.isPlaying) {
-                    this.play();
-                }
-            }
-            
-            play() {
-                if (!this.isPlaying || this.currentStepIndex >= this.steps.length - 1) {
-                    this.isPlaying = false;
-                    this.playPauseBtn.textContent = '▶ Play';
-                    return;
+                if (currentStateIndex >= states.length - 1) {
+                    currentStateIndex = -1;
                 }
                 
-                setTimeout(() => {
-                    this.stepForward();
-                    this.play();
-                }, this.speed);
+                intervalId = setInterval(stepForward, 800);
             }
             
-            reset() {
-                this.isPlaying = false;
-                this.currentStepIndex = 0;
-                this.playPauseBtn.textContent = '▶ Play';
-                
-                this.generateSteps();
-                this.renderVisualization();
-                this.updateDisplay();
-                
-                // Clear execution log
-                this.executionLog.innerHTML = '<div class="text-gray-500">Algorithm execution will be logged here...</div>';
+            function pause() {
+                isPlaying = false;
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                clearInterval(intervalId);
+                intervalId = null;
             }
-        }
-        
-        // Initialize visualization when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            window.containerViz = new ContainerVisualization();
+
+            function handleRun() {
+                pause();
+                states = generateStates();
+                logConsole.innerHTML = '';
+                if (states.length > 0) {
+                   updateUI(0);
+                }
+            }
+
+            // --- Event Listeners ---
+            runBtn.addEventListener('click', handleRun);
+            controlBtns.playPause.addEventListener('click', () => {
+                if (isPlaying) pause();
+                else {
+                    if (states.length === 0 || currentStateIndex >= states.length - 1) handleRun();
+                    play();
+                }
+            });
+            controlBtns.forward.addEventListener('click', () => { pause(); stepForward(); });
+            controlBtns.backward.addEventListener('click', () => { pause(); stepBackward(); });
+            
+            // --- Initial setup ---
+            handleRun();
         });
     </script>
 </body>

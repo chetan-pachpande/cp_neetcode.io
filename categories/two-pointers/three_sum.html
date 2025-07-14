@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 15: 3Sum - Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #f3f4f6;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: white;
+            color: #1f2937;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        code {
+            font-family: 'SF Mono', 'Courier New', monospace;
+            background-color: #e5e7eb;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+        }
+        pre > code {
+            background-color: transparent;
+            padding: 0;
+        }
+        
+        .back-link {
+            display: inline-block;
+            background-color: #1f2937;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .back-link:hover {
+            background-color: #111827;
+        }
+
+        /* Layout Specific Classes from Guide */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header p {
+            font-size: 1.125rem;
+            color: #dbeafe;
+        }
+        .problem-description, .java-code, .log-of-execution, .full-explanation-script {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .two-column-layout {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .left-column {
+            width: 40%;
+        }
+        .right-column {
+            width: 60%;
+        }
+        
+        /* Component Specific Styling */
+        .code-block {
+            background-color: #1f2937;
+            color: #d1d5db;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+        }
+        .code-block .comment {
+            color: #6ee7b7; /* A light green for comments */
+        }
+        .visualization-container {
+            width: 100%;
+            min-height: 200px;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow: auto;
+            border: 1px solid #e5e7eb;
+        }
+        .controls-container {
+            margin-bottom: 1rem;
+        }
+        .controls-container input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            box-sizing: border-box;
+        }
+        .controls-container button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+        }
+        .execution-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .icon-btn {
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover {
+            background-color: #d1d5db;
+        }
+        .icon-btn svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+        .play-pause-btn {
+            background-color: #4f46e5;
+            color: white;
+            width: 4rem;
+            height: 4rem;
+        }
+        .play-pause-btn:hover {
+            background-color: #4338ca;
+        }
+        .log-console {
+            width: 100%;
+            height: 160px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .algorithm-state .state-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        .state-display div p:first-child {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+         .state-display div p:last-child {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .vis-array-container {
+            position: relative;
+            padding-top: 40px; /* Space for pointers */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+        .vis-array-element-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+        .vis-array-element {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #9ca3af;
+            background-color: #f9fafb;
+            font-weight: 600;
+            margin: 0 2px;
+            border-radius: 4px;
+            transition: all 0.3s ease-in-out;
+        }
+        .pointer {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: left 0.3s ease-in-out;
+            text-align: center;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .pointer-i { color: #ef4444; } /* red */
+        .pointer-l { color: #3b82f6; } /* blue */
+        .pointer-r { color: #22c55e; } /* green */
+        .results-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .result-triplet {
+            display: inline-block;
+            background-color: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin: 0.25rem;
+            font-family: 'SF Mono', 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="margin-bottom: 1.5rem;">
+            <a href="../../index.html" class="back-link">Back to Home</a>
+        </div>
+        <header class="header">
+            <h1>3Sum</h1>
+            <p>An Interactive Visual Explainer</p>
+        </header>
+
+        <div class="problem-description card">
+            <h2>Problem: LeetCode 15</h2>
+            <p>Given an integer array <code>nums</code>, return all the triplets <code>[nums[i], nums[j], nums[k]]</code> such that <code>i != j</code>, <code>i != k</code>, and <code>j != k</code>, and <code>nums[i] + nums[j] + nums[k] == 0</code>.</p>
+            <p style="margin-top: 0.5rem;">Notice that the solution set must not contain duplicate triplets.</p>
+        </div>
+
+        <div class="java-code card">
+            <h2>Java Solution Code</h2>
+            <pre class="code-block"><code><span class="comment">// class Solution { ...</span>
+    public List&lt;List&lt;Integer&gt;&gt; threeSum(int[] nums) {
+        <span class="comment">// Step 1: Sort the input array</span>
+        Arrays.sort(nums);
+        List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();
+        
+        <span class="comment">// Step 2: Iterate through the array with the first pointer 'i'</span>
+        for (int i = 0; i &lt; nums.length && nums[i] &lt;= 0; i++) {
+            <span class="comment">// Step 3: Skip duplicate values for 'i'</span>
+            if (i == 0 || nums[i] != nums[i-1]) {
+                <span class="comment">// Step 4: Use two pointers to find the other two numbers</span>
+                twoSum2(nums, i, result);
+            }
+        }
+        return result;
+    }
+    
+    void twoSum2(int[] nums, int i, List&lt;List&lt;Integer&gt;&gt; result) {
+        int left = i + 1;
+        int right = nums.length - 1;
+        
+        while (left < right) {
+            int sum = nums[i] + nums[left] + nums[right];
+            
+            <span class="comment">// Step 5: Adjust pointers based on the sum</span>
+            if (sum < 0) {
+                ++left;
+            } else if (sum > 0) {
+                --right;
+            } else {
+                <span class="comment">// Step 6: Found a triplet, add to results and skip duplicates</span>
+                result.add(Arrays.asList(nums[i], nums[left++], nums[right--]));
+                while (left < right && nums[left] == nums[left-1]) {
+                    ++left;
+                }
+            }
+        }
+    }
+<span class="comment">// }</span></code></pre>
+        </div>
+
+        <div class="two-column-layout">
+            <div class="left-column">
+                <div class="intuition-section card">
+                    <h2>Intuition</h2>
+                    <p>To find triplets that sum to zero efficiently and avoid duplicates, we can convert the problem into a series of "Two Sum" problems.</p>
+                    <p style="margin-top: 0.5rem;">First, we sort the array. This is crucial as it allows us to use a two-pointer approach and easily skip duplicate values.</p>
+                    <p style="margin-top: 0.5rem;">We then iterate through the sorted array with a main pointer, `i`. For each `nums[i]`, we need to find two other numbers in the rest of the array that sum to `-nums[i]`. This is a classic Two Sum problem, which we can solve with two more pointers, `left` and `right`, starting just after `i` and at the end of the array, respectively. We move these pointers inward based on whether their sum is too small, too large, or exactly right. Skipping duplicates is handled by checking if the current element is the same as the previous one before processing.</p>
+                </div>
+                <div class="step-by-step-code card">
+                    <h2>Step-by-Step Code</h2>
+                    <div id="step-content"></div>
+                </div>
+            </div>
+            <div class="right-column">
+                <div class="live-visualization card">
+                    <h2>Live Visualization & Controls</h2>
+                    <div class="controls-container" style="display: flex; gap: 1rem; align-items: flex-end;">
+                        <div style="flex-grow: 1;">
+                            <label for="nums-input" style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">Input Array (nums):</label>
+                            <input type="text" id="nums-input" value="-1,0,1,2,-1,-4">
+                        </div>
+                        <button id="run-btn">Run</button>
+                    </div>
+
+                    <div class="visualization-container">
+                        <div id="vis-array-container" class="vis-array-container"></div>
+                        <div id="results-container" class="results-container">
+                            <h3>Found Triplets:</h3>
+                            <div id="results-list"></div>
+                        </div>
+                    </div>
+
+                    <div class="algorithm-state" style="margin-top: 1.5rem;">
+                        <h3>Algorithm State</h3>
+                        <div class="state-display">
+                            <div><p>i</p><p id="state-i">-</p></div>
+                            <div><p>left</p><p id="state-left">-</p></div>
+                            <div><p>right</p><p id="state-right">-</p></div>
+                            <div><p>nums[i]</p><p id="state-val-i">-</p></div>
+                            <div><p>nums[left]</p><p id="state-val-left">-</p></div>
+                            <div><p>nums[right]</p><p id="state-val-right">-</p></div>
+                            <div style="grid-column: 1 / -1;"><p>Current Sum</p><p id="state-sum">-</p></div>
+                        </div>
+                    </div>
+                    <div class="execution-controls">
+                        <button id="backward-btn" class="icon-btn" title="Step Backward"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg></button>
+                        <button id="play-pause-btn" class="icon-btn play-pause-btn" title="Run/Pause">
+                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" /></svg>
+                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-6-13.5v13.5" /></svg>
+                        </button>
+                        <button id="forward-btn" class="icon-btn" title="Step Forward"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-of-execution card">
+            <h2>Log of Step Execution</h2>
+            <div id="log-console" class="log-console">Welcome! Enter an array and press "Run" to start.</div>
+        </div>
+
+        <div class="full-explanation-script card">
+            <h2>Full Explanation Script (for Narration)</h2>
+            <div id="narration-script">
+                <p>Hello, and welcome to the interactive explainer for LeetCode problem 15: 3Sum.</p>
+                <p style="margin-top: 0.5rem;">The problem asks us to find all unique triplets in an array of integers that sum up to zero. The main challenges are finding these triplets efficiently and handling duplicates.</p>
+                <p style="margin-top: 0.5rem;">Our approach begins by sorting the input array. Sorting is a critical first step because it allows us to use a more efficient searching method and makes it much easier to identify and skip duplicate triplets.</p>
+                <p style="margin-top: 0.5rem;">After sorting, we iterate through the array with a primary pointer, which we'll call `i`. We only need to iterate `i` up to the last point where `nums[i]` is less than or equal to zero, because if `nums[i]` is positive, it's impossible for it to be part of a triplet that sums to zero in a sorted array. During this iteration, we also check if the current `nums[i]` is the same as the previous one. If it is, we skip it to avoid processing the same starting number multiple times and generating duplicate results.</p>
+                <p style="margin-top: 0.5rem;">For each unique `nums[i]`, we then initiate a two-pointer search on the rest of the array. We set a `left` pointer to the element right after `i`, and a `right` pointer to the very last element. We calculate the sum of `nums[i]`, `nums[left]`, and `nums[right]`. If the sum is less than zero, we need a larger value, so we increment the `left` pointer. If the sum is greater than zero, we need a smaller value, so we decrement the `right` pointer. </p>
+                <p style="margin-top: 0.5rem;">If the sum is exactly zero, we've found a valid triplet. We add it to our results list. Then, to avoid duplicate triplets from the `left` and `right` pointers, we advance both pointers, and we add an extra check to fast-forward the `left` pointer past any subsequent duplicate values. This two-pointer search continues until `left` and `right` cross, at which point we move to the next value of `i` and repeat the process.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const numsInput = document.getElementById('nums-input');
+            const runBtn = document.getElementById('run-btn');
+            const logConsole = document.getElementById('log-console');
+            const stepContentEl = document.getElementById('step-content');
+            const visArrayContainer = document.getElementById('vis-array-container');
+            const resultsList = document.getElementById('results-list');
+            
+            const stateElements = {
+                i: document.getElementById('state-i'),
+                left: document.getElementById('state-left'),
+                right: document.getElementById('state-right'),
+                valI: document.getElementById('state-val-i'),
+                valLeft: document.getElementById('state-val-left'),
+                valRight: document.getElementById('state-val-right'),
+                sum: document.getElementById('state-sum'),
+            };
+
+            const controlBtns = {
+                playPause: document.getElementById('play-pause-btn'),
+                forward: document.getElementById('forward-btn'),
+                backward: document.getElementById('backward-btn'),
+            };
+            
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+
+            // --- State ---
+            let states = [];
+            let currentStateIndex = -1;
+            let isPlaying = false;
+            let intervalId = null;
+
+            const codeSteps = [
+                {
+                    key: 'sort',
+                    title: 'Step 1: Sort the Array',
+                    explanation: 'First, we sort the input array. This is crucial for the two-pointer approach and for handling duplicates efficiently.',
+                    code: `Arrays.sort(nums);`
+                },
+                {
+                    key: 'main_loop',
+                    title: 'Step 2: Main Loop',
+                    explanation: 'Iterate through the array with a pointer `i`. We only need to go up to where `nums[i]` is zero, as a positive first number cannot be part of a zero-sum triplet in a sorted array.',
+                    code: `for (int i = 0; i < nums.length && nums[i] <= 0; i++) {`
+                },
+                {
+                    key: 'skip_duplicates_i',
+                    title: 'Step 3: Skip Duplicates for `i`',
+                    explanation: 'If the current element `nums[i]` is the same as the previous one, we skip it to avoid generating duplicate triplets.',
+                    code: `if (i == 0 || nums[i] != nums[i-1]) {`
+                },
+                {
+                    key: 'two_sum',
+                    title: 'Step 4: Two-Pointer Search',
+                    explanation: 'For each `i`, we call a helper function that uses a `left` and `right` pointer to search the rest of the array for two numbers that sum to `-nums[i]`.',
+                    code: `twoSum2(nums, i, result);`
+                },
+                {
+                    key: 'adjust_pointers',
+                    title: 'Step 5: Adjust Pointers',
+                    explanation: 'Inside the two-pointer loop, calculate the sum. If it\'s less than 0, increment `left` to get a larger sum. If it\'s greater than 0, decrement `right` for a smaller sum.',
+                    code: `int sum = nums[i] + nums[left] + nums[right];
+if (sum < 0) { ++left; } 
+else if (sum > 0) { --right; }`
+                },
+                {
+                    key: 'found_triplet',
+                    title: 'Step 6: Found a Triplet',
+                    explanation: 'If the sum is 0, we found a valid triplet. Add it to the results, then move both pointers inward. We also add a loop to skip any subsequent duplicates for the `left` pointer.',
+                    code: `else {
+    result.add(Arrays.asList(nums[i], nums[left++], nums[right--]));
+    while (left < right && nums[left] == nums[left-1]) {
+        ++left;
+    }
+}`
+                }
+            ];
+            
+            // --- Logic ---
+            function logMessage(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                logConsole.innerHTML += `<p><span style="color: #9ca3af;">${timestamp}</span> <span style="color: #6ee7b7;">> ${message}</span></p>`;
+                logConsole.scrollTop = logConsole.scrollHeight;
+            }
+
+            function generateStates() {
+                const numsStr = numsInput.value;
+                const nums = numsStr.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+                
+                if (nums.length < 3) {
+                    logMessage("Error: Array must contain at least 3 elements.");
+                    return [];
+                }
+
+                let history = [];
+                let results = [];
+
+                const captureState = (log, stepKey, customState = {}) => {
+                    history.push({
+                        nums: [...nums],
+                        i: -1,
+                        left: -1,
+                        right: -1,
+                        sum: null,
+                        results: JSON.parse(JSON.stringify(results)),
+                        log,
+                        stepKey,
+                        ...customState,
+                    });
+                };
+                
+                captureState(`Original array: [${nums.join(', ')}]`, 'sort');
+
+                nums.sort((a, b) => a - b);
+                captureState(`Sorted array: [${nums.join(', ')}]`, 'sort');
+                
+                for (let i = 0; i < nums.length - 2 && nums[i] <= 0; i++) {
+                    captureState(`Main loop, i = ${i}, nums[i] = ${nums[i]}`, 'main_loop', { i });
+
+                    if (i > 0 && nums[i] === nums[i-1]) {
+                         captureState(`Duplicate found for i=${i} (nums[i] == nums[i-1]). Skipping.`, 'skip_duplicates_i', { i });
+                        continue;
+                    }
+                    
+                    let left = i + 1;
+                    let right = nums.length - 1;
+                    
+                    captureState(`Starting two-pointer search for target -${nums[i]}.`, 'two_sum', { i, left, right });
+
+                    while (left < right) {
+                        let sum = nums[i] + nums[left] + nums[right];
+                        let state = { i, left, right, sum, results: JSON.parse(JSON.stringify(results)) };
+
+                        if (sum < 0) {
+                            captureState(`Sum (${sum}) < 0. Incrementing left.`, 'adjust_pointers', state);
+                            left++;
+                        } else if (sum > 0) {
+                            captureState(`Sum (${sum}) > 0. Decrementing right.`, 'adjust_pointers', state);
+                            right--;
+                        } else {
+                            captureState(`Sum is 0. Found triplet [${nums[i]}, ${nums[left]}, ${nums[right]}].`, 'found_triplet', state);
+                            results.push([nums[i], nums[left], nums[right]]);
+                            
+                            // Move pointers and skip duplicates
+                            left++;
+                            right--;
+                            while (left < right && nums[left] === nums[left - 1]) {
+                                state.left = left;
+                                state.right = right;
+                                captureState(`Skipping duplicate left element ${nums[left]}.`, 'found_triplet', state);
+                                left++;
+                            }
+                        }
+                    }
+                }
+                captureState('Algorithm finished.', 'main_loop');
+                return history;
+            }
+
+            // --- UI Update Functions ---
+            function drawVisualization(state) {
+                visArrayContainer.innerHTML = ''; // Clear previous
+
+                state.nums.forEach((num, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'vis-array-element-wrapper';
+
+                    const elem = document.createElement('div');
+                    elem.className = 'vis-array-element';
+                    elem.textContent = num;
+                    wrapper.appendChild(elem);
+                    
+                    // Add pointers if they match the current index
+                    if (state.i === index) {
+                        const pointer = document.createElement('div');
+                        pointer.className = 'pointer pointer-i';
+                        pointer.innerHTML = `i`;
+                        wrapper.prepend(pointer);
+                    }
+                    if (state.left === index) {
+                        const pointer = document.createElement('div');
+                        pointer.className = 'pointer pointer-l';
+                        pointer.innerHTML = `left`;
+                        wrapper.prepend(pointer);
+                    }
+                    if (state.right === index) {
+                        const pointer = document.createElement('div');
+                        pointer.className = 'pointer pointer-r';
+                        pointer.innerHTML = `right`;
+                        wrapper.prepend(pointer);
+                    }
+                    visArrayContainer.appendChild(wrapper);
+                });
+
+                // Results
+                resultsList.innerHTML = state.results.map(triplet => 
+                    `<div class="result-triplet">[${triplet.join(', ')}]</div>`
+                ).join('');
+            }
+
+            function updateCodeStepUI(stepKey) {
+                const step = codeSteps.find(s => s.key === stepKey);
+                if (!step) return;
+                stepContentEl.innerHTML = `
+                    <h3>${step.title}</h3>
+                    <p>${step.explanation}</p>
+                    <pre class="code-block"><code>${step.code}</code></pre>
+                `;
+            }
+
+            function updateUI(stateIndex) {
+                if (stateIndex < 0 || stateIndex >= states.length) return;
+                currentStateIndex = stateIndex;
+                const state = states[stateIndex];
+
+                drawVisualization(state);
+                updateCodeStepUI(state.stepKey);
+                logMessage(state.log);
+
+                // Update state display
+                stateElements.i.textContent = state.i ?? '-';
+                stateElements.left.textContent = state.left ?? '-';
+                stateElements.right.textContent = state.right ?? '-';
+                stateElements.valI.textContent = state.i !== -1 && state.i < state.nums.length ? state.nums[state.i] : '-';
+                stateElements.valLeft.textContent = state.left !== -1 && state.left < state.nums.length ? state.nums[state.left] : '-';
+                stateElements.valRight.textContent = state.right !== -1 && state.right < state.nums.length ? state.nums[state.right] : '-';
+                stateElements.sum.textContent = state.sum ?? '-';
+
+                // Update button states
+                controlBtns.backward.disabled = currentStateIndex === 0;
+                controlBtns.forward.disabled = currentStateIndex === states.length - 1;
+            }
+            
+            function play() {
+                if (isPlaying) return;
+                isPlaying = true;
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+                intervalId = setInterval(() => {
+                    if (currentStateIndex < states.length - 1) {
+                        updateUI(currentStateIndex + 1);
+                    } else {
+                        pause();
+                    }
+                }, 1500);
+            }
+
+            function pause() {
+                if (!isPlaying) return;
+                isPlaying = false;
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+
+            function handleRun() {
+                pause();
+                logConsole.innerHTML = '';
+                logMessage('Generating execution states...');
+                states = generateStates();
+                if (states.length > 0) {
+                    logMessage('States generated. Ready for visualization.');
+                    updateUI(0);
+                } else {
+                    logMessage('Could not generate states. Please check input.');
+                }
+            }
+
+            // --- Event Listeners ---
+            runBtn.addEventListener('click', handleRun);
+            controlBtns.playPause.addEventListener('click', () => {
+                if (isPlaying) {
+                    pause();
+                } else {
+                    play();
+                }
+            });
+            controlBtns.forward.addEventListener('click', () => {
+                pause();
+                updateUI(currentStateIndex + 1);
+            });
+            controlBtns.backward.addEventListener('click', () => {
+                pause();
+                updateUI(currentStateIndex - 1);
+            });
+
+            // Initial setup
+            updateCodeStepUI('sort');
+        });
+    </script>
+</body>
+</html>

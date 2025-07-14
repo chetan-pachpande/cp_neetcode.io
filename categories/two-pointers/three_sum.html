@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 15: Three Sum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Header Section -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">LeetCode 15: Three Sum</h1>
+            <p class="text-xl text-blue-100 mb-2">An Interactive Visual Explainer</p>
+            <p class="text-sm text-blue-200">Idea By: Chetan Pachpande | Executed By: Claude</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-white bg-opacity-20 text-white px-6 py-2 rounded-lg hover:bg-opacity-30 transition duration-300 backdrop-blur-sm border border-white border-opacity-30">
+                ← Back to Home
+            </a>
+        </div>
+
+        <div id="problem-card" class="card">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Given an integer array <code>nums</code>, return all the triplets <code>[nums[i], nums[j], nums[k]]</code> such that <code>i != j</code>, <code>i != k</code>, and <code>j != k</code>, and <code>nums[i] + nums[j] + nums[k] == 0</code>.</p>
+                <p>Notice that the solution set must not contain duplicate triplets.</p>
+                <div class="bg-gray-100 p-4 rounded-lg text-sm">
+                    <p><strong>Example:</strong></p>
+                    <p><strong>Input:</strong> nums = [-1,0,1,2,-1,-4]</p>
+                    <p><strong>Output:</strong> [[-1,-1,2],[-1,0,1]]</p>
+                    <p><strong>Explanation:</strong> 
+                        nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0.<br>
+                        nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0.<br>
+                        nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0.<br>
+                        The distinct triplets are [-1,0,1] and [-1,-1,2].
+                    </p>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Algorithm</h3>
+                    <p>We use a combination of sorting and two-pointers approach:</p>
+                    <ol class="list-decimal list-inside space-y-1 text-sm">
+                        <li>Sort the array to handle duplicates and enable two-pointers technique</li>
+                        <li>For each element, use two pointers to find pairs that sum to the negative of current element</li>
+                        <li>Skip duplicates to avoid duplicate triplets</li>
+                    </ol>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Complexity Analysis</h3>
+                    <p><strong>Time Complexity:</strong> <code>O(N²)</code><br><span class="text-sm text-gray-600">O(N log N) for sorting + O(N²) for nested loops with two pointers</span></p>
+                    <p class="mt-2"><strong>Space Complexity:</strong> <code>O(1)</code><br><span class="text-sm text-gray-600">Not counting the space for the output array</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Placeholder for interactive visualization -->
+        <div class="card mt-8">
+            <h2 class="text-2xl font-bold mb-4">Interactive Visualization</h2>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p class="text-yellow-800">
+                    <strong>Coming Soon!</strong> This visualization is currently under development. 
+                    It will show the three-sum algorithm in action with sorting, two-pointers technique, 
+                    and duplicate handling.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

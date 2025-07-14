@@ -36,18 +36,28 @@
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800">
     <div class="container mx-auto px-4 py-8">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">Encode and Decode Strings</h1>
-            <p class="text-lg text-gray-600 mb-4">LC 271 (Premium) - Interactive Visualization</p>
-            <div class="bg-white rounded-lg shadow-lg p-4 max-w-4xl mx-auto">
-                <div class="text-sm text-gray-600 mb-4">
-                    <strong>Algorithm:</strong> Character separation using special delimiter (ASCII 257)
-                    <br><strong>Time Complexity:</strong> O(n) for encode/decode where n is total length
-                    <br><strong>Space Complexity:</strong> O(n) for storing encoded string
-                    <br><strong>Key Insight:</strong> Use non-printable characters as delimiters to handle any input safely
-                </div>
+        <!-- Header Section -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">Encode and Decode Strings</h1>
+            <p class="text-xl text-blue-100 mb-2">LC 271 (Premium) - Interactive Visualization</p>
+            <p class="text-sm text-blue-200">Idea By: Chetan Pachpande | Executed By: Claude</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-white bg-opacity-20 text-white px-6 py-2 rounded-lg hover:bg-opacity-30 transition duration-300 backdrop-blur-sm border border-white border-opacity-30">
+                ← Back to Home
+            </a>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-4 max-w-4xl mx-auto mb-8">
+            <div class="text-sm text-gray-600 mb-4">
+                <strong>Algorithm:</strong> Character separation using special delimiter (ASCII 257)
+                <br><strong>Time Complexity:</strong> O(n) for encode/decode where n is total length
+                <br><strong>Space Complexity:</strong> O(n) for storing encoded string
+                <br><strong>Key Insight:</strong> Use non-printable characters as delimiters to handle any input safely
             </div>
-        </header>
+        </div>
 
         <main class="max-w-7xl mx-auto">
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">

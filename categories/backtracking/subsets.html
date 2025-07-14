@@ -4,82 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LeetCode 78: Subsets - Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* General Styling */
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #1f2937;
-            margin: 0;
-            padding: 2rem;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            min-height: 100vh;
         }
         .card {
             background-color: white;
             border-radius: 0.75rem;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        h1 {
-            font-size: 2.25rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            color: white;
-        }
-        h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 0.5rem;
-        }
-        h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-        }
-        code {
-            font-family: 'SF Mono', 'Courier New', monospace;
-            background-color: #e5e7eb;
-            padding: 0.125rem 0.25rem;
-            border-radius: 0.25rem;
-        }
-        pre > code {
-            background-color: transparent;
-            padding: 0;
-        }
-        
-        /* Layout Specific Classes from Guide */
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .header p {
-            font-size: 1.125rem;
-            color: #e0e7ff; /* A lighter color for readability on the gradient */
-        }
-        .problem-description, .java-code, .log-of-execution, .full-explanation-script {
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .two-column-layout {
-            display: flex;
-            gap: 1.5rem;
-        }
-        .left-column {
-            width: 40%;
-        }
-        .right-column {
-            width: 60%;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
         }
         
         /* Component Specific Styling */
@@ -218,457 +158,505 @@
             fill: #e5e7eb; /* gray-200 */
             stroke: #6b7280; /* gray-500 */
         }
-         .tree-node.initial > circle {
-            stroke: #6b7280; /* gray-500 */
+        .tree-node.initial > circle {
+            fill: #dbeafe; /* blue-100 */
+            stroke: #3b82f6; /* blue-500 */
         }
         .tree-edge {
             stroke: #9ca3af;
             stroke-width: 2;
-            transition: all 0.3s ease-in-out;
+        }
+        .skipped-edge {
+            stroke: #ef4444;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div style="margin-bottom: 1.5rem;">
-            <a href="../../index.html" style="display: inline-block; background-color: rgba(0,0,0,0.2); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='rgba(0,0,0,0.4)'" onmouseout="this.style.backgroundColor='rgba(0,0,0,0.2)'">
-                &larr; Back to Home
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Header Section -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">LeetCode 78: Subsets</h1>
+            <p class="text-xl text-blue-100 mb-2">An Interactive Visual Explainer</p>
+            <p class="text-sm text-blue-200">Idea By: Chetan Pachpande | Executed By: Claude</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-white bg-opacity-20 text-white px-6 py-2 rounded-lg hover:bg-opacity-30 transition duration-300 backdrop-blur-sm border border-white border-opacity-30">
+                ← Back to Home
             </a>
         </div>
-        <header class="header">
-            <h1>Subsets</h1>
-            <p>An Interactive Visual Explainer</p>
-        </header>
 
-        <div class="problem-description card">
-            <h2>Problem: LeetCode 78</h2>
-            <p>Given an array <code>nums</code> of unique integers, return all possible subsets (the power set).</p>
-            <p style="margin-top: 0.5rem;">The solution set must not contain duplicate subsets. You may return the solution in any order.</p>
-        </div>
-
-        <div class="java-code card">
-            <h2>Java Solution Code</h2>
-            <pre class="code-block"><code><span class="comment">// class Solution { ...</span>
-    public List&lt;List&lt;Integer&gt;&gt; subsets(int[] nums) {
-        List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();
-        <span class="comment">// Step 1: Start the backtracking process from the first element (index 0)</span>
-        generateSubsets(0, nums, new ArrayList&lt;&gt;(), result);
-        return result;
-    }
-
-    private void generateSubsets(int index, int[] nums, List&lt;Integer&gt; current, List&lt;List&lt;Integer&gt;&gt; result) {
-        <span class="comment">// Step 2: Add the current combination to the results list</span>
-        result.add(new ArrayList&lt;&gt;(current));
-        
-        <span class="comment">// Step 3: Iterate through the remaining elements to form new subsets</span>
-        for (int i = index; i < nums.length; i++) {
-            <span class="comment">// Step 4: Include the element nums[i] in the current subset</span>
-            current.add(nums[i]);
-            
-            <span class="comment">// Step 5: Recurse with the next index to build upon the new subset</span>
-            generateSubsets(i + 1, nums, current, result);
-            
-            <span class="comment">// Step 6: Backtrack by removing the element to explore other possibilities</span>
-            current.remove(current.size() - 1);
-        }
-    }
-<span class="comment">// }</span></code></pre>
-        </div>
-
-        <div class="two-column-layout">
-            <div class="left-column">
-                <div class="intuition-section card">
-                    <h2>Intuition</h2>
-                    <p>This problem is a classic example of where to use <strong>backtracking</strong>. The core idea is to build subsets incrementally. For each number in the input array, we have two choices: either we "include" it in our current subset, or we "don't include" it.</p>
-                    <p style="margin-top: 0.5rem;">We can visualize this as a decision tree. Starting with an empty subset, at each level of the tree, we decide whether to add the next number from the input array. We explore one path (e.g., including the number), and once that path is fully explored, we "backtrack" by removing the number we just added, and then explore the other path (not including it, which is implicitly handled by moving to the next number in the loop).</p>
-                    <p style="margin-top: 0.5rem;">By systematically exploring all possible combinations of these "include/don't include" decisions, we can generate every single possible subset.</p>
+        <div id="problem-card" class="card">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Given an array <code>nums</code> of unique integers, return all possible subsets of <code>nums</code>.</p>
+                <p>The solution set must not contain duplicate subsets. You may return the solution in any order.</p>
+                
+                <div class="bg-gray-100 p-4 rounded-lg text-sm">
+                    <p><strong>Example 1:</strong></p>
+                    <p><strong>Input:</strong> nums = [1,2,3]</p>
+                    <p><strong>Output:</strong> [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]</p>
+                    <br>
+                    <p><strong>Example 2:</strong></p>
+                    <p><strong>Input:</strong> nums = [7]</p>
+                    <p><strong>Output:</strong> [[],[7]]</p>
+                    <br>
+                    <p><strong>Constraints:</strong></p>
+                    <ul class="list-disc list-inside ml-4">
+                        <li>1 <= nums.length <= 10</li>
+                        <li>-10 <= nums[i] <= 10</li>
+                    </ul>
                 </div>
-                <div class="step-by-step-code card">
-                    <h2>Step-by-Step Code</h2>
-                    <div id="step-content"></div>
+                
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Algorithm</h3>
+                    <p>We use backtracking to generate all possible subsets. For each element, we have two choices:</p>
+                    <ol class="list-decimal list-inside space-y-1 text-sm">
+                        <li><strong>Include</strong> the current element in our subset</li>
+                        <li><strong>Skip</strong> the current element and move to the next</li>
+                    </ol>
+                    <p class="mt-2">At each position, we add the current subset to our result, then recursively explore both options.</p>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Complexity Analysis</h3>
+                    <p><strong>Time Complexity:</strong> <code>O(N × 2^N)</code><br><span class="text-sm text-gray-600">We generate 2^N subsets, and each subset takes O(N) time to copy</span></p>
+                    <p class="mt-2"><strong>Space Complexity:</strong> <code>O(N × 2^N)</code><br><span class="text-sm text-gray-600">Space for storing all subsets and recursion stack depth O(N)</span></p>
                 </div>
             </div>
-            <div class="right-column">
-                <div class="live-visualization card">
-                    <h2>Live Visualization & Controls</h2>
-                    <div class="controls-container" style="display: flex; gap: 1rem; align-items: flex-end;">
-                        <div style="flex-grow: 1;">
-                            <label for="nums-input" style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">Input Array (nums):</label>
-                            <input type="text" id="nums-input" value="1,2,3">
-                        </div>
-                        <button id="run-btn">Run</button>
-                    </div>
+        </div>
 
+        <!-- Main Content Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column: Controls and Code -->
+            <div class="space-y-6">
+                <!-- Input Controls -->
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Input & Controls</h2>
+                    <div class="controls-container">
+                        <label for="array-input" class="block text-sm font-medium text-gray-700 mb-2">
+                            Array (comma-separated):
+                        </label>
+                        <input type="text" id="array-input" value="1,2,3" class="mb-4">
+                        <button id="run-btn" class="w-full">Generate Subsets</button>
+                    </div>
+                </div>
+
+                <!-- Algorithm State -->
+                <div class="card algorithm-state">
+                    <h2 class="text-2xl font-bold mb-4">Algorithm State</h2>
+                    <div class="state-display">
+                        <div>
+                            <p>Current Index</p>
+                            <p id="current-index">0</p>
+                        </div>
+                        <div>
+                            <p>Current Subset</p>
+                            <p id="current-subset">[]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step-by-Step Code -->
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps" class="space-y-4">
+                        <div class="code-step">
+                            <h3 class="text-lg font-semibold text-blue-600">Step 1: Main Function</h3>
+                            <div class="code-block">
+                                <div class="comment">// Step 1: Initialize result list and start backtracking</div>
+                                <div>public List&lt;List&lt;Integer&gt;&gt; subsets(int[] nums) {</div>
+                                <div>    List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();</div>
+                                <div>    generateSubsets(0, nums, new ArrayList&lt;&gt;(), result);</div>
+                                <div>    return result;</div>
+                                <div>}</div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Initialize the result list and call the recursive helper function starting from index 0.</p>
+                        </div>
+
+                        <div class="code-step">
+                            <h3 class="text-lg font-semibold text-blue-600">Step 2: Add Current Subset</h3>
+                            <div class="code-block">
+                                <div class="comment">// Step 2: Add current subset to result</div>
+                                <div>private void generateSubsets(int index, int[] nums, List&lt;Integer&gt; current, List&lt;List&lt;Integer&gt;&gt; result) {</div>
+                                <div>    result.add(new ArrayList&lt;&gt;(current));</div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Add the current subset to our result. This includes the empty set initially.</p>
+                        </div>
+
+                        <div class="code-step">
+                            <h3 class="text-lg font-semibold text-blue-600">Step 3: Iterate Through Remaining Elements</h3>
+                            <div class="code-block">
+                                <div class="comment">// Step 3: For each remaining element, decide to include or skip</div>
+                                <div>    for (int i = index; i &lt; nums.length; i++) {</div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Loop through all elements starting from the current index.</p>
+                        </div>
+
+                        <div class="code-step">
+                            <h3 class="text-lg font-semibold text-blue-600">Step 4: Include Element</h3>
+                            <div class="code-block">
+                                <div class="comment">// Step 4: Include current element in subset</div>
+                                <div>        current.add(nums[i]);</div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Add the current element to our working subset.</p>
+                        </div>
+
+                        <div class="code-step">
+                            <h3 class="text-lg font-semibold text-blue-600">Step 5: Recursive Call</h3>
+                            <div class="code-block">
+                                <div class="comment">// Step 5: Recursively generate subsets with this element included</div>
+                                <div>        generateSubsets(i + 1, nums, current, result);</div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Recursively call with the next index to explore all subsets including this element.</p>
+                        </div>
+
+                        <div class="code-step">
+                            <h3 class="text-lg font-semibold text-blue-600">Step 6: Backtrack</h3>
+                            <div class="code-block">
+                                <div class="comment">// Step 6: Backtrack - remove element to explore other possibilities</div>
+                                <div>        current.remove(current.size() - 1);</div>
+                                <div>    }</div>
+                                <div>}</div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Remove the element (backtrack) to explore subsets without this element.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Visualization -->
+            <div class="space-y-6">
+                <!-- Tree Visualization -->
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Recursion Tree</h2>
                     <div class="visualization-container">
-                        <svg id="tree-svg" width="100%" height="350"></svg>
+                        <svg id="tree-svg" width="100%" height="400"></svg>
                     </div>
-
-                    <div class="algorithm-state" style="margin-top: 1.5rem;">
-                        <h3>Algorithm State</h3>
-                        <div class="state-display">
-                            <div><p>Current Subset</p><p id="state-current-subset">-</p></div>
-                            <div><p>Current Index (i)</p><p id="state-index">-</p></div>
-                        </div>
-                    </div>
-
-                     <div id="results-container" class="results-container">
-                        <h3>Generated Subsets:</h3>
-                        <div id="results-list"></div>
-                    </div>
-
+                    
+                    <!-- Execution Controls -->
                     <div class="execution-controls">
-                        <button id="backward-btn" class="icon-btn" title="Step Backward"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg></button>
-                        <button id="play-pause-btn" class="icon-btn play-pause-btn" title="Run/Pause">
-                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" /></svg>
-                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-6-13.5v13.5" /></svg>
+                        <button id="prev-btn" class="icon-btn">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
                         </button>
-                        <button id="forward-btn" class="icon-btn" title="Step Forward"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg></button>
+                        <button id="play-btn" class="play-pause-btn">
+                            <svg id="play-icon" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <svg id="pause-icon" fill="currentColor" viewBox="0 0 24 24" style="display: none;">
+                                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                            </svg>
+                        </button>
+                        <button id="next-btn" class="icon-btn">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Generated Subsets</h2>
+                    <div id="results" class="results-container">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Execution Log</h2>
+                    <div id="log" class="log-console">
+                        <!-- Log messages will appear here -->
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="log-of-execution card">
-            <h2>Log of Step Execution</h2>
-            <div id="log-console" class="log-console">Welcome! Enter an array and press "Run" to start.</div>
-        </div>
-
-        <div class="full-explanation-script card">
-            <h2>Full Explanation Script (for Narration)</h2>
-            <div id="narration-script">
-                 <p>Hello, and welcome to the interactive explainer for LeetCode problem 78: Subsets.</p>
-                <p style="margin-top: 0.5rem;">The problem asks us to find all possible subsets, also known as the power set, from a given array of unique integers. The core technique for solving this is backtracking, which is a form of recursion.</p>
-                <p style="margin-top: 0.5rem;">Our approach uses a helper function, let's call it `generateSubsets`, which recursively builds these combinations. This function keeps track of the current index in the input array, the subset we are currently building, and the final list of all subsets found.</p>
-                <p style="margin-top: 0.5rem;">The process starts with an initial call to `generateSubsets` with index 0 and an empty current subset. The first thing our recursive function does is add a copy of the current subset to our final results list. This is because every state, including the initial empty set, is a valid subset.</p>
-                <p style="margin-top: 0.5rem;">Next, we loop from the current `index` to the end of the input array. Inside the loop, we perform our "choice". We choose to include the element `nums[i]` by adding it to our `current` subset. After including it, we make a recursive call to `generateSubsets`, but this time starting from `i + 1`. This new call will then explore all possibilities that can be built upon our newly expanded subset.</p>
-                <p style="margin-top: 0.5rem;">Once that recursive call returns, it means it has finished exploring all paths starting with our choice. Now, we must "undo" our choice to explore other possibilities. This is the backtracking step. We remove the element we just added from the `current` subset. The loop then continues to the next element, which represents the decision to *not* include the previous element but to include the current one instead. This "include, explore, backtrack" cycle ensures we generate every possible combination without duplicates.</p>
+        <!-- Full Java Code -->
+        <div class="card mt-8">
+            <h2 class="text-2xl font-bold mb-4">Complete Java Solution</h2>
+            <div class="code-block">
+                <div class="comment">// Most asked problems at FAANG companies: https://docs.google.com/spreadsheets/d/1hzP8j7matoUiJ15N-RhsL5Dmig8_E3aP/edit#gid=1377915986</div>
+                <br>
+                <div class="comment">// Leetcode Link: https://leetcode.com/problems/subsets/</div>
+                <br>
+                <div class="comment">// Video Solution: https://www.youtube.com/watch?v=OQKWzRJYtwg</div>
+                <br>
+                <div class="comment">//**************** Java Solution ***********************</div>
+                <br>
+                <div>class Solution {</div>
+                <div class="comment">    // Step 1: Main function that initializes the result and starts backtracking</div>
+                <div>    public List&lt;List&lt;Integer&gt;&gt; subsets(int[] nums) {</div>
+                <div>        List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();</div>
+                <div>        generateSubsets(0, nums, new ArrayList&lt;&gt;(), result);</div>
+                <div>        return result;</div>
+                <div>    }</div>
+                <br>
+                <div class="comment">    // Step 2-6: Recursive backtracking function</div>
+                <div>    private void generateSubsets(int index, int[] nums, List&lt;Integer&gt; current, List&lt;List&lt;Integer&gt;&gt; result) {</div>
+                <div class="comment">        // Step 2: Add current subset to result (includes empty subset initially)</div>
+                <div>        result.add(new ArrayList&lt;&gt;(current));</div>
+                <div class="comment">        // Step 3: Iterate through remaining elements starting from 'index'</div>
+                <div>        for (int i = index; i &lt; nums.length; i++) {</div>
+                <div class="comment">            // Step 4: Include current element in the subset</div>
+                <div>            current.add(nums[i]);</div>
+                <div class="comment">            // Step 5: Recursively generate subsets with this element included</div>
+                <div>            generateSubsets(i + 1, nums, current, result);</div>
+                <div class="comment">            // Step 6: Backtrack - remove element to explore other possibilities</div>
+                <div>            current.remove(current.size() - 1);</div>
+                <div>        }</div>
+                <div>    }</div>
+                <div>}</div>
             </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- DOM Elements ---
-            const numsInput = document.getElementById('nums-input');
-            const runBtn = document.getElementById('run-btn');
-            const logConsole = document.getElementById('log-console');
-            const stepContentEl = document.getElementById('step-content');
-            const treeSvg = document.getElementById('tree-svg');
-            const resultsList = document.getElementById('results-list');
-            
-            const stateElements = {
-                currentSubset: document.getElementById('state-current-subset'),
-                index: document.getElementById('state-index'),
-            };
-
-            const controlBtns = {
-                playPause: document.getElementById('play-pause-btn'),
-                forward: document.getElementById('forward-btn'),
-                backward: document.getElementById('backward-btn'),
-            };
-            
-            const playIcon = document.getElementById('play-icon');
-            const pauseIcon = document.getElementById('pause-icon');
-
-            // --- State ---
-            let states = [];
-            let currentStateIndex = -1;
-            let isPlaying = false;
-            let intervalId = null;
-
-            const codeSteps = [
-                {
-                    key: 'start',
-                    title: 'Step 1: Start Backtracking',
-                    explanation: 'The main function initializes an empty list for the results and starts the recursive backtracking process by calling `generateSubsets` from index 0 with an empty current subset.',
-                    code: `List<List<Integer>> result = new ArrayList<>();
-generateSubsets(0, nums, new ArrayList<>(), result);`
-                },
-                {
-                    key: 'add_to_results',
-                    title: 'Step 2: Add Current Subset',
-                    explanation: 'At the beginning of each recursive call, the current combination (including the empty set at the start) is a valid subset, so we add a copy of it to our final results list.',
-                    code: `result.add(new ArrayList<>(current));`
-                },
-                {
-                    key: 'loop',
-                    title: 'Step 3: Iterate Remaining Elements',
-                    explanation: 'We loop from the current `index` to the end of the array. Each iteration of this loop represents making a choice to include `nums[i]` in our subset.',
-                    code: `for (int i = index; i < nums.length; i++) {`
-                },
-                {
-                    key: 'include',
-                    title: 'Step 4: Include Element',
-                    explanation: 'This is the "choice" part of backtracking. We add the current element `nums[i]` to the list representing the subset we are building.',
-                    code: `current.add(nums[i]);`
-                },
-                {
-                    key: 'recurse',
-                    title: 'Step 5: Recurse',
-                    explanation: 'After including the new element, we make a recursive call to explore all further possibilities that can be built from this new, larger subset. We pass `i + 1` to ensure we only consider elements further down the array.',
-                    code: `generateSubsets(i + 1, nums, current, result);`
-                },
-                {
-                    key: 'backtrack',
-                    title: 'Step 6: Backtrack',
-                    explanation: 'After the recursive call returns, we "undo" our choice by removing the element we just added. This allows the loop to continue to the next element, exploring a different path.',
-                    code: `current.remove(current.size() - 1);`
-                }
-            ];
-            
-            // --- Logic ---
-            function logMessage(message) {
-                const timestamp = new Date().toLocaleTimeString();
-                logConsole.innerHTML += `<p><span style="color: #9ca3af;">${timestamp}</span> <span style="color: #6ee7b7;">> ${message}</span></p>`;
-                logConsole.scrollTop = logConsole.scrollHeight;
+        class SubsetsVisualizer {
+            constructor() {
+                this.nums = [];
+                this.result = [];
+                this.steps = [];
+                this.currentStep = 0;
+                this.isPlaying = false;
+                this.playInterval = null;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.generateVisualization();
             }
 
-            function generateStates() {
-                const nums = numsInput.value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
-                if (nums.length === 0) {
-                    logMessage("Error: Input array cannot be empty.");
-                    return [];
-                }
+            initializeElements() {
+                this.arrayInput = document.getElementById('array-input');
+                this.runBtn = document.getElementById('run-btn');
+                this.playBtn = document.getElementById('play-btn');
+                this.prevBtn = document.getElementById('prev-btn');
+                this.nextBtn = document.getElementById('next-btn');
+                this.playIcon = document.getElementById('play-icon');
+                this.pauseIcon = document.getElementById('pause-icon');
+                this.treeSvg = document.getElementById('tree-svg');
+                this.results = document.getElementById('results');
+                this.log = document.getElementById('log');
+                this.currentIndex = document.getElementById('current-index');
+                this.currentSubset = document.getElementById('current-subset');
+            }
 
-                let history = [];
-                let result = [];
-                let nodes = [];
-                let edges = [];
-                let nodeIdCounter = 0;
+            setupEventListeners() {
+                this.runBtn.addEventListener('click', () => this.generateVisualization());
+                this.playBtn.addEventListener('click', () => this.togglePlay());
+                this.prevBtn.addEventListener('click', () => this.previousStep());
+                this.nextBtn.addEventListener('click', () => this.nextStep());
+            }
 
-                function generateSubsets(index, current, parentNodeId) {
-                    const currentNodeId = nodeIdCounter++;
-                    nodes.push({ id: currentNodeId, subset: [...current], status: 'active' });
-                    if (parentNodeId !== null) {
-                        edges.push({ from: parentNodeId, to: currentNodeId });
-                    }
+            generateVisualization() {
+                this.nums = this.arrayInput.value.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+                this.result = [];
+                this.steps = [];
+                this.currentStep = 0;
+                
+                this.logMessage('Starting subset generation...');
+                this.generateSubsets(0, [], 0, 0);
+                this.renderStep();
+            }
+
+            generateSubsets(index, current, x, y, nodeId = 0) {
+                // Record the step
+                this.steps.push({
+                    index,
+                    current: [...current],
+                    action: 'add_subset',
+                    subset: [...current],
+                    nodeId,
+                    x, y
+                });
+
+                // Add current subset to result
+                this.result.push([...current]);
+
+                // For each remaining element
+                for (let i = index; i < this.nums.length; i++) {
+                    // Include element
+                    current.push(this.nums[i]);
                     
-                    result.push([...current]);
-                    history.push({
-                        nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)),
-                        result: JSON.parse(JSON.stringify(result)),
-                        current: [...current], index, i: -1, activeNodeId: currentNodeId,
-                        log: `Adding [${current.join(',')}] to results.`,
-                        stepKey: 'add_to_results'
+                    this.steps.push({
+                        index: i,
+                        current: [...current],
+                        action: 'include',
+                        element: this.nums[i],
+                        nodeId: this.steps.length,
+                        x: x + (i - index + 1) * 100,
+                        y: y + 80
                     });
 
-                    history.push({
-                        ...history[history.length-1],
-                        log: `Starting loop from index ${index}.`,
-                        stepKey: 'loop'
-                    });
+                    // Recursive call
+                    this.generateSubsets(i + 1, current, x + (i - index + 1) * 100, y + 80, this.steps.length - 1);
 
-                    for (let i = index; i < nums.length; i++) {
-                        history.push({
-                           ...history[history.length-1], i,
-                           log: `Loop at i=${i}. Considering element ${nums[i]}.`,
-                           stepKey: 'loop'
-                        });
-
-                        current.push(nums[i]);
-                        history.push({
-                            nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)),
-                            result: JSON.parse(JSON.stringify(result)),
-                            current: [...current], index, i, activeNodeId: currentNodeId,
-                            log: `Include ${nums[i]}. Current subset: [${current.join(',')}].`,
-                            stepKey: 'include'
-                        });
-
-                        history.push({
-                           ...history[history.length-1],
-                           log: `Recurse with index ${i + 1}.`,
-                           stepKey: 'recurse'
-                        });
-                        generateSubsets(i + 1, current, currentNodeId);
-                        
-                        // After recursion returns, update the state to show we're back
-                        nodes.find(n => n.id === currentNodeId).status = 'active';
-                        const childNode = nodes[nodes.length-1];
-                        if(childNode) childNode.status = 'backtracked';
-
-                        current.pop(); // Use pop for standard array removal
-                        history.push({
-                            nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)),
-                            result: JSON.parse(JSON.stringify(result)),
-                            current: [...current], index, i, activeNodeId: currentNodeId,
-                            log: `Backtrack. Removed ${nums[i]}. Current subset: [${current.join(',')}].`,
-                            stepKey: 'backtrack'
-                        });
-                    }
-                     nodes.find(n => n.id === currentNodeId).status = 'backtracked';
-                }
-
-                history.push({
-                    nodes: [], edges: [], result: [], current: [], index: 0, i: -1, activeNodeId: -1,
-                    log: `Starting backtracking process.`,
-                    stepKey: 'start'
-                });
-                generateSubsets(0, [], null);
-                
-                return history;
-            }
-
-            // --- UI Update Functions ---
-             function drawTree(nodes, edges, activeNodeId) {
-                treeSvg.innerHTML = '';
-                if (nodes.length === 0) return;
-
-                const nodePositions = new Map();
-                const nodeMap = new Map(nodes.map(n => [n.id, { ...n, children: [] }]));
-
-                edges.forEach(({ from, to }) => {
-                    if (nodeMap.has(from) && nodeMap.has(to)) {
-                        nodeMap.get(from).children.push(nodeMap.get(to));
-                    }
-                });
-
-                const root = nodes[0];
-                if (!root) return;
-
-                function positionNodes(node, x, y, dx, level) {
-                    if (!node) return;
-                    nodePositions.set(node.id, { x, y });
-                    const childDx = Math.max(20, dx / 1.5);
-                    const children = nodeMap.get(node.id)?.children || [];
-                    const totalWidth = (children.length - 1) * childDx * 2;
-                    let currentX = x - totalWidth / 2;
-
-                    children.forEach((child, i) => {
-                        positionNodes(child, currentX, y + 60, childDx, level + 1);
-                        currentX += childDx * 2;
+                    // Backtrack
+                    current.pop();
+                    
+                    this.steps.push({
+                        index: i,
+                        current: [...current],
+                        action: 'backtrack',
+                        element: this.nums[i],
+                        nodeId: this.steps.length,
+                        x, y
                     });
                 }
-                
-                const width = treeSvg.clientWidth;
-                positionNodes(nodeMap.get(root.id), width / 2, 30, width / 4, 0);
-
-                edges.forEach(({ from, to }) => {
-                    const fromPos = nodePositions.get(from);
-                    const toPos = nodePositions.get(to);
-                    if (fromPos && toPos) {
-                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        line.setAttribute('x1', fromPos.x);
-                        line.setAttribute('y1', fromPos.y);
-                        line.setAttribute('x2', toPos.x);
-                        line.setAttribute('y2', toPos.y);
-                        line.setAttribute('class', 'tree-edge');
-                        treeSvg.appendChild(line);
-                    }
-                });
-
-                nodes.forEach(node => {
-                    const pos = nodePositions.get(node.id);
-                    if (pos) {
-                        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                        let statusClass = node.status;
-                        if(node.id === activeNodeId) statusClass = 'active';
-                        g.setAttribute('class', `tree-node ${statusClass}`);
-                        
-                        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        circle.setAttribute('cx', pos.x);
-                        circle.setAttribute('cy', pos.y);
-                        circle.setAttribute('r', 20);
-                        
-                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                        text.setAttribute('x', pos.x);
-                        text.setAttribute('y', pos.y + 4);
-                        text.textContent = `[${node.subset.join(',')}]` || '[]';
-                        
-                        g.appendChild(circle);
-                        g.appendChild(text);
-                        treeSvg.appendChild(g);
-                    }
-                });
             }
 
-
-            function updateCodeStepUI(stepKey) {
-                const step = codeSteps.find(s => s.key === stepKey);
-                if (!step) return;
-                stepContentEl.innerHTML = `
-                    <h3>${step.title}</h3>
-                    <p style="margin-bottom: 1rem; color: #4b5563;">${step.explanation}</p>
-                    <pre class="code-block"><code>${step.code}</code></pre>
-                `;
+            renderStep() {
+                if (this.currentStep >= this.steps.length) return;
+                
+                const step = this.steps[this.currentStep];
+                
+                // Update algorithm state
+                this.currentIndex.textContent = step.index;
+                this.currentSubset.textContent = `[${step.current.join(', ')}]`;
+                
+                // Update log
+                let message = '';
+                switch (step.action) {
+                    case 'add_subset':
+                        message = `Add subset [${step.subset.join(', ')}] to result`;
+                        break;
+                    case 'include':
+                        message = `Include element ${step.element} in subset`;
+                        break;
+                    case 'backtrack':
+                        message = `Backtrack: remove element ${step.element}`;
+                        break;
+                }
+                this.logMessage(message);
+                
+                // Update tree visualization
+                this.updateTree();
+                
+                // Update results
+                this.updateResults();
+                
+                // Update button states
+                this.prevBtn.disabled = this.currentStep === 0;
+                this.nextBtn.disabled = this.currentStep >= this.steps.length - 1;
             }
 
-            function updateUI(stateIndex) {
-                if (stateIndex < 0 || stateIndex >= states.length) return;
+            updateTree() {
+                this.treeSvg.innerHTML = '';
                 
-                currentStateIndex = stateIndex;
-                const state = states[currentStateIndex];
+                // Calculate tree dimensions
+                const maxNodes = Math.pow(2, this.nums.length);
+                const width = Math.max(600, maxNodes * 30);
+                const height = (this.nums.length + 1) * 100;
                 
-                stateElements.currentSubset.textContent = `[${state.current.join(',')}]`;
-                stateElements.index.textContent = state.i !== -1 ? state.i : (state.index !== -1 ? state.index : '-');
+                this.treeSvg.setAttribute('width', width);
+                this.treeSvg.setAttribute('height', height);
+                
+                // Draw nodes for current steps
+                for (let i = 0; i <= this.currentStep; i++) {
+                    const step = this.steps[i];
+                    if (step.action === 'add_subset') {
+                        this.drawNode(step.x + width/2, step.y + 50, step.subset, i === this.currentStep);
+                    }
+                }
+            }
 
-                logMessage(state.log);
-                drawTree(state.nodes, state.edges, state.activeNodeId);
-                resultsList.innerHTML = state.result.map(subset => 
-                    `<div class="result-subset">[${subset.join(',') || ' '}]</div>`
+            drawNode(x, y, subset, isActive = false) {
+                // Create group for node
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('class', `tree-node ${isActive ? 'active' : ''}`);
+                
+                // Create circle
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', y);
+                circle.setAttribute('r', 25);
+                circle.setAttribute('stroke', isActive ? '#f59e0b' : '#6b7280');
+                circle.setAttribute('fill', isActive ? '#fef9c3' : 'white');
+                
+                // Create text
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', x);
+                text.setAttribute('y', y + 4);
+                text.textContent = `[${subset.join(',')}]`;
+                text.setAttribute('font-size', '10');
+                text.setAttribute('text-anchor', 'middle');
+                
+                g.appendChild(circle);
+                g.appendChild(text);
+                this.treeSvg.appendChild(g);
+            }
+
+            updateResults() {
+                const currentResults = this.result.slice(0, Math.floor(this.currentStep / 3) + 1);
+                this.results.innerHTML = currentResults.map(subset => 
+                    `<span class="result-subset">[${subset.join(', ')}]</span>`
                 ).join('');
-                updateCodeStepUI(state.stepKey);
             }
-            
-            // --- Control Functions ---
-            function stepForward() {
-                if (currentStateIndex < states.length - 1) {
-                    updateUI(currentStateIndex + 1);
+
+            logMessage(message) {
+                const logEntry = document.createElement('div');
+                logEntry.textContent = `> ${message}`;
+                this.log.appendChild(logEntry);
+                this.log.scrollTop = this.log.scrollHeight;
+            }
+
+            togglePlay() {
+                if (this.isPlaying) {
+                    this.pause();
                 } else {
-                    pause();
+                    this.play();
                 }
             }
 
-            function stepBackward() {
-                if (currentStateIndex > 0) {
-                    updateUI(currentStateIndex - 1);
-                }
-            }
-            
-            function play() {
-                if (isPlaying) return;
-                isPlaying = true;
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = 'block';
+            play() {
+                this.isPlaying = true;
+                this.playIcon.style.display = 'none';
+                this.pauseIcon.style.display = 'block';
                 
-                if (currentStateIndex >= states.length - 1) {
-                    currentStateIndex = 0; // Restart from beginning
-                    logConsole.innerHTML = '';
-                }
+                this.playInterval = setInterval(() => {
+                    if (this.currentStep < this.steps.length - 1) {
+                        this.nextStep();
+                    } else {
+                        this.pause();
+                    }
+                }, 1500);
+            }
+
+            pause() {
+                this.isPlaying = false;
+                this.playIcon.style.display = 'block';
+                this.pauseIcon.style.display = 'none';
                 
-                intervalId = setInterval(stepForward, 800);
-            }
-            
-            function pause() {
-                isPlaying = false;
-                playIcon.style.display = 'block';
-                pauseIcon.style.display = 'none';
-                clearInterval(intervalId);
-                intervalId = null;
-            }
-
-            function handleRun() {
-                pause();
-                states = generateStates();
-                logConsole.innerHTML = '';
-                if (states.length > 0) {
-                   updateUI(0);
+                if (this.playInterval) {
+                    clearInterval(this.playInterval);
                 }
             }
 
-            // --- Event Listeners ---
-            runBtn.addEventListener('click', handleRun);
-            controlBtns.playPause.addEventListener('click', () => {
-                if (isPlaying) pause();
-                else {
-                    if (states.length === 0 || currentStateIndex >= states.length - 1) handleRun();
-                    play();
+            nextStep() {
+                if (this.currentStep < this.steps.length - 1) {
+                    this.currentStep++;
+                    this.renderStep();
                 }
-            });
-            controlBtns.forward.addEventListener('click', () => { pause(); stepForward(); });
-            controlBtns.backward.addEventListener('click', () => { pause(); stepBackward(); });
-            
-            // --- Initial setup ---
-            handleRun();
+            }
+
+            previousStep() {
+                if (this.currentStep > 0) {
+                    this.currentStep--;
+                    this.renderStep();
+                }
+            }
+        }
+
+        // Initialize the visualizer when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new SubsetsVisualizer();
         });
     </script>
 </body>

@@ -161,7 +161,9 @@
                     <div class="mt-4 space-y-4">
                         <h3 class="text-lg font-semibold text-gray-800 text-center">Linked List</h3>
                         <div id="visualization-container" class="p-2 bg-gray-100 rounded-lg min-h-[160px]">
-                             <div id="visualization-panel" class="mermaid"></div>
+                             <div id="visualization-panel" class="flex items-center justify-center text-gray-500">
+                                 <span>Click "Run Visualization" to start</span>
+                             </div>
                         </div>
                     </div>
 
@@ -203,16 +205,16 @@
                 <div class="w-full flex justify-center">
                     <pre class="mermaid" id="flowchart-definition">
 graph TD
-    A["Start"] --> B{head is null?};
-    B -- Yes --> C[Return null];
-    B -- No --> D[Initialize prev = null, curr = head];
-    D --> E{curr is not null?};
-    E -- Yes --> F[temp = curr.next];
-    F --> G[curr.next = prev];
-    G --> H[prev = curr];
-    H --> I[curr = temp];
-    I --> E;
-    E -- No --> J[Return prev];
+    A["Start"] --> B{head is null?}
+    B -- Yes --> C[Return null]
+    B -- No --> D[Initialize prev = null, curr = head]
+    D --> E{curr is not null?}
+    E -- Yes --> F[temp = curr.next]
+    F --> G[curr.next = prev]
+    G --> H[prev = curr]
+    H --> I[curr = temp]
+    I --> E
+    E -- No --> J[Return prev]
                     </pre>
                 </div>
             </div>
@@ -269,7 +271,7 @@ class Solution {
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         mermaid.initialize({ 
-            startOnLoad: true, 
+            startOnLoad: false, // Disable auto-processing
             theme: 'base',
             themeVariables: {
                 primaryColor: '#f9fafb', // gray-50
@@ -422,14 +424,16 @@ class Solution {
             mermaidString += '    classDef curr-node fill:#fb923c,stroke:#c2410c,color:white,stroke-width:3px;\n';
             mermaidString += '    classDef temp-node fill:#a78bfa,stroke:#6d28d9,color:white;\n';
             
+            // Clear any existing content and setup for mermaid rendering
+            visualizationPanel.className = '';
             visualizationPanel.innerHTML = mermaidString;
             visualizationPanel.removeAttribute('data-processed');
             try {
-                const { svg } = await mermaid.render('mermaid-graph', mermaidString);
+                const { svg } = await mermaid.render('mermaid-graph-' + Date.now(), mermaidString);
                 visualizationPanel.innerHTML = svg;
             } catch (e) {
                 console.error("Mermaid render error:", e);
-                visualizationPanel.innerHTML = `<div class="text-red-500">Error rendering graph. Please check console.</div>`;
+                visualizationPanel.innerHTML = `<div class="text-red-500 p-4">Error rendering graph: ${e.message}</div>`;
             }
         }
 

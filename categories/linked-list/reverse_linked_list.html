@@ -3,19 +3,559 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reverse Linked List | LC 206 Visualizer</title>
+    <title>LeetCode 206: Reverse Linked List</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb; /* gray-50 */
+            border-color: #9ca3af; /* gray-400 */
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .log-container {
+            height: 150px;
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: monospace;
+            font-size: 0.875rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        pre {
+            background-color: #f3f4f6; /* gray-100 */
+            color: #1f2937; /* gray-800 */
+            padding: 1rem;
+            border-radius: 0.375rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .code-highlight {
+            background-color: #fef08a; /* yellow-200 */
+            color: #854d0e; /* amber-800 */
+            display: block;
+            margin: -2px -4px;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        #visualization-panel .mermaid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Reverse Linked List | LC 206</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white">206. Reverse Linked List</h1>
+            <p class="text-lg text-blue-100 mt-2">An Interactive Visual Explainer</p>
+        </header>
+        <div class="text-center text-sm text-blue-200 mb-8">
+            Idea By: Chetan Pachpande | Executed By: Gemini
+        </div>
+
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition">Back to Home</a>
+        </div>
+
+        <div id="problem-card" class="card mb-8">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Given the <code>head</code> of a singly linked list, reverse the list, and return the reversed list.</p>
+                <h3>Example:</h3>
+                <pre>Input: head = [1,2,3,4,5]\nOutput: [5,4,3,2,1]</pre>
+                <h3>Constraints:</h3>
+                <ul class="list-disc list-inside">
+                    <li>The number of nodes in the list is in the range <code>[0, 5000]</code>.</li>
+                    <li><code>-5000 &lt;= Node.val &lt;= 5000</code></li>
+                </ul>
+                <div class="my-4">
+                    <h3 class="text-lg font-semibold mb-2">Complexity Analysis</h3>
+                    <div class="bg-gray-100 p-3 rounded-lg border border-gray-200 text-sm">
+                        <p><strong>Time Complexity:</strong> $O(N)$</p>
+                        <p class="text-gray-600 ml-4">We iterate through the $N$ elements of the list once.</p>
+                        <p class="mt-2"><strong>Space Complexity:</strong> $O(1)$</p>
+                        <p class="text-gray-600 ml-4">We only use a few extra pointers, regardless of the list size.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+            <div class="lg:col-span-2 flex flex-col gap-8">
+                
+                <div id="intuition-card" class="card">
+                    <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+                    <div class="space-y-4 text-gray-700">
+                        <p>Reversing a singly linked list iteratively involves changing the <code>next</code> pointer of each node to point to its previous node. We need to keep track of three pointers:</p>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li><code>prev</code>: This pointer tracks the node that was just processed. It starts as <code>null</code>.</li>
+                            <li><code>curr</code>: This pointer points to the current node being processed. It starts at the <code>head</code>.</li>
+                            <li><code>temp</code>: This temporary pointer is crucial to store the <code>next</code> node of <code>curr</code> *before* we modify <code>curr.next</code>, preventing us from losing the rest of the list.</li>
+                        </ol>
+                        <p>The process repeats: save <code>curr.next</code>, point <code>curr.next</code> to <code>prev</code>, then advance <code>prev</code> to <code>curr</code> and <code>curr</code> to the saved next node.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <div class="flex justify-between mt-6">
+                        <button id="prev-step-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                        <button id="next-step-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-3 flex flex-col gap-8">
+                
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization & Controls</h2>
+                    
+                    <div>
+                        <label for="list-input" class="block text-sm font-medium text-gray-700">List Values (comma-separated, e.g., 1,-2,3,8,5)</label>
+                        <input type="text" id="list-input" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" value="1,2,3,4,5">
+                    </div>
+                     <button id="run-visualization-btn" class="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-semibold">Run Visualization</button>
+                    
+                    <div class="mt-4 space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-800 text-center">Linked List</h3>
+                        <div id="visualization-container" class="p-2 bg-gray-100 rounded-lg min-h-[160px]">
+                             <div id="visualization-panel" class="mermaid"></div>
+                        </div>
+                    </div>
+
+                     <div class="mt-6 pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-3 text-center text-gray-800">Algorithm State</h3>
+                        <div class="p-3 bg-gray-100 rounded-lg text-sm grid grid-cols-3 gap-2 text-center">
+                            <div><strong>prev:</strong> <span id="state-prev" class="font-mono bg-blue-100 text-blue-800 px-2 py-1 rounded">null</span></div>
+                            <div><strong>curr:</strong> <span id="state-curr" class="font-mono bg-orange-100 text-orange-800 px-2 py-1 rounded">null</span></div>
+                            <div><strong>temp:</strong> <span id="state-temp" class="font-mono bg-purple-100 text-purple-800 px-2 py-1 rounded">null</span></div>
+                        </div>
+                    </div>
+
+                     <div class="mt-6 pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-3 text-center text-gray-800">Execution Controls</h3>
+                        <div class="flex justify-center items-center gap-8">
+                            <button id="step-backward-btn" class="control-btn" title="Step Backward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                            </button>
+                            <button id="play-pause-btn" class="control-btn !w-16 !h-16 bg-blue-600 text-white hover:bg-blue-700" title="Run/Pause">
+                                <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="hidden"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                            </button>
+                            <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-8 space-y-8">
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Log of Step Execution</h2>
+                <div id="execution-log" class="log-container"></div>
+            </div>
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Algorithm Flowchart</h2>
+                <div class="w-full flex justify-center">
+                    <pre class="mermaid" id="flowchart-definition">
+graph TD
+    A["Start"] --> B{head is null?};
+    B -- Yes --> C[Return null];
+    B -- No --> D[Initialize prev = null, curr = head];
+    D --> E{curr is not null?};
+    E -- Yes --> F[temp = curr.next];
+    F --> G[curr.next = prev];
+    G --> H[prev = curr];
+    H --> I[curr = temp];
+    I --> E;
+    E -- No --> J[Return prev];
+                    </pre>
+                </div>
+            </div>
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Commented Java Code</h2>
+                <div id="commented-code-container" class="bg-gray-100 p-4 rounded-md">
+                    <pre><code class="language-java" id="full-java-code">
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ * int val;
+ * ListNode next;
+ * ListNode(int val) { this.val = val; }
+ * }
+ */
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode prev = null;
+        ListNode curr = head;
+        
+        while(curr != null){
+            ListNode temp = curr.next;
+            curr.next = prev;
+            prev = curr;
+            curr = temp;
+        }
+        
+        return prev;
+    }
+}
+                    </code></pre>
+                </div>
+            </div>
+             <div class="card">
+                 <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Full Explanation Script (for Narration)</h2>
+                    <button id="narrate-btn" class="p-2 rounded-full hover:bg-gray-200 transition" title="Narrate full explanation">
+                        <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                         <svg id="stop-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 10h6" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="narration-script" class="text-gray-700 space-y-2">
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#f9fafb', // gray-50
+                primaryTextColor: '#1f2937', // gray-800
+                primaryBorderColor: '#e5e7eb', // gray-200
+                lineColor: '#6b7280', // gray-500
+                textColor: '#374151', // gray-700
+                fontSize: '16px'
+            }
+        });
+
+        const listInput = document.getElementById('list-input');
+        const runVisualizationBtn = document.getElementById('run-visualization-btn');
+        const visualizationPanel = document.getElementById('visualization-panel');
+        const statePrev = document.getElementById('state-prev');
+        const stateCurr = document.getElementById('state-curr');
+        const stateTemp = document.getElementById('state-temp');
+        const executionLog = document.getElementById('execution-log');
+        const codeStepsContainer = document.getElementById('code-steps-container');
+        const prevStepBtn = document.getElementById('prev-step-btn');
+        const nextStepBtn = document.getElementById('next-step-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const stepForwardBtn = document.getElementById('step-forward-btn');
+        const stepBackwardBtn = document.getElementById('step-backward-btn');
+        const narrateBtn = document.getElementById('narrate-btn');
+        const narrationScriptContainer = document.getElementById('narration-script');
+        const fullJavaCodeText = document.getElementById('full-java-code').innerText;
+
+        let animationTimeout;
+        let animationSpeed = 1200;
+        let currentStateIndex = 0;
+        let executionHistory = [];
+        let isPlaying = false;
+        let nodeCounter = 0;
+
+        const codeSteps = [
+            { title: "Step 1: Initialization", explanation: "Initialize `prev` to `null` and `curr` to `head`.", codeLines: ["ListNode prev = null;", "ListNode curr = head;"] },
+            { title: "Step 2: Loop Condition", explanation: "Enter a `while` loop that continues as long as `curr` is not `null`.", codeLines: ["while(curr != null){"] },
+            { title: "Step 3: Save Next Node", explanation: "Store `curr.next` in a `temp` variable to avoid losing the rest of the list.", codeLines: ["ListNode temp = curr.next;"] },
+            { title: "Step 4: Reverse Pointer", explanation: "The core step: `curr.next` now points to `prev`.", codeLines: ["curr.next = prev;"] },
+            { title: "Step 5: Advance `prev`", explanation: "Move `prev` to `curr`, extending the reversed portion.", codeLines: ["prev = curr;"] },
+            { title: "Step 6: Advance `curr`", explanation: "Move `curr` to the node we saved in `temp`.", codeLines: ["curr = temp;"] },
+            { title: "Step 7: Return Result", explanation: "Loop finished. `prev` is the new head. Return `prev`.", codeLines: ["return prev;"] }
+        ];
+
+        class ListNode {
+            constructor(val, next = null) {
+                const sanitizedVal = String(val).replace('-', 'neg');
+                this.id = `node-${nodeCounter++}-${sanitizedVal}`;
+                this.val = val;
+                this.next = next;
+            }
+        }
+
+        function buildLinkedList(arr) {
+            nodeCounter = 0;
+            if (!arr || arr.length === 0) return null;
+            let head = new ListNode(arr[0]);
+            let current = head;
+            for (let i = 1; i < arr.length; i++) {
+                current.next = new ListNode(arr[i]);
+                current = current.next;
+            }
+            return head;
+        }
+        
+        function generateExecutionHistory(head) {
+            if (!head) return [];
+
+            const history = [];
+            const allNodesMaster = [];
+            let tempNode = head;
+            while(tempNode) {
+                allNodesMaster.push(tempNode);
+                tempNode = tempNode.next;
+            }
+
+            let simPrev = null;
+            let simCurr = head;
+            
+            const captureState = (codeStepIndex, logMessage, pointers) => {
+                const nodes = allNodesMaster.map(node => ({
+                    id: node.id,
+                    val: node.val,
+                    nextId: node.next ? node.next.id : null
+                }));
+                history.push({ nodes, pointers, codeStep: codeStepIndex, log: logMessage });
+            };
+
+            captureState(0, "Initial state: `prev` is null, `curr` is at head.", { prevId: null, currId: simCurr ? simCurr.id : null, tempId: null });
+
+            while (simCurr != null) {
+                captureState(1, `[Loop Check] Is curr (${simCurr.val}) not null? Yes.`, { prevId: simPrev ? simPrev.id : null, currId: simCurr.id, tempId: null });
+                
+                let simTemp = simCurr.next;
+                captureState(2, `Saved curr.next (${simTemp ? simTemp.val : 'null'}) into temp.`, { prevId: simPrev ? simPrev.id : null, currId: simCurr.id, tempId: simTemp ? simTemp.id : null });
+
+                simCurr.next = simPrev;
+                captureState(3, `Reversed pointer: curr.next (${simCurr.val}) now points to prev (${simPrev ? simPrev.val : 'null'}).`, { prevId: simPrev ? simPrev.id : null, currId: simCurr.id, tempId: simTemp ? simTemp.id : null });
+                
+                simPrev = simCurr;
+                captureState(4, `Advanced prev: prev is now at node ${simPrev.val}.`, { prevId: simPrev.id, currId: simCurr.id, tempId: simTemp ? simTemp.id : null });
+
+                simCurr = simTemp;
+                captureState(5, `Advanced curr: curr is now at node ${simCurr ? simCurr.val : 'null'}.`, { prevId: simPrev.id, currId: simCurr ? simCurr.id : null, tempId: null });
+            }
+            
+            captureState(1, `[Loop Check] Is curr (null) not null? No. Exit loop.`, { prevId: simPrev ? simPrev.id : null, currId: null, tempId: null });
+            captureState(6, "Loop finished. Return `prev` as the new head.", { prevId: simPrev ? simPrev.id : null, currId: null, tempId: null });
+            
+            return history;
+        }
+
+        async function applyState(state) {
+            if (!state) return;
+            await updateVisualization(state);
+            updateAlgorithmState(state);
+            renderCodeStep(state.codeStep);
+            logExecution(state.log);
+        }
+        
+        async function updateVisualization(state) {
+            const { nodes, pointers } = state;
+            const { prevId, currId, tempId } = pointers;
+
+            let mermaidString = 'graph LR;\n';
+            
+            if (!nodes || nodes.length === 0) {
+                mermaidString += '    Empty["List is Empty"];\n';
+            } else {
+                nodes.forEach(node => {
+                    mermaidString += `    ${node.id}["${node.val}"];\n`;
+                    if (node.nextId) {
+                        mermaidString += `    ${node.id} --> ${node.nextId};\n`;
+                    } else {
+                        const nullId = `null-${node.id}`;
+                        mermaidString += `    ${nullId}[null];\n`;
+                        mermaidString += `    ${node.id} --> ${nullId};\n`;
+                    }
+                });
+            }
+            
+            if (prevId) mermaidString += `    class ${prevId} prev-node;\n`;
+            if (currId) mermaidString += `    class ${currId} curr-node;\n`;
+            if (tempId) mermaidString += `    class ${tempId} temp-node;\n`;
+
+            mermaidString += '    classDef prev-node fill:#60a5fa,stroke:#2563eb,color:white;\n';
+            mermaidString += '    classDef curr-node fill:#fb923c,stroke:#c2410c,color:white,stroke-width:3px;\n';
+            mermaidString += '    classDef temp-node fill:#a78bfa,stroke:#6d28d9,color:white;\n';
+            
+            visualizationPanel.innerHTML = mermaidString;
+            visualizationPanel.removeAttribute('data-processed');
+            try {
+                const { svg } = await mermaid.render('mermaid-graph', mermaidString);
+                visualizationPanel.innerHTML = svg;
+            } catch (e) {
+                console.error("Mermaid render error:", e);
+                visualizationPanel.innerHTML = `<div class="text-red-500">Error rendering graph. Please check console.</div>`;
+            }
+        }
+
+        function updateAlgorithmState(state) {
+            const { nodes, pointers } = state;
+            const nodeMap = new Map(nodes.map(n => [n.id, n.val]));
+            statePrev.textContent = pointers.prevId ? nodeMap.get(pointers.prevId) : 'null';
+            stateCurr.textContent = pointers.currId ? nodeMap.get(pointers.currId) : 'null';
+            stateTemp.textContent = pointers.tempId ? nodeMap.get(pointers.tempId) : 'null';
+        }
+
+        function logExecution(message) {
+            if (!message) return;
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `> ${message}`;
+            executionLog.prepend(logEntry);
+            executionLog.scrollTop = 0;
+        }
+
+        function renderCodeStep(index) {
+            codeStepsContainer.innerHTML = '';
+            if (index < 0 || index >= codeSteps.length) return;
+
+            const step = codeSteps[index];
+            const codeToHighlight = step.codeLines.join('\n');
+            let highlightedHtml = fullJavaCodeText.replace(codeToHighlight, `<span class="code-highlight">${codeToHighlight}</span>`);
+
+            const cardHtml = `
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">${step.title}</h3>
+                    <p class="text-sm text-gray-600 mb-3">${step.explanation}</p>
+                    <pre><code class="language-java">${highlightedHtml}</code></pre>
+                </div>`;
+            codeStepsContainer.innerHTML = cardHtml;
+            prevStepBtn.disabled = currentStateIndex === 0;
+            nextStepBtn.disabled = currentStateIndex === executionHistory.length - 1;
+        }
+
+        function populateNarrationScript() {
+            const script = `
+                <p><strong>Problem:</strong> We need to reverse a singly linked list.</p>
+                <p><strong>Intuition:</strong> We can iterate through the list, and for each node, we'll reverse its 'next' pointer to point to the node that came before it. We need to carefully manage our pointers to not lose track of the rest of the list.</p>
+                <p><strong>Step 1: Initialization.</strong> We start with a 'prev' pointer set to null, which will eventually become the tail of the reversed list, and a 'curr' pointer at the head of the original list.</p>
+                <p><strong>Step 2: Iteration.</strong> We loop as long as 'curr' is not null. Inside the loop, we first save the next node in a 'temp' variable. This is crucial.</p>
+                <p><strong>Step 3: Reversal.</strong> We then change 'curr.next' to point to 'prev'. This is the main reversal action.</p>
+                <p><strong>Step 4: Advancing.</strong> Finally, we advance our pointers: 'prev' becomes 'curr', and 'curr' becomes the 'temp' node we saved earlier. We repeat this until the entire list is processed.</p>
+                <p><strong>Conclusion:</strong> When the loop finishes, 'prev' will be pointing at the new head of our reversed list, which we then return.</p>
+            `;
+            narrationScriptContainer.innerHTML = script;
+        }
+
+        async function initVisualization() {
+            stopAnimation();
+            executionLog.innerHTML = '';
+            const inputVal = listInput.value.trim();
+            const arr = inputVal ? inputVal.split(',').map(Number).filter(n => !isNaN(n)) : [];
+            
+            const listHead = buildLinkedList(arr);
+            executionHistory = generateExecutionHistory(listHead);
+            currentStateIndex = 0;
+            
+            if (executionHistory.length > 0) {
+                await applyState(executionHistory[currentStateIndex]);
+            } else {
+                await applyState({ nodes: [], pointers: {} });
+            }
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) stopAnimation();
+            else startAnimation();
+        }
+
+        async function startAnimation() {
+            if (currentStateIndex >= executionHistory.length - 1) {
+                await initVisualization();
+            }
+            isPlaying = true;
+            playIcon.classList.add('hidden');
+            pauseIcon.classList.remove('hidden');
+            
+            const animate = async () => {
+                if (!isPlaying) return;
+                await stepForward();
+                if (isPlaying && currentStateIndex < executionHistory.length - 1) {
+                    animationTimeout = setTimeout(animate, animationSpeed);
+                } else {
+                    stopAnimation();
+                }
+            };
+            animate();
+        }
+
+        function stopAnimation() {
+            isPlaying = false;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            clearTimeout(animationTimeout);
+        }
+
+        async function stepForward() {
+            if (currentStateIndex < executionHistory.length - 1) {
+                currentStateIndex++;
+                await applyState(executionHistory[currentStateIndex]);
+            } else {
+                stopAnimation();
+            }
+        }
+
+        async function stepBackward() {
+            if (currentStateIndex > 0) {
+                currentStateIndex--;
+                await applyState(executionHistory[currentStateIndex]);
+            }
+        }
+        
+        runVisualizationBtn.addEventListener('click', initVisualization);
+        prevStepBtn.addEventListener('click', stepBackward);
+        nextStepBtn.addEventListener('click', stepForward);
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        stepForwardBtn.addEventListener('click', stepForward);
+        stepBackwardBtn.addEventListener('click', stepBackward);
+
+        populateNarrationScript();
+        initVisualization();
+    });
+    </script>
 </body>
 </html>

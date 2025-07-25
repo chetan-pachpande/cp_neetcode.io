@@ -255,6 +255,7 @@
     // List of problem files with completed visualizations
     const IMPLEMENTED = new Set([
       'two_sum.html',
+      'reverse_linked_list.html',
       'largest_rectangle_in_histogram.html',
       'word_search.html',
       'best_time_buy_sell_stock.html',
@@ -324,14 +325,16 @@
           const li = document.createElement('li');
           const link = document.createElement('a');
           const isImpl = IMPLEMENTED.has(file);
-          link.href = isImpl
-            ? `categories/${slug}/${file}`
-            : `placeholder.html?title=${encodeURIComponent(title)}`;
+          // If file path already starts with 'categories/', use as is. Otherwise, prepend 'categories/${slug}/'
+          let href = '';
           if (isImpl) {
+            href = file.startsWith('categories/') ? file : `categories/${slug}/${file}`;
             link.textContent = title;
           } else {
+            href = `placeholder.html?title=${encodeURIComponent(title)}`;
             link.innerHTML = `${title} <span class="text-yellow-500 ml-1">🚧</span>`;
           }
+          link.href = href;
           link.className = 'text-blue-700 hover:underline';
           li.appendChild(link);
           listEl.appendChild(li);

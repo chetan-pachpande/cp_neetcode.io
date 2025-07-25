@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode XXX: [PROBLEM_NAME] Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .state-value {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+        /* Add problem-specific styles here */
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- Header -->
+        <header class="text-center mb-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white">[PROBLEM_NAME]</h1>
+            <p class="text-lg text-blue-100 mt-2">An Interactive Visual Explainer</p>
+        </header>
+        
+        <!-- Back to Home Button -->
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition">← Back to Home</a>
+        </div>
+
+        <!-- Problem Description (100% width) -->
+        <div id="problem-card" class="card mb-8">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <p class="mb-4">[PROBLEM_DESCRIPTION]</p>
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="bg-gray-100 p-4 rounded-lg text-sm flex-1">
+                    <p><strong>Example 1:</strong></p>
+                    <p><strong>Input:</strong> [EXAMPLE_INPUT]</p>
+                    <p><strong>Output:</strong> [EXAMPLE_OUTPUT]</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold mb-2">Complexity Analysis</h3>
+                 <div class="bg-gray-100 p-3 rounded-lg border border-gray-200 text-sm">
+                    <p><strong>Time Complexity:</strong> <code>[TIME_COMPLEXITY]</code></p>
+                    <p class="text-gray-600 ml-4">[TIME_COMPLEXITY_EXPLANATION]</p>
+                    <p class="mt-2"><strong>Space Complexity:</strong> <code>[SPACE_COMPLEXITY]</code></p>
+                    <p class="text-gray-600 ml-4">[SPACE_COMPLEXITY_EXPLANATION]</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Intuition Section (Full Width) -->
+        <div class="card mb-8">
+            <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+            <p class="mb-3">[INTUITION_EXPLANATION]</p>
+            <!-- Add more intuition content -->
+        </div>
+
+        <!-- Two-Column Layout -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column (50%) -->
+            <div class="flex flex-col gap-8">
+                <!-- Step-by-Step Code -->
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-step-content"></div>
+                    <!-- Note: No navigation buttons - synced with execution controls -->
+                </div>
+            </div>
+
+            <!-- Right Column (50%) -->
+            <div class="flex flex-col gap-8">
+                <!-- Live Visualization & Controls -->
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization & Controls</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="input-field" class="block text-sm font-medium text-gray-700">Input:</label>
+                            <input type="text" id="input-field" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="[DEFAULT_INPUT]">
+                        </div>
+                        <button id="run-btn" class="self-end w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-semibold">Run Visualization</button>
+                    </div>
+
+                    <!-- Visualization Panel -->
+                    <div id="visualization-panel" class="relative bg-gray-100 p-4 rounded-lg min-h-[300px] flex flex-col items-center justify-center mt-4">
+                        <h3 class="text-lg font-semibold mb-2">Visualization</h3>
+                        <div id="visualization-content" class="w-full">
+                            <!-- Visualization content goes here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Algorithm States -->
+                    <div class="mt-6">
+                        <h3 class="text-lg font-bold mb-3">Algorithm States</h3>
+                        <div class="space-y-3 text-base">
+                            <div class="grid grid-cols-2 gap-x-4">
+                                <span>Status:</span> <span id="state-status" class="state-value">Idle</span>
+                                <span>Current Step:</span> <span id="state-step" class="state-value">N/A</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Execution Controls -->
+                    <div class="mt-6 pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-3 text-center text-gray-800">Execution Controls</h3>
+                        <div class="flex justify-center items-center gap-8">
+                            <button id="step-backward-btn" class="control-btn" title="Step Backward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                            </button>
+                            <button id="play-pause-btn" class="control-btn !w-16 !h-16 bg-blue-600 text-white hover:bg-blue-700" title="Run/Pause">
+                                <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="hidden"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                            </button>
+                            <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Java Code (Full Width) -->
+        <div class="card mt-8">
+            <h2 class="text-2xl font-bold mb-4">Commented Java Code</h2>
+            <div class="bg-gray-100 p-4 rounded-lg border border-gray-200">
+                <pre class="text-sm"><code class="language-java">[JAVA_CODE_CONTENT]</code></pre>
+            </div>
+        </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                        </button>
+                        <button id="play-pause-btn" class="control-btn !w-16 !h-16 bg-blue-600 text-white hover:bg-blue-700" title="Run/Pause">
+                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="hidden"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                        </button>
+                        <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Log of Step Execution (100% width) -->
+        <footer class="mt-8 space-y-8">
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Log of Step Execution</h2>
+                <div id="log-console" class="h-48 bg-gray-900 text-white font-mono text-sm rounded-lg p-4 overflow-y-auto">
+                    <p>Press "Run Visualization" to begin.</p>
+                </div>
+            </div>
+
+            <!-- Java Code (100% width) -->
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Java Solution Code</h2>
+                <div class="bg-gray-100 p-4 rounded-md">
+                    <pre><code class="language-java">
+// Add Java code here
+class Solution {
+    public [RETURN_TYPE] [METHOD_NAME]([PARAMETERS]) {
+        // Implementation
+    }
+}
+                    </code></pre>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Mermaid if using diagrams
+    mermaid.initialize({ startOnLoad: true, theme: 'base' });
+
+    // DOM Elements
+    const inputField = document.getElementById('input-field');
+    const runBtn = document.getElementById('run-btn');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const playIcon = document.getElementById('play-icon');
+    const pauseIcon = document.getElementById('pause-icon');
+    const stepForwardBtn = document.getElementById('step-forward-btn');
+    const stepBackwardBtn = document.getElementById('step-backward-btn');
+    const logConsole = document.getElementById('log-console');
+    const stateStatus = document.getElementById('state-status');
+    const stateStep = document.getElementById('state-step');
+    const codeStepContent = document.getElementById('code-step-content');
+    const prevStepBtn = document.getElementById('prev-step-btn');
+    const nextStepBtn = document.getElementById('next-step-btn');
+
+    // State Variables
+    let states = [];
+    let currentStateIndex = -1;
+    let isPlaying = false;
+    let intervalId = null;
+    let currentCodeStep = 0;
+    
+    // Code steps for explanation
+    const codeSteps = [
+        {
+            title: "Step 1: [STEP_TITLE]",
+            explanation: "[STEP_EXPLANATION]",
+            code: `[STEP_CODE]`,
+        },
+        // Add more steps
+    ];
+
+    // Helper Functions
+    function addLog(message, type = 'info') {
+        const entry = document.createElement('p');
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        entry.innerHTML = `<span class="text-gray-500">[${time}]</span>: <span class="${type === 'system' ? 'text-yellow-400' : 'text-green-400'}">${message}</span>`;
+        logConsole.prepend(entry);
+    }
+
+    function updateCodeStepDisplay(index) {
+        currentCodeStep = index;
+        const step = codeSteps[index];
+        if (!step) return;
+
+        codeStepContent.innerHTML = `
+            <div class="code-step-item">
+                <h3 class="text-lg font-semibold mb-2">${step.title}</h3>
+                <p class="text-sm text-gray-600 mb-3">${step.explanation}</p>
+                <pre class="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto"><code class="language-java">${step.code}</code></pre>
+            </div>
+        `;
+        
+        prevStepBtn.disabled = index === 0;
+        nextStepBtn.disabled = index === codeSteps.length - 1;
+    }
+
+    function generateStates() {
+        // Implement algorithm state generation
+        states = [];
+        currentStateIndex = -1;
+        
+        addLog("Visualization started.", "system");
+        
+        // Add your algorithm implementation here
+        
+        addLog("Visualization generation complete.", "system");
+        currentStateIndex = 0;
+        updateControls();
+    }
+
+    function renderState(state) {
+        if (!state) return;
+        
+        // Update UI based on current state
+        stateStatus.textContent = state.status || 'Running';
+        stateStep.textContent = state.step || 'N/A';
+        
+        addLog(state.log || 'State updated');
+        
+        // Update visualization
+        updateVisualization(state);
+    }
+
+    function updateVisualization(state) {
+        // Implement visualization update logic
+        const visualizationContent = document.getElementById('visualization-content');
+        // Update visualization based on state
+    }
+
+    function updateControls() {
+        stepBackwardBtn.disabled = currentStateIndex <= 0 || isPlaying;
+        stepForwardBtn.disabled = currentStateIndex >= states.length - 1 || isPlaying;
+        playPauseBtn.disabled = states.length === 0 && currentStateIndex === -1;
+    }
+
+    // Control Functions
+    function stepForward() {
+        if (currentStateIndex < states.length - 1) {
+            currentStateIndex++;
+            renderState(states[currentStateIndex]);
+        }
+        updateControls();
+    }
+
+    function stepBackward() {
+        if (currentStateIndex > 0) {
+            currentStateIndex--;
+            renderState(states[currentStateIndex]);
+        }
+        updateControls();
+    }
+
+    function handlePlayPause() {
+        if (isPlaying) {
+            clearInterval(intervalId);
+            isPlaying = false;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+        } else {
+            if (currentStateIndex >= states.length - 1) {
+                runBtn.click();
+            }
+            isPlaying = true;
+            playIcon.classList.add('hidden');
+            pauseIcon.classList.remove('hidden');
+            intervalId = setInterval(() => {
+                if (currentStateIndex < states.length - 1) {
+                    stepForward();
+                } else {
+                    handlePlayPause();
+                }
+            }, 800);
+        }
+        updateControls();
+    }
+
+    // Event Listeners
+    runBtn.addEventListener('click', () => {
+        if (isPlaying) handlePlayPause();
+        logConsole.innerHTML = '';
+        generateStates();
+        if (states.length > 0) {
+            renderState(states[0]);
+        }
+    });
+
+    playPauseBtn.addEventListener('click', handlePlayPause);
+    stepForwardBtn.addEventListener('click', stepForward);
+    stepBackwardBtn.addEventListener('click', stepBackward);
+    
+    prevStepBtn.addEventListener('click', () => {
+        if (currentCodeStep > 0) updateCodeStepDisplay(currentCodeStep - 1);
+    });
+    
+    nextStepBtn.addEventListener('click', () => {
+        if (currentCodeStep < codeSteps.length - 1) updateCodeStepDisplay(currentCodeStep + 1);
+    });
+
+    // Initial Setup
+    updateCodeStepDisplay(0);
+    updateControls();
+});
+</script>
+
+</body>
+</html>

@@ -3,19 +3,1214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binary Search | LC 704 Visualizer</title>
+    <title>Binary Search - LeetCode 704</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .control-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+        .code-line {
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s;
+        }
+        .code-line.highlight {
+            background-color: rgb(254 240 138 / 0.3);
+            border-left: 4px solid #facc15;
+        }
+        .array-element {
+            width: 3rem;
+            height: 3rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.125rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+        .array-element.left {
+            background-color: #10b981;
+        }
+        .array-element.right {
+            background-color: #ef4444;
+        }
+        .array-element.mid {
+            background-color: #f59e0b;
+            transform: scale(1.1);
+        }
+        .array-element.found {
+            background-color: #059669;
+            transform: scale(1.25);
+            animation: pulse 2s infinite;
+        }
+        .array-element.out-of-range {
+            background-color: #6b7280;
+            opacity: 0.5;
+        }
+        .call-stack-frame {
+            background-color: #eef2ff;
+            border: 1px solid #c7d2fe;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+        .call-stack-frame.active {
+            background-color: #c7d2fe;
+            font-weight: bold;
+            border-color: #4f46e5;
+        }
+        .implementation-details {
+            transition: all 0.3s ease;
+        }
+        .code-section {
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Binary Search | LC 704</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
-  </div>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white">Binary Search</h1>
+            <p class="text-lg text-blue-100 mt-2">An Interactive Visual Explainer</p>
+        </header>
+        <div class="text-center text-sm text-blue-200 mb-8">
+            Idea By: Chetan Pachpande | Executed By: Gemini
+        </div>
+        <div class="mb-6">
+            <a href="../../index.html" class="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition">Back to Home</a>
+        </div>
+
+        <div class="card mb-8">
+            <h2 class="text-2xl font-bold mb-4">Problem Description</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Given an array of integers <code class="bg-gray-100 px-2 py-1 rounded">nums</code> which is sorted in ascending order, and an integer <code class="bg-gray-100 px-2 py-1 rounded">target</code>, write a function to search <code class="bg-gray-100 px-2 py-1 rounded">target</code> in <code class="bg-gray-100 px-2 py-1 rounded">nums</code>.</p>
+                <p>If <code class="bg-gray-100 px-2 py-1 rounded">target</code> exists, return its index. Otherwise, return -1.</p>
+                <div class="my-4">
+                    <h3 class="text-lg font-semibold mb-2">Complexity Analysis</h3>
+                    <div class="bg-gray-100 p-3 rounded-lg border border-gray-200 text-sm">
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
+                        <p class="text-gray-600 ml-4">We divide the search space in half with each iteration, resulting in logarithmic time complexity.</p>
+                        <p class="mt-2"><strong>Space Complexity:</strong> O(1)</p>
+                        <p class="text-gray-600 ml-4">We only use a constant amount of extra space for the pointers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Intuition Section (Full Width) -->
+        <div class="card mb-8">
+            <h2 class="text-2xl font-bold mb-4">Intuition</h2>
+            <div class="space-y-4 text-gray-700">
+                <p>Binary search works by repeatedly dividing the search space in half. Since the array is sorted, we can eliminate half of the remaining elements with each comparison.</p>
+                <p>The key insight is that if the middle element is less than our target, we know the target must be in the right half. If it's greater, the target must be in the left half.</p>
+                <p>We use two pointers (left and right) to track our search boundaries and calculate the middle index to avoid integer overflow: <code class="bg-gray-100 px-2 py-1 rounded">mid = left + (right - left) / 2</code></p>
+            </div>
+        </div>
+
+        <!-- Two-Column Layout -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column (50%) -->
+            <div class="flex flex-col gap-8">
+                <!-- Step-by-Step Code -->
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Step-by-Step Code</h2>
+                    <div id="code-steps-container"></div>
+                    <!-- Note: No navigation buttons - synced with execution controls -->
+                </div>
+            </div>
+
+            <!-- Right Column (50%) -->
+            <div class="flex flex-col gap-8">
+                <!-- Live Visualization & Controls -->
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Live Visualization & Controls</h2>
+                    
+                    <!-- Controls -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="arrayInput" class="block text-sm font-medium text-gray-700">Array (comma-separated)</label>
+                            <input type="text" id="arrayInput" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="-1,0,3,5,9,12">
+                        </div>
+                        <div>
+                            <label for="targetInput" class="block text-sm font-medium text-gray-700">Target</label>
+                            <input type="number" id="targetInput" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="9">
+                        </div>
+                    </div>
+                    <button id="startBtn" class="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-semibold">Run Visualization</button>
+                    
+                    <div class="mt-4 space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-800 text-center">Input Array</h3>
+                        <div id="array-container" class="flex flex-wrap justify-center p-2 bg-gray-100 rounded-lg"></div>
+                    </div>
+
+                    <!-- Implementation Toggle -->
+                    <div class="mt-6">
+                        <h3 class="text-lg font-bold mb-3 text-gray-700">Implementation Type</h3>
+                        <div class="flex gap-2 mb-4">
+                            <button id="iterativeBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">
+                                Iterative
+                            </button>
+                            <button id="recursiveBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg transition-colors font-medium">
+                                Recursive
+                            </button>
+                        </div>
+                        
+                        <!-- Implementation Details -->
+                        <div class="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                            <div id="iterativeDetails" class="implementation-details">
+                                <h4 class="font-bold text-gray-800 mb-2">Iterative Implementation</h4>
+                                <p class="text-sm text-gray-600 mb-3">Uses a while loop to repeatedly narrow down the search space. More memory efficient as it doesn't use the call stack.</p>
+                                <div class="bg-white rounded p-3 border">
+                                    <pre class="text-xs text-gray-700"><code>while (left <= right) {
+    int mid = left + (right - left) / 2;
+    if (nums[mid] == target) return mid;
+    else if (nums[mid] < target) left = mid + 1;
+    else right = mid - 1;
+}</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div id="recursiveDetails" class="implementation-details hidden">
+                                <h4 class="font-bold text-gray-800 mb-2">Recursive Implementation</h4>
+                                <p class="text-sm text-gray-600 mb-3">Uses recursive function calls to divide the problem. More intuitive for some developers but uses O(log n) space due to call stack.</p>
+                                <div class="bg-white rounded p-3 border">
+                                    <pre class="text-xs text-gray-700"><code>private int binarySearchRecursive(int[] nums, int target, int left, int right) {
+    if (left > right) return -1;
+    int mid = left + (right - left) / 2;
+    if (nums[mid] == target) return mid;
+    else if (nums[mid] < target) 
+        return binarySearchRecursive(nums, target, mid + 1, right);
+    else 
+        return binarySearchRecursive(nums, target, left, mid - 1);
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Algorithm State -->
+                    <div class="bg-gray-100 rounded-lg p-4 border border-gray-200 mb-4">
+                        <h3 class="text-lg font-bold mb-2 text-gray-700">Algorithm State</h3>
+                        <div class="text-sm space-y-1 text-gray-600">
+                            <div>Step: <span id="stepNumber" class="font-bold text-gray-800">0</span></div>
+                            <div>Status: <span id="stepDescription" class="font-bold text-gray-800">Ready to start</span></div>
+                            <div>Implementation: <span id="implementationType" class="font-bold text-gray-800">Iterative</span></div>
+                            <div class="flex justify-center gap-8 text-sm text-gray-600 mt-2">
+                                <div>Left: <span id="leftPointer" class="font-bold text-green-600">-</span></div>
+                                <div>Mid: <span id="midPointer" class="font-bold text-yellow-600">-</span></div>
+                                <div>Right: <span id="rightPointer" class="font-bold text-red-600">-</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recursive Call Stack (only visible in recursive mode) -->
+                    <div id="callStackSection" class="bg-gray-100 rounded-lg p-4 border border-gray-200 hidden">
+                        <h3 class="text-lg font-bold mb-2 text-gray-700">Call Stack</h3>
+                        <div id="callStack" class="space-y-2 text-sm">
+                            <div class="text-gray-500">Call stack will appear here in recursive mode...</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-3 text-center text-gray-800">Execution Controls</h3>
+                        <div class="flex justify-center items-center gap-8">
+                            <button id="step-backward-btn" class="control-btn" title="Step Backward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                            </button>
+                            <button id="play-pause-btn" class="control-btn !w-16 !h-16 bg-blue-600 text-white hover:bg-blue-700" title="Run/Pause">
+                                <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="hidden"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                            </button>
+                            <button id="step-forward-btn" class="control-btn" title="Step Forward">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="mt-8 space-y-8">
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Log of Step Execution</h2>
+                <div class="bg-gray-900 rounded-lg p-4 max-h-64 overflow-y-auto border border-gray-200">
+                    <div id="executionLog" class="space-y-2 text-sm font-mono">
+                        <div class="text-gray-400">Execution log will appear here...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Commented Java Code</h2>
+                
+                <!-- Tab Navigation -->
+                <div class="flex gap-2 mb-4">
+                    <button id="iterativeTab" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">
+                        Iterative Implementation
+                    </button>
+                    <button id="recursiveTab" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg transition-colors font-medium">
+                        Recursive Implementation
+                    </button>
+                </div>
+                
+                <!-- Iterative Code -->
+                <div id="iterativeCode" class="code-section">
+                    <div class="bg-gray-100 p-4 rounded-lg border border-gray-200">
+                        <pre class="text-sm"><code class="language-java">class Solution {
+    public int search(int[] nums, int target) {
+        // Initialize left and right pointers
+        int left = 0;
+        int right = nums.length - 1;
+        
+        // Continue searching while the search space is valid
+        while (left <= right) {
+            // Calculate middle index to avoid overflow
+            int mid = left + (right - left) / 2;
+            
+            // Check if we found the target
+            if (nums[mid] == target) {
+                return mid;
+            } 
+            // If middle element is less than target, search right half
+            else if (nums[mid] < target) {
+                left = mid + 1;
+            } 
+            // If middle element is greater than target, search left half
+            else {
+                right = mid - 1;
+            }
+        }
+        
+        // Target not found
+        return -1;
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Recursive Code -->
+                <div id="recursiveCode" class="code-section hidden">
+                    <div class="bg-gray-100 p-4 rounded-lg border border-gray-200">
+                        <pre class="text-sm"><code class="language-java">class Solution {
+    public int search(int[] nums, int target) {
+        // Call the recursive helper function
+        return binarySearchRecursive(nums, target, 0, nums.length - 1);
+    }
+    
+    private int binarySearchRecursive(int[] nums, int target, int left, int right) {
+        // Base case: if search space is invalid, target not found
+        if (left > right) {
+            return -1;
+        }
+        
+        // Calculate middle index to avoid overflow
+        int mid = left + (right - left) / 2;
+        
+        // Check if we found the target
+        if (nums[mid] == target) {
+            return mid;
+        } 
+        // If middle element is less than target, search right half
+        else if (nums[mid] < target) {
+            return binarySearchRecursive(nums, target, mid + 1, right);
+        } 
+        // If middle element is greater than target, search left half
+        else {
+            return binarySearchRecursive(nums, target, left, mid - 1);
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Full Explanation Script (for Narration)</h2>
+                <div class="space-y-4 text-gray-700">
+                    <div class="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                        <h3 class="font-bold mb-2">Introduction</h3>
+                        <p>Binary search is one of the most fundamental algorithms in computer science. It's a divide-and-conquer algorithm that efficiently finds a target value in a sorted array by repeatedly dividing the search space in half.</p>
+                    </div>
+                    
+                    <div class="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                        <h3 class="font-bold mb-2">Algorithm Walkthrough</h3>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>Start with two pointers: left at index 0 and right at the last index</li>
+                            <li>Calculate the middle index to avoid overflow: mid = left + (right - left) / 2</li>
+                            <li>Compare the middle element with our target:
+                                <ul class="list-disc list-inside ml-4 mt-1">
+                                    <li>If equal: we found our target, return the index</li>
+                                    <li>If middle < target: search the right half (left = mid + 1)</li>
+                                    <li>If middle > target: search the left half (right = mid - 1)</li>
+                                </ul>
+                            </li>
+                            <li>Repeat until left > right (target not found)</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                        <h3 class="font-bold mb-2">Key Insights</h3>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>Time complexity: O(log n) - we eliminate half the elements each iteration</li>
+                            <li>Space complexity: O(1) - we only use a constant amount of extra space</li>
+                            <li>The array must be sorted for binary search to work correctly</li>
+                            <li>We use left + (right - left) / 2 instead of (left + right) / 2 to prevent integer overflow</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#1f2937',
+                primaryBorderColor: '#4f46e5',
+                lineColor: '#6b7280',
+                secondaryColor: '#f3f4f6',
+                tertiaryColor: '#f9fafb'
+            }
+        });
+
+        // State management
+        let state = {
+            array: [],
+            target: 0,
+            left: 0,
+            right: 0,
+            mid: 0,
+            step: 0,
+            isRunning: false,
+            isAutoPlaying: false,
+            result: null,
+            steps: [],
+            executionLog: [],
+            isRecursive: false,
+            callStack: []
+        };
+
+        // DOM elements
+        const arrayInput = document.getElementById('arrayInput');
+        const targetInput = document.getElementById('targetInput');
+        const startBtn = document.getElementById('startBtn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const stepForwardBtn = document.getElementById('step-forward-btn');
+        const stepBackwardBtn = document.getElementById('step-backward-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const leftPointer = document.getElementById('leftPointer');
+        const midPointer = document.getElementById('midPointer');
+        const rightPointer = document.getElementById('rightPointer');
+        const stepNumber = document.getElementById('stepNumber');
+        const stepDescription = document.getElementById('stepDescription');
+        const executionLog = document.getElementById('executionLog');
+        const implementationType = document.getElementById('implementationType');
+        const callStackSection = document.getElementById('callStackSection');
+        const callStack = document.getElementById('callStack');
+        const codeStepsContainer = document.getElementById('code-steps-container');
+        
+        // Implementation toggle elements
+        const iterativeBtn = document.getElementById('iterativeBtn');
+        const recursiveBtn = document.getElementById('recursiveBtn');
+        const iterativeDetails = document.getElementById('iterativeDetails');
+        const recursiveDetails = document.getElementById('recursiveDetails');
+        
+        // Code tab elements
+        const iterativeTab = document.getElementById('iterativeTab');
+        const recursiveTab = document.getElementById('recursiveTab');
+        const iterativeCode = document.getElementById('iterativeCode');
+        const recursiveCode = document.getElementById('recursiveCode');
+
+        // Step-by-step code definitions
+        const iterativeSteps = [
+            { 
+                id: 'A', 
+                title: 'Step 1: Initialize Pointers', 
+                explanation: 'We start by setting up two pointers: `left` at index 0 and `right` at the last index of the array. These pointers define our current search space.',
+                code: `int left = 0;\nint right = nums.length - 1;` 
+            },
+            { 
+                id: 'B', 
+                title: 'Step 2: Check Search Space', 
+                explanation: 'We continue searching while our search space is valid (left ≤ right). If left becomes greater than right, the target is not in the array.',
+                code: `while (left <= right) {` 
+            },
+            { 
+                id: 'C', 
+                title: 'Step 3: Calculate Middle Index', 
+                explanation: 'We calculate the middle index using `left + (right - left) / 2` to avoid integer overflow. This gives us the element to compare with our target.',
+                code: `    int mid = left + (right - left) / 2;` 
+            },
+            { 
+                id: 'D', 
+                title: 'Step 4: Compare with Target', 
+                explanation: 'We compare the middle element with our target. If they match, we found our target and return the index.',
+                code: `    if (nums[mid] == target) {\n        return mid;\n    }` 
+            },
+            { 
+                id: 'E', 
+                title: 'Step 5: Search Right Half', 
+                explanation: 'If the middle element is less than our target, we know the target must be in the right half. We move the left pointer to `mid + 1`.',
+                code: `    else if (nums[mid] < target) {\n        left = mid + 1;\n    }` 
+            },
+            { 
+                id: 'F', 
+                title: 'Step 6: Search Left Half', 
+                explanation: 'If the middle element is greater than our target, we know the target must be in the left half. We move the right pointer to `mid - 1`.',
+                code: `    else {\n        right = mid - 1;\n    }` 
+            },
+            { 
+                id: 'G', 
+                title: 'Step 7: Target Not Found', 
+                explanation: 'If we exit the while loop without finding the target, it means the target is not in the array. We return -1 to indicate this.',
+                code: `return -1;` 
+            }
+        ];
+
+        const recursiveSteps = [
+            { 
+                id: 'A', 
+                title: 'Step 1: Define Recursive Function', 
+                explanation: 'We define a recursive function that takes the array, target, and current search boundaries (left and right) as parameters.',
+                code: `private int binarySearchRecursive(int[] nums, int target, int left, int right) {` 
+            },
+            { 
+                id: 'B', 
+                title: 'Step 2: Base Case Check', 
+                explanation: 'We check if our search space is invalid (left > right). If so, the target is not in the array and we return -1.',
+                code: `    if (left > right) {\n        return -1;\n    }` 
+            },
+            { 
+                id: 'C', 
+                title: 'Step 3: Calculate Middle Index', 
+                explanation: 'We calculate the middle index using `left + (right - left) / 2` to avoid integer overflow. This gives us the element to compare with our target.',
+                code: `    int mid = left + (right - left) / 2;` 
+            },
+            { 
+                id: 'D', 
+                title: 'Step 4: Compare with Target', 
+                explanation: 'We compare the middle element with our target. If they match, we found our target and return the index.',
+                code: `    if (nums[mid] == target) {\n        return mid;\n    }` 
+            },
+            { 
+                id: 'E', 
+                title: 'Step 5: Recurse Right Half', 
+                explanation: 'If the middle element is less than our target, we recursively search the right half by calling the function with `mid + 1` as the new left boundary.',
+                code: `    else if (nums[mid] < target) {\n        return binarySearchRecursive(nums, target, mid + 1, right);\n    }` 
+            },
+            { 
+                id: 'F', 
+                title: 'Step 6: Recurse Left Half', 
+                explanation: 'If the middle element is greater than our target, we recursively search the left half by calling the function with `mid - 1` as the new right boundary.',
+                code: `    else {\n        return binarySearchRecursive(nums, target, left, mid - 1);\n    }` 
+            }
+        ];
+
+        // Initialize
+        function init() {
+            parseInput();
+            setupImplementationToggle();
+            setupCodeTabs();
+            setupExecutionControls();
+            updateStepByStepCode();
+            updateDisplay();
+        }
+
+        // Setup implementation toggle
+        function setupImplementationToggle() {
+            iterativeBtn.addEventListener('click', () => switchImplementation(false));
+            recursiveBtn.addEventListener('click', () => switchImplementation(true));
+        }
+
+        // Setup code tabs
+        function setupCodeTabs() {
+            iterativeTab.addEventListener('click', () => switchCodeTab(false));
+            recursiveTab.addEventListener('click', () => switchCodeTab(true));
+        }
+
+        // Setup execution controls
+        function setupExecutionControls() {
+            playPauseBtn.addEventListener('click', togglePlayPause);
+            stepForwardBtn.addEventListener('click', stepForward);
+            stepBackwardBtn.addEventListener('click', stepBackward);
+        }
+
+        // Switch between iterative and recursive implementation
+        function switchImplementation(isRecursive) {
+            state.isRecursive = isRecursive;
+            
+            // Update button states
+            if (isRecursive) {
+                recursiveBtn.classList.remove('bg-gray-300', 'hover:bg-gray-400', 'text-gray-700');
+                recursiveBtn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+                iterativeBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+                iterativeBtn.classList.add('bg-gray-300', 'hover:bg-gray-400', 'text-gray-700');
+            } else {
+                iterativeBtn.classList.remove('bg-gray-300', 'hover:bg-gray-400', 'text-gray-700');
+                iterativeBtn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+                recursiveBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+                recursiveBtn.classList.add('bg-gray-300', 'hover:bg-gray-400', 'text-gray-700');
+            }
+            
+            // Show/hide implementation details
+            if (isRecursive) {
+                iterativeDetails.classList.add('hidden');
+                recursiveDetails.classList.remove('hidden');
+                callStackSection.classList.remove('hidden');
+                implementationType.textContent = 'Recursive';
+            } else {
+                recursiveDetails.classList.add('hidden');
+                iterativeDetails.classList.remove('hidden');
+                callStackSection.classList.add('hidden');
+                implementationType.textContent = 'Iterative';
+            }
+            
+            // Update Step-by-Step Code section
+            updateStepByStepCode();
+            
+            // Reset if currently running
+            if (state.isRunning) {
+                reset();
+            }
+
+            // Update Step-by-Step Code section based on implementation type
+            updateStepByStepCode();
+        }
+
+        // Switch between code tabs
+        function switchCodeTab(isRecursive) {
+            if (isRecursive) {
+                recursiveTab.classList.remove('bg-gray-300', 'hover:bg-gray-400', 'text-gray-700');
+                recursiveTab.classList.add('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+                iterativeTab.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+                iterativeTab.classList.add('bg-gray-300', 'hover:bg-gray-400', 'text-gray-700');
+                
+                iterativeCode.classList.add('hidden');
+                recursiveCode.classList.remove('hidden');
+            } else {
+                iterativeTab.classList.remove('bg-gray-300', 'hover:bg-gray-400', 'text-gray-700');
+                iterativeTab.classList.add('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+                recursiveTab.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+                recursiveTab.classList.add('bg-gray-300', 'hover:bg-gray-400', 'text-gray-700');
+                
+                recursiveCode.classList.add('hidden');
+                iterativeCode.classList.remove('hidden');
+            }
+        }
+
+        // Parse input and create array
+        function parseInput() {
+            const arrayStr = arrayInput.value.trim();
+            const targetVal = parseInt(targetInput.value);
+            
+            if (!arrayStr || isNaN(targetVal)) {
+                // Use default values
+                state.array = [-1, 0, 3, 5, 9, 12];
+                state.target = 9;
+                return true;
+            }
+            
+            try {
+                const array = arrayStr.split(',').map(num => parseInt(num.trim()));
+                
+                // Validate array is sorted
+                for (let i = 1; i < array.length; i++) {
+                    if (array[i] < array[i-1]) {
+                        alert('Array must be sorted in ascending order');
+                        return false;
+                    }
+                }
+                
+                state.array = array;
+                state.target = targetVal;
+                return true;
+            } catch (error) {
+                alert('Invalid array format. Please use comma-separated numbers.');
+                return false;
+            }
+        }
+
+        // Update array display
+        function updateArrayDisplay() {
+            const arrayContainer = document.getElementById('array-container');
+            arrayContainer.innerHTML = '';
+            
+            state.array.forEach((num, index) => {
+                const element = document.createElement('div');
+                element.className = 'array-element';
+                element.textContent = num;
+                element.id = `element-${index}`;
+                
+                // Apply styling based on current state
+                if (state.result === index) {
+                    element.classList.add('found');
+                } else if (state.isRunning) {
+                    if (index === state.mid) {
+                        element.classList.add('mid');
+                    } else if (index === state.left) {
+                        element.classList.add('left');
+                    } else if (index === state.right) {
+                        element.classList.add('right');
+                    } else if (index < state.left || index > state.right) {
+                        element.classList.add('out-of-range');
+                    }
+                }
+                
+                arrayContainer.appendChild(element);
+            });
+        }
+
+        // Update pointer display
+        function updatePointers() {
+            leftPointer.textContent = state.isRunning ? state.left : '-';
+            midPointer.textContent = state.isRunning ? state.mid : '-';
+            rightPointer.textContent = state.isRunning ? state.right : '-';
+        }
+
+        // Update step information
+        function updateStepInfo() {
+            stepNumber.textContent = state.step;
+            
+            if (state.steps.length > 0 && state.step > 0) {
+                const currentStep = state.steps[state.step - 1];
+                stepDescription.textContent = currentStep ? currentStep.message : 'Algorithm completed';
+            } else {
+                stepDescription.textContent = 'Ready to start';
+            }
+        }
+
+        // Update execution log
+        function updateExecutionLog() {
+            executionLog.innerHTML = '';
+            
+            if (state.executionLog.length === 0) {
+                executionLog.innerHTML = '<div class="text-gray-400">Execution log will appear here...</div>';
+                return;
+            }
+            
+            state.executionLog.forEach((log, index) => {
+                const logElement = document.createElement('div');
+                logElement.className = 'text-green-400';
+                logElement.textContent = `${index + 1}. ${log}`;
+                executionLog.appendChild(logElement);
+            });
+            
+            // Scroll to bottom
+            executionLog.scrollTop = executionLog.scrollHeight;
+        }
+
+        // Update call stack display
+        function updateCallStack() {
+            if (!state.isRecursive) {
+                callStackSection.classList.add('hidden');
+                return;
+            }
+            
+            callStackSection.classList.remove('hidden');
+            callStack.innerHTML = '';
+            
+            if (state.callStack.length === 0) {
+                callStack.innerHTML = '<div class="text-gray-500">Call stack is empty</div>';
+                return;
+            }
+            
+            state.callStack.forEach((frame, index) => {
+                const frameElement = document.createElement('div');
+                frameElement.className = `call-stack-frame ${index === state.callStack.length - 1 ? 'active' : ''}`;
+                frameElement.innerHTML = `
+                    <div class="font-bold">binarySearch(left: ${frame.left}, right: ${frame.right})</div>
+                    <div class="text-sm text-gray-600">mid: ${frame.mid}, nums[${frame.mid}]: ${frame.value}</div>
+                `;
+                callStack.appendChild(frameElement);
+            });
+        }
+
+        // Start search
+        function startSearch() {
+            if (!parseInput()) return;
+            
+            state.isRunning = true;
+            state.step = 0;
+            state.left = 0;
+            state.right = state.array.length - 1;
+            state.mid = 0;
+            state.result = null;
+            state.steps = [];
+            state.executionLog = [];
+            
+            // Generate all steps
+            generateSteps();
+            
+            startBtn.disabled = true;
+            stepForwardBtn.disabled = false;
+            stepBackwardBtn.disabled = false;
+            
+            // Reset play/pause button
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            
+            // Start with first step
+            state.executionLog.push(`Starting binary search for target ${state.target} in array [${state.array.join(', ')}]`);
+            
+            updateDisplay();
+        }
+
+        // Generate all algorithm steps
+        function generateSteps() {
+            state.steps = [];
+            state.callStack = [];
+            
+            if (state.isRecursive) {
+                generateRecursiveSteps();
+            } else {
+                generateIterativeSteps();
+            }
+        }
+
+        // Generate steps for iterative implementation
+        function generateIterativeSteps() {
+            let left = 0;
+            let right = state.array.length - 1;
+            let stepCount = 0;
+            
+            state.steps.push({
+                type: 'init',
+                message: `Initialize: left = ${left}, right = ${right}`,
+                left: left,
+                right: right,
+                mid: Math.floor(left + (right - left) / 2),
+                callStack: []
+            });
+            
+            while (left <= right) {
+                const mid = Math.floor(left + (right - left) / 2);
+                stepCount++;
+                
+                state.steps.push({
+                    type: 'compare',
+                    message: `Step ${stepCount}: left = ${left}, right = ${right}, mid = ${mid}`,
+                    left: left,
+                    right: right,
+                    mid: mid,
+                    callStack: []
+                });
+                
+                state.steps.push({
+                    type: 'evaluate',
+                    message: `Compare nums[${mid}] = ${state.array[mid]} with target ${state.target}`,
+                    left: left,
+                    right: right,
+                    mid: mid,
+                    callStack: []
+                });
+                
+                if (state.array[mid] === state.target) {
+                    state.steps.push({
+                        type: 'found',
+                        message: `Found! nums[${mid}] = ${state.array[mid]} equals target ${state.target}`,
+                        left: left,
+                        right: right,
+                        mid: mid,
+                        callStack: []
+                    });
+                    state.result = mid;
+                    break;
+                } else if (state.array[mid] < state.target) {
+                    state.steps.push({
+                        type: 'move_right',
+                        message: `nums[${mid}] = ${state.array[mid]} < ${state.target}, search right half`,
+                        left: left,
+                        right: right,
+                        mid: mid,
+                        callStack: []
+                    });
+                    left = mid + 1;
+                } else {
+                    state.steps.push({
+                        type: 'move_left',
+                        message: `nums[${mid}] = ${state.array[mid]} > ${state.target}, search left half`,
+                        left: left,
+                        right: right,
+                        mid: mid,
+                        callStack: []
+                    });
+                    right = mid - 1;
+                }
+            }
+            
+            if (state.result === null) {
+                state.steps.push({
+                    type: 'not_found',
+                    message: `Target ${state.target} not found. Return -1`,
+                    left: left,
+                    right: right,
+                    mid: -1,
+                    callStack: []
+                });
+                state.result = -1;
+            }
+        }
+
+        // Generate steps for recursive implementation
+        function generateRecursiveSteps() {
+            let stepCount = 0;
+            
+            function recursiveHelper(left, right, depth, callStack) {
+                stepCount++;
+                
+                // Create new call stack frame
+                const newCallStack = [...callStack];
+                
+                if (left <= right) {
+                    const mid = Math.floor(left + (right - left) / 2);
+                    
+                    newCallStack.push({
+                        left: left,
+                        right: right,
+                        mid: mid,
+                        value: state.array[mid],
+                        depth: depth
+                    });
+                    
+                    state.steps.push({
+                        type: 'call',
+                        message: `Call ${stepCount}: binarySearch(left=${left}, right=${right}) - mid=${mid}`,
+                        left: left,
+                        right: right,
+                        mid: mid,
+                        callStack: [...newCallStack]
+                    });
+                    
+                    state.steps.push({
+                        type: 'compare',
+                        message: `Compare nums[${mid}] = ${state.array[mid]} with target ${state.target}`,
+                        left: left,
+                        right: right,
+                        mid: mid,
+                        callStack: [...newCallStack]
+                    });
+                    
+                    if (state.array[mid] === state.target) {
+                        state.steps.push({
+                            type: 'found',
+                            message: `Found! Return index ${mid}`,
+                            left: left,
+                            right: right,
+                            mid: mid,
+                            callStack: [...newCallStack]
+                        });
+                        state.result = mid;
+                        return mid;
+                    } else if (state.array[mid] < state.target) {
+                        state.steps.push({
+                            type: 'recurse_right',
+                            message: `nums[${mid}] < ${state.target}, recurse on right half`,
+                            left: left,
+                            right: right,
+                            mid: mid,
+                            callStack: [...newCallStack]
+                        });
+                        return recursiveHelper(mid + 1, right, depth + 1, newCallStack);
+                    } else {
+                        state.steps.push({
+                            type: 'recurse_left',
+                            message: `nums[${mid}] > ${state.target}, recurse on left half`,
+                            left: left,
+                            right: right,
+                            mid: mid,
+                            callStack: [...newCallStack]
+                        });
+                        return recursiveHelper(left, mid - 1, depth + 1, newCallStack);
+                    }
+                } else {
+                    state.steps.push({
+                        type: 'base_case',
+                        message: `Base case: left > right, return -1`,
+                        left: left,
+                        right: right,
+                        mid: -1,
+                        callStack: [...callStack]
+                    });
+                    if (state.result === null) {
+                        state.result = -1;
+                    }
+                    return -1;
+                }
+            }
+            
+            state.steps.push({
+                type: 'start',
+                message: `Start recursive binary search for target ${state.target}`,
+                left: 0,
+                right: state.array.length - 1,
+                mid: -1,
+                callStack: []
+            });
+            
+            recursiveHelper(0, state.array.length - 1, 0, []);
+        }
+
+        // Execute next step
+        function nextStep() {
+            if (state.step >= state.steps.length) {
+                stepForwardBtn.disabled = true;
+                state.isRunning = false;
+                state.isAutoPlaying = false;
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                return;
+            }
+            
+            state.step++;
+            const currentStep = state.steps[state.step - 1];
+            
+            if (currentStep) {
+                // Update algorithm state
+                state.left = currentStep.left;
+                state.right = currentStep.right;
+                state.mid = currentStep.mid;
+                state.callStack = currentStep.callStack || [];
+                
+                // Add to execution log
+                state.executionLog.push(currentStep.message);
+            }
+            
+            updateDisplay();
+            
+            if (state.step >= state.steps.length) {
+                stepForwardBtn.disabled = true;
+                state.isRunning = false;
+                state.isAutoPlaying = false;
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+        }
+
+        // Auto play
+        function autoPlay() {
+            if (state.isAutoPlaying) {
+                const interval = setInterval(() => {
+                    if (state.step >= state.steps.length || !state.isAutoPlaying) {
+                        clearInterval(interval);
+                        state.isAutoPlaying = false;
+                        playIcon.classList.remove('hidden');
+                        pauseIcon.classList.add('hidden');
+                        return;
+                    }
+                    
+                    nextStep();
+                }, 1500);
+            }
+        }
+
+        // Reset
+        function reset() {
+            const wasRecursive = state.isRecursive;
+            state = {
+                array: [],
+                target: 0,
+                left: 0,
+                right: 0,
+                mid: 0,
+                step: 0,
+                isRunning: false,
+                isAutoPlaying: false,
+                result: null,
+                steps: [],
+                executionLog: [],
+                isRecursive: wasRecursive,
+                callStack: []
+            };
+            
+            parseInput();
+            
+            startBtn.disabled = false;
+            stepForwardBtn.disabled = true;
+            stepBackwardBtn.disabled = true;
+            
+            // Reset play/pause button
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            
+            updateDisplay();
+        }
+
+        // Update all displays
+        function updateDisplay() {
+            updateArrayDisplay();
+            updatePointers();
+            updateStepInfo();
+            updateExecutionLog();
+            updateCallStack();
+            updateStepByStepCode();
+        }
+
+        // Update Step-by-Step Code section based on implementation type
+        function updateStepByStepCode() {
+            const steps = state.isRecursive ? recursiveSteps : iterativeSteps;
+            const currentCodeStep = getCodeStepFromAlgorithmStep();
+            renderCodeSteps(currentCodeStep);
+        }
+
+        // Get the current code step based on algorithm execution step
+        function getCodeStepFromAlgorithmStep() {
+            if (!state.isRunning || state.step === 0) return 0;
+            
+            const currentStep = state.steps[state.step - 1];
+            if (!currentStep) return 0;
+            
+            if (state.isRecursive) {
+                switch (currentStep.type) {
+                    case 'start':
+                    case 'call':
+                        return 0; // Define Recursive Function
+                    case 'base_case':
+                        return 1; // Base Case Check
+                    case 'compare':
+                        return 2; // Calculate Middle Index
+                    case 'found':
+                        return 3; // Compare with Target
+                    case 'recurse_right':
+                        return 4; // Recurse Right Half
+                    case 'recurse_left':
+                        return 5; // Recurse Left Half
+                    default:
+                        return 0;
+                }
+            } else {
+                switch (currentStep.type) {
+                    case 'init':
+                        return 0; // Initialize Pointers
+                    case 'compare':
+                        return 1; // Check Search Space
+                    case 'evaluate':
+                        return 2; // Calculate Middle Index
+                    case 'found':
+                        return 3; // Compare with Target
+                    case 'move_right':
+                        return 4; // Search Right Half
+                    case 'move_left':
+                        return 5; // Search Left Half
+                    case 'not_found':
+                        return 6; // Target Not Found
+                    default:
+                        return 0;
+                }
+            }
+        }
+
+        // Render code steps
+        function renderCodeSteps(currentCodeStep = 0) {
+            const steps = state.isRecursive ? recursiveSteps : iterativeSteps;
+            const currentStep = steps[currentCodeStep];
+            
+            codeStepsContainer.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="font-bold text-blue-900 mb-2">${currentStep.title}</h3>
+                        <p class="text-blue-800 text-sm mb-3">${currentStep.explanation}</p>
+                        <div class="bg-white border border-blue-200 rounded p-3">
+                            <pre class="text-sm text-gray-800"><code>${currentStep.code}</code></pre>
+                        </div>
+                    </div>
+                    <div class="text-center text-gray-500 text-sm">
+                        Step ${currentCodeStep + 1} of ${steps.length}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Toggle play/pause
+        function togglePlayPause() {
+            if (!state.isRunning) {
+                startSearch();
+                return;
+            }
+            
+            if (state.isAutoPlaying) {
+                state.isAutoPlaying = false;
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            } else {
+                state.isAutoPlaying = true;
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                autoPlay();
+            }
+        }
+
+        // Step forward
+        function stepForward() {
+            if (!state.isRunning) {
+                startSearch();
+            } else {
+                nextStep();
+            }
+        }
+
+        // Step backward
+        function stepBackward() {
+            if (state.step > 0) {
+                state.step--;
+                const currentStep = state.steps[state.step - 1];
+                if (currentStep) {
+                    state.left = currentStep.left;
+                    state.right = currentStep.right;
+                    state.mid = currentStep.mid;
+                    state.callStack = currentStep.callStack || [];
+                    state.executionLog.pop(); // Remove last log entry
+                }
+                updateDisplay();
+            }
+        }
+
+        // Initialize on load
+        init();
+    </script>
 </body>
 </html>

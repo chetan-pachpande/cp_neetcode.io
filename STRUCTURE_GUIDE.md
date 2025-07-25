@@ -11,28 +11,24 @@ This structure MUST be followed consistently across all problems to avoid confus
    - Examples with input/output
    - Constraints
 
-2. **Java Code** (100% width) 
-   - Complete Java solution
-   - Well-commented code
-   - Refers to corresponding .java file in same directory
+2. **Intuition Section** (100% width)
+   - Algorithm approach explanation
+   - Why this approach works
+   - Key insights
 
 3. **Two-Column Layout Below:**
 
-   **Left Column (40% width):**
-   - **Intuition Section**
-     - Algorithm approach explanation
-     - Why this approach works
-     - Key insights
-   
-   - **Step-by-Step Code** (below intuition)
-     - Synchronized with code execution
-     - Highlights current line being executed
+   **Left Column (50% width):**
+   - **Step-by-Step Code**
+     - Synchronized with algorithm execution
+     - Shows current step being executed
      - Explains what each step does
+     - No separate navigation buttons (synced with execution controls)
 
-   **Right Column (60% width):**
+   **Right Column (50% width):**
    - **Live Visualization & Controls**
      - Interactive visualization
-     - Play/Pause/Step/Reset controls
+     - Play/Pause/Step Forward/Step Backward controls
      - Speed controls
      - Sample inputs
      - Custom input
@@ -43,7 +39,12 @@ This structure MUST be followed consistently across all problems to avoid confus
    - Shows execution trace
    - Step-by-step algorithm progress
 
-5. **Full Explanation Script** (100% width)
+5. **Java Code** (100% width) 
+   - Complete Java solution
+   - Well-commented code
+   - Refers to corresponding .java file in same directory
+
+6. **Full Explanation Script** (100% width)
    - Complete narration script
    - For video/audio explanations
    - Detailed walkthrough

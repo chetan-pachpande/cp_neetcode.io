@@ -1,601 +1,289 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encode and Decode Strings | LC 271 (Premium) Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        .code-line { transition: all 0.3s ease; }
-        .active-line { background-color: #fef3c7; border-left: 4px solid #f59e0b; }
-        .string-item { 
-            padding: 8px 12px; 
-            margin: 4px; 
-            border-radius: 6px; 
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-        .string-processing { background-color: #fef3c7; border: 2px solid #f59e0b; }
-        .string-done { background-color: #dcfce7; border: 2px solid #16a34a; }
-        .encoded-char { 
-            display: inline-block; 
-            padding: 2px 4px; 
-            margin: 1px; 
-            border-radius: 3px; 
-            font-family: monospace;
-            font-size: 12px;
-        }
-        .normal-char { background-color: #e5e7eb; }
-        .separator-char { background-color: #fecaca; color: #dc2626; font-weight: bold; }
-        .special-char { background-color: #fde68a; color: #d97706; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encode and Decode Strings — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .cell.word { min-width: 0; padding: 0 14px; height: 42px; font-size: .92rem; }
+    .char-row { display: flex; flex-wrap: wrap; gap: 3px; }
+    .char-cell {
+      width: 26px; height: 32px; display: flex; align-items: center; justify-content: center;
+      border-radius: .35rem; border: 1px solid var(--border); background: var(--surface-2);
+      font-family: var(--mono); font-size: .8rem; font-weight: 600; color: var(--text-1);
+      transition: all .25s;
+    }
+    .char-cell.digit { border-color: var(--warn); background: rgba(251,191,36,.16); color: #fde68a; }
+    .char-cell.delim { border-color: var(--indigo); background: rgba(129,140,248,.2); color: #c7d2fe; font-weight: 800; }
+    .char-cell.word-chr { border-color: var(--ok); background: rgba(52,211,153,.16); color: #a7f3d0; }
+    .char-cell.cursor { box-shadow: 0 0 0 2px var(--cyan), 0 0 14px rgba(34,211,238,.6); }
+    .char-cell.pop { animation: pop-in .3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .phase-tag {
+      display: inline-flex; align-items: center; gap: .4rem; padding: .3rem .75rem;
+      border-radius: 999px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+      border: 1px solid var(--border); background: var(--surface); color: var(--text-3); margin-bottom: .75rem;
+    }
+    .phase-tag.on.encode { border-color: var(--indigo); color: #c7d2fe; background: rgba(129,140,248,.1); }
+    .phase-tag.on.decode { border-color: var(--ok); color: #6ee7b7; background: rgba(52,211,153,.1); }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header Section -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-white mb-2">Encode and Decode Strings</h1>
-            <p class="text-xl text-blue-100 mb-2">LC 271 (Premium) - Interactive Visualization</p>
-            <p class="text-sm text-blue-200">Idea By: Chetan Pachpande | Executed By: Claude</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Arrays &amp; Hashing</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 271</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Encode and Decode Strings</h1>
+      <div class="chips">
+        <span class="chip accent">Length-Prefix Encoding</span>
+        <span class="chip">⏱ O(n) time</span>
+        <span class="chip">💾 O(n) space</span>
+      </div>
+    </header>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Design an algorithm to <strong>encode a list of strings</strong> into a single string, and <strong>decode</strong> that string back into the original list. Words may contain <strong>any character</strong>, including delimiters like commas.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">["neet","code","love","you"]</span></div>
+            <div><span class="lbl">Encoded:</span> <span class="val">"4#neet4#code4#love3#you"</span></div>
+            <div><span class="lbl">Decoded:</span> <span class="val">["neet","code","love","you"]</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>A simple separator like a comma breaks if a word contains a comma. The fix: prefix each word with <strong>its own length</strong> so the decoder always knows exactly how many characters to read next — no ambiguity possible.</p>
+          <p>Encode each word as <code>length # word</code> and concatenate. To decode, walk the string: read digits until <code>#</code> to get the length, then read exactly that many characters as the next word. Repeat until the string is exhausted.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Time — each char visited once, both ways</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Space — the encoded string</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div class="field"><label for="in-words">words (comma-separated)</label><input id="in-words" value="neet, code, love, you"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-words="neet, code, love, you">neet code love you</button>
+          <button class="preset-btn" data-words="hello, world">hello world</button>
+          <button class="preset-btn" data-words="a, bb, ccc">a bb ccc</button>
         </div>
 
-        <!-- Navigation -->
-        <div class="mb-6">
-            <a href="../../index.html" class="inline-block bg-white bg-opacity-20 text-white px-6 py-2 rounded-lg hover:bg-opacity-30 transition duration-300 backdrop-blur-sm border border-white border-opacity-30">
-                ← Back to Home
-            </a>
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div style="display:flex;gap:.5rem;">
+            <span id="tag-encode" class="phase-tag encode">① Encode</span>
+            <span id="tag-decode" class="phase-tag decode">② Decode</span>
+          </div>
+
+          <div class="stage-label">Input words</div>
+          <div id="stage-words" class="cell-row" style="justify-content:flex-start;"></div>
+
+          <div class="stage-label" style="margin-top:1rem;">Encoded string</div>
+          <div id="stage-encoded" class="char-row"></div>
+
+          <div class="stage-label" style="margin-top:1rem;">Decoded output</div>
+          <div id="stage-output" class="cell-row" style="justify-content:flex-start;"></div>
+
+          <div id="result" class="result-banner"></div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-4 max-w-4xl mx-auto mb-8">
-            <div class="text-sm text-gray-600 mb-4">
-                <strong>Algorithm:</strong> Character separation using special delimiter (ASCII 257)
-                <br><strong>Time Complexity:</strong> O(n) for encode/decode where n is total length
-                <br><strong>Space Complexity:</strong> O(n) for storing encoded string
-                <br><strong>Key Insight:</strong> Use non-printable characters as delimiters to handle any input safely
-            </div>
-        </div>
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
 
-        <main class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <!-- Input/Control Panel -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Input & Controls</h2>
-                    
-                    <!-- Input Section -->
-                    <div class="mb-6 space-y-4">
-                        <div>
-                            <label class="text-sm font-medium block mb-2">String List (one per line):</label>
-                            <textarea id="stringInput" class="w-full h-32 p-3 border border-gray-300 rounded-lg font-mono text-sm" 
-                                placeholder="hello&#10;world&#10;test&#10;"></textarea>
-                        </div>
-                        
-                        <div class="flex flex-wrap gap-2">
-                            <button id="encodeBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
-                                🔒 Encode
-                            </button>
-                            <button id="decodeBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
-                                🔓 Decode
-                            </button>
-                            <button id="resetBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
-                                🔄 Reset
-                            </button>
-                        </div>
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
 
-                        <div class="flex gap-2">
-                            <button id="sampleBtn1" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition-colors">
-                                Sample 1
-                            </button>
-                            <button id="sampleBtn2" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition-colors">
-                                Sample 2
-                            </button>
-                            <button id="sampleBtn3" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition-colors">
-                                Edge Case
-                            </button>
-                        </div>
-                    </div>
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>The core problem with a naive separator like a comma is that a word could itself contain a comma, making the encoded string ambiguous. We solve this by prefixing every word with its own length followed by a delimiter character, typically a hash sign. Because the decoder always knows how many characters to consume once it reads the length, the delimiter itself never needs to be searched for inside the word — only before it.</p>
+        <p>To encode, we simply concatenate length, hash, and word for every string in the list. To decode, we walk the combined string with a pointer: read digits until we hit the hash sign, parse those digits as the next word's length, then read exactly that many characters as the word, and advance the pointer past it. Repeating this until the pointer reaches the end recovers the original list exactly, in O(n) time for a combined string of length n.</p>
+      </div>
+    </section>
 
-                    <!-- Animation Controls -->
-                    <div class="mb-6 space-y-4">
-                        <div class="flex flex-wrap gap-2">
-                            <button id="playBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
-                                ▶ Play
-                            </button>
-                            <button id="pauseBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">
-                                ⏸ Pause
-                            </button>
-                            <button id="stepBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
-                                ⏭ Step
-                            </button>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <label class="text-sm font-medium">Speed:</label>
-                            <input type="range" id="speedSlider" min="1" max="10" value="5" class="w-32">
-                            <span id="speedValue" class="text-sm">5x</span>
-                        </div>
-                    </div>
+  </div>
 
-                    <!-- Current Status -->
-                    <div class="space-y-2">
-                        <div id="currentOperation" class="text-lg font-semibold">Ready</div>
-                        <div id="currentStep" class="text-gray-600">Select operation to begin</div>
-                    </div>
-                </div>
-
-                <!-- Visualization Panel -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Visual Process</h2>
-                    
-                    <!-- Original Strings -->
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-2">Original String List</h3>
-                        <div id="originalStrings" class="bg-gray-50 p-4 rounded-lg min-h-20">
-                            <!-- Original strings will be displayed here -->
-                        </div>
-                    </div>
-
-                    <!-- Encoded String -->
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-2">Encoded String</h3>
-                        <div id="encodedString" class="bg-gray-50 p-4 rounded-lg min-h-20 font-mono text-sm">
-                            <!-- Encoded string will be displayed here -->
-                        </div>
-                    </div>
-
-                    <!-- Decoded Strings -->
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-2">Decoded String List</h3>
-                        <div id="decodedStrings" class="bg-gray-50 p-4 rounded-lg min-h-20">
-                            <!-- Decoded strings will be displayed here -->
-                        </div>
-                    </div>
-
-                    <!-- Character Analysis -->
-                    <div>
-                        <h3 class="text-lg font-semibold mb-2">Character Analysis</h3>
-                        <div class="text-xs space-y-1">
-                            <div><span class="normal-char encoded-char">a</span> Normal characters</div>
-                            <div><span class="separator-char encoded-char">※</span> Separator (ASCII 257)</div>
-                            <div><span class="special-char encoded-char">∅</span> Empty list marker (ASCII 258)</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Code Panel -->
-            <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Java Implementation</h2>
-                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
-                    <pre id="codeDisplay" class="text-sm"><code>public class Codec {
-
-    // Encodes a list of strings to a single string.
-    public String encode(List&lt;String&gt; strs) {
-        // Handle empty list case
-        if (strs.size() == 0) {
-            return Character.toString((char)258);
-        }
-        
-        // Use ASCII 257 as separator (non-printable character)
-        String separator = Character.toString((char)257);
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Codec {
+    public String encode(List<String> strs) {
         StringBuilder sb = new StringBuilder();
-        
-        // Append each string with separator
         for (String s : strs) {
-            sb.append(s);
-            sb.append(separator);
+            sb.append(s.length()).append('#').append(s);
         }
-        
-        // Remove last separator
-        sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
     }
 
-    // Decodes a single string to a list of strings.
-    public List&lt;String&gt; decode(String s) {
-        // Handle empty list case
-        if (s.equals(Character.toString((char)258))) {
-            return new ArrayList&lt;&gt;();
+    public List<String> decode(String s) {
+        List<String> result = new ArrayList<>();
+        int i = 0;
+        while (i < s.length()) {
+            int j = i;
+            while (s.charAt(j) != '#') {
+                j++;
+            }
+            int length = Integer.parseInt(s.substring(i, j));
+            String word = s.substring(j + 1, j + 1 + length);
+            result.add(word);
+            i = j + 1 + length;
         }
-        
-        String separator = Character.toString((char)257);
-        
-        // Split by separator, keeping empty strings
-        return Arrays.asList(s.split(separator, -1));
+        return result;
     }
-}</code></pre>
-                </div>
-            </div>
+}`;
 
-            <!-- Execution Log -->
-            <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Execution Log</h2>
-                <div id="executionLog" class="bg-gray-50 p-4 rounded-lg h-40 overflow-y-auto font-mono text-sm">
-                    <!-- Execution steps will be logged here -->
-                </div>
-            </div>
-        </main>
-    </div>
+  function buildFrames() {
+    const words = document.getElementById('in-words').value
+      .split(',').map(s => s.trim()).filter(Boolean);
+    const F = [];
 
-    <script>
-        // Algorithm state
-        let currentStep = 0;
-        let isPlaying = false;
-        let animationSpeed = 500;
-        let currentOperation = 'none'; // 'encode' or 'decode'
-        let originalStrings = [];
-        let encodedString = '';
-        let decodedStrings = [];
-        let currentStepIndex = 0;
+    // ---- phase 1: encode ----
+    let encoded = '';
+    F.push({ line: 3, msg: 'Encode: create an empty StringBuilder.', words, encoded: '', phase: 'encode', output: [] });
 
-        // Special characters
-        const SEPARATOR = String.fromCharCode(257);
-        const EMPTY_MARKER = String.fromCharCode(258);
+    words.forEach((w, i) => {
+      encoded += `${w.length}#${w}`;
+      F.push({
+        line: [4, 5],
+        msg: `Append "${w.length}#${w}" (length, delimiter, then the word itself) → so far: "${encoded}"`,
+        words, i, encoded, phase: 'encode', output: [],
+      });
+    });
 
-        // Sample data
-        const samples = {
-            1: ['hello', 'world', 'test'],
-            2: ['', 'a', '', 'b'],
-            3: [] // Empty list
-        };
+    F.push({ line: 7, msg: `Encoding complete: "${encoded}"`, words, encoded, phase: 'encode', output: [], encodeDone: true });
 
-        // Animation steps for encoding
-        let encodeSteps = [];
-        let decodeSteps = [];
+    // ---- phase 2: decode ----
+    F.push({ line: [10, 11, 12], msg: 'Decode: start pointer i = 0 and an empty result list.', words, encoded, phase: 'decode', cursor: 0, output: [] });
 
-        // Initialize the visualization
-        function initializeVisualization() {
-            resetVisualization();
-            setupEventListeners();
-            loadSample(1);
-        }
+    let i = 0;
+    const output = [];
+    while (i < encoded.length) {
+      let j = i;
+      while (encoded[j] !== '#') j++;
+      const lengthStr = encoded.slice(i, j);
 
-        // Setup event listeners
-        function setupEventListeners() {
-            document.getElementById('encodeBtn').addEventListener('click', startEncode);
-            document.getElementById('decodeBtn').addEventListener('click', startDecode);
-            document.getElementById('resetBtn').addEventListener('click', resetVisualization);
-            
-            document.getElementById('sampleBtn1').addEventListener('click', () => loadSample(1));
-            document.getElementById('sampleBtn2').addEventListener('click', () => loadSample(2));
-            document.getElementById('sampleBtn3').addEventListener('click', () => loadSample(3));
-            
-            document.getElementById('playBtn').addEventListener('click', playAnimation);
-            document.getElementById('pauseBtn').addEventListener('click', pauseAnimation);
-            document.getElementById('stepBtn').addEventListener('click', stepAnimation);
-            
-            document.getElementById('speedSlider').addEventListener('input', (e) => {
-                animationSpeed = parseInt(e.target.value);
-                document.getElementById('speedValue').textContent = `${animationSpeed}x`;
-            });
-        }
+      F.push({
+        line: [14, 15, 16, 17],
+        msg: `Read digits from position ${i} up to '#' at ${j}: "${lengthStr}" → next word has length ${lengthStr}.`,
+        words, encoded, phase: 'decode', cursor: i, digitsRange: [i, j - 1], delim: j, output: output.slice(),
+      });
 
-        // Load sample data
-        function loadSample(num) {
-            const sample = samples[num];
-            document.getElementById('stringInput').value = sample.join('\n');
-            originalStrings = [...sample];
-            updateOriginalStringsDisplay();
-            resetVisualization();
-        }
+      const len = parseInt(lengthStr, 10);
+      const wordStart = j + 1;
+      const word = encoded.slice(wordStart, wordStart + len);
 
-        // Parse input strings
-        function parseInputStrings() {
-            const input = document.getElementById('stringInput').value;
-            return input.split('\n').filter(line => line !== null);
-        }
+      F.push({
+        line: [18, 19],
+        msg: `Read the next ${len} character(s) after '#': "${word}".`,
+        words, encoded, phase: 'decode', digitsRange: [i, j - 1], delim: j, wordRange: [wordStart, wordStart + len - 1], output: output.slice(),
+      });
 
-        // Update original strings display
-        function updateOriginalStringsDisplay() {
-            const container = document.getElementById('originalStrings');
-            container.innerHTML = '';
-            
-            if (originalStrings.length === 0) {
-                container.innerHTML = '<span class="text-gray-500 italic">Empty list</span>';
-                return;
-            }
+      output.push(word);
+      F.push({
+        line: 20,
+        msg: `Add "${word}" to the result list.`,
+        words, encoded, phase: 'decode', wordRange: [wordStart, wordStart + len - 1], output: output.slice(), justAdded: word,
+      });
 
-            originalStrings.forEach((str, index) => {
-                const item = document.createElement('div');
-                item.className = 'string-item bg-blue-100';
-                item.textContent = str === '' ? '(empty string)' : `"${str}"`;
-                item.id = `original-${index}`;
-                container.appendChild(item);
-            });
-        }
+      i = wordStart + len;
+      F.push({ line: 21, msg: `Advance the pointer to position ${i}.`, words, encoded, phase: 'decode', cursor: i, output: output.slice() });
+    }
 
-        // Update encoded string display
-        function updateEncodedStringDisplay() {
-            const container = document.getElementById('encodedString');
-            container.innerHTML = '';
-            
-            if (!encodedString) {
-                container.innerHTML = '<span class="text-gray-500 italic">No encoded string</span>';
-                return;
-            }
+    F.push({
+      line: 23,
+      msg: `Decoding complete — recovered ${output.length} word(s): [${output.join(', ')}]`,
+      words, encoded, phase: 'decode', output: output.slice(), done: 'ok',
+    });
+    return F;
+  }
 
-            for (let i = 0; i < encodedString.length; i++) {
-                const char = encodedString[i];
-                const span = document.createElement('span');
-                span.className = 'encoded-char';
-                
-                if (char === SEPARATOR) {
-                    span.className += ' separator-char';
-                    span.textContent = '※';
-                    span.title = `Separator (ASCII 257)`;
-                } else if (char === EMPTY_MARKER) {
-                    span.className += ' special-char';
-                    span.textContent = '∅';
-                    span.title = `Empty marker (ASCII 258)`;
-                } else {
-                    span.className += ' normal-char';
-                    span.textContent = char === '' ? '⌀' : char;
-                }
-                
-                container.appendChild(span);
-            }
-        }
+  function render(f) {
+    document.getElementById('tag-encode').classList.toggle('on', f.phase === 'encode');
+    document.getElementById('tag-decode').classList.toggle('on', f.phase === 'decode');
 
-        // Update decoded strings display
-        function updateDecodedStringsDisplay() {
-            const container = document.getElementById('decodedStrings');
-            container.innerHTML = '';
-            
-            if (decodedStrings.length === 0) {
-                container.innerHTML = '<span class="text-gray-500 italic">No decoded strings</span>';
-                return;
-            }
+    document.getElementById('stage-words').innerHTML = Viz.cells(
+      f.words.map((w, idx) => ({
+        v: w,
+        cls: 'word ' + (f.phase === 'encode' && idx === f.i ? 'active' : f.phase === 'encode' && f.i != null && idx < f.i ? 'dim' : f.phase === 'decode' ? 'dim' : ''),
+      }))
+    );
 
-            decodedStrings.forEach((str, index) => {
-                const item = document.createElement('div');
-                item.className = 'string-item bg-green-100';
-                item.textContent = str === '' ? '(empty string)' : `"${str}"`;
-                item.id = `decoded-${index}`;
-                container.appendChild(item);
-            });
-        }
+    const chars = [...f.encoded];
+    document.getElementById('stage-encoded').innerHTML = chars.length
+      ? chars.map((ch, idx) => {
+          let cls = '';
+          if (f.digitsRange && idx >= f.digitsRange[0] && idx <= f.digitsRange[1]) cls = 'digit';
+          else if (f.delim === idx) cls = 'delim';
+          else if (f.wordRange && idx >= f.wordRange[0] && idx <= f.wordRange[1]) cls = 'word-chr';
+          if (f.cursor === idx) cls += ' cursor';
+          if (f.phase === 'encode' && idx === chars.length - 1 && f.i != null) cls += ' pop';
+          return `<div class="char-cell ${cls}">${ch}</div>`;
+        }).join('')
+      : '<span style="color:var(--text-3);font-size:.8rem;">empty</span>';
 
-        // Start encoding process
-        function startEncode() {
-            originalStrings = parseInputStrings();
-            updateOriginalStringsDisplay();
-            
-            currentOperation = 'encode';
-            currentStepIndex = 0;
-            isPlaying = false;
-            
-            document.getElementById('currentOperation').textContent = 'Encoding';
-            document.getElementById('currentStep').textContent = 'Preparing to encode...';
-            
-            // Generate encode steps
-            generateEncodeSteps();
-            log('🔒 Starting encode operation');
-        }
+    document.getElementById('stage-output').innerHTML = f.output.length
+      ? Viz.cells(f.output.map(w => ({ v: w, cls: f.justAdded === w ? 'ok pop' : 'ok' })))
+      : '<span style="color:var(--text-3);font-size:.8rem;align-self:center;">—</span>';
 
-        // Start decoding process
-        function startDecode() {
-            if (!encodedString) {
-                alert('Please encode a string first!');
-                return;
-            }
-            
-            currentOperation = 'decode';
-            currentStepIndex = 0;
-            isPlaying = false;
-            
-            document.getElementById('currentOperation').textContent = 'Decoding';
-            document.getElementById('currentStep').textContent = 'Preparing to decode...';
-            
-            // Generate decode steps
-            generateDecodeSteps();
-            log('🔓 Starting decode operation');
-        }
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? `✓ round-trip verified: [${f.output.join(', ')}]` : '';
+  }
 
-        // Generate encoding steps
-        function generateEncodeSteps() {
-            encodeSteps = [];
-            
-            if (originalStrings.length === 0) {
-                encodeSteps.push({
-                    type: 'empty_case',
-                    description: 'Handle empty list case',
-                    action: () => {
-                        encodedString = EMPTY_MARKER;
-                        updateEncodedStringDisplay();
-                    }
-                });
-                return;
-            }
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
 
-            encodeSteps.push({
-                type: 'start',
-                description: 'Initialize StringBuilder and separator',
-                action: () => {}
-            });
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-words]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-words').value = b.dataset.words;
+      viz.run();
+    })
+  );
 
-            originalStrings.forEach((str, index) => {
-                encodeSteps.push({
-                    type: 'process_string',
-                    index: index,
-                    string: str,
-                    description: `Processing string ${index + 1}: "${str}"`,
-                    action: () => {
-                        // Highlight current string
-                        document.querySelectorAll('.string-item').forEach(el => {
-                            el.classList.remove('string-processing');
-                        });
-                        const currentEl = document.getElementById(`original-${index}`);
-                        if (currentEl) currentEl.classList.add('string-processing');
-                        
-                        // Build encoded string progressively
-                        let partial = '';
-                        for (let i = 0; i <= index; i++) {
-                            partial += originalStrings[i];
-                            if (i < index) partial += SEPARATOR;
-                        }
-                        encodedString = partial;
-                        updateEncodedStringDisplay();
-                    }
-                });
-            });
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
 
-            encodeSteps.push({
-                type: 'finalize',
-                description: 'Encoding complete',
-                action: () => {
-                    document.querySelectorAll('.string-item').forEach(el => {
-                        el.classList.remove('string-processing');
-                        el.classList.add('string-done');
-                    });
-                }
-            });
-        }
-
-        // Generate decoding steps
-        function generateDecodeSteps() {
-            decodeSteps = [];
-            
-            if (encodedString === EMPTY_MARKER) {
-                decodeSteps.push({
-                    type: 'empty_case',
-                    description: 'Handle empty list marker',
-                    action: () => {
-                        decodedStrings = [];
-                        updateDecodedStringsDisplay();
-                    }
-                });
-                return;
-            }
-
-            decodeSteps.push({
-                type: 'start',
-                description: 'Starting decode with separator split',
-                action: () => {
-                    decodedStrings = [];
-                    updateDecodedStringsDisplay();
-                }
-            });
-
-            const parts = encodedString.split(SEPARATOR);
-            parts.forEach((part, index) => {
-                decodeSteps.push({
-                    type: 'decode_part',
-                    index: index,
-                    part: part,
-                    description: `Extracting part ${index + 1}: "${part}"`,
-                    action: () => {
-                        decodedStrings = parts.slice(0, index + 1);
-                        updateDecodedStringsDisplay();
-                    }
-                });
-            });
-
-            decodeSteps.push({
-                type: 'finalize',
-                description: 'Decoding complete',
-                action: () => {
-                    document.querySelectorAll('#decodedStrings .string-item').forEach(el => {
-                        el.classList.add('string-done');
-                    });
-                }
-            });
-        }
-
-        // Play animation
-        function playAnimation() {
-            if (currentOperation === 'none') {
-                alert('Please select encode or decode first!');
-                return;
-            }
-            
-            isPlaying = true;
-            animate();
-        }
-
-        // Pause animation
-        function pauseAnimation() {
-            isPlaying = false;
-        }
-
-        // Step animation
-        function stepAnimation() {
-            if (currentOperation === 'none') {
-                alert('Please select encode or decode first!');
-                return;
-            }
-            
-            executeStep();
-        }
-
-        // Execute current step
-        function executeStep() {
-            const steps = currentOperation === 'encode' ? encodeSteps : decodeSteps;
-            
-            if (currentStepIndex >= steps.length) {
-                isPlaying = false;
-                document.getElementById('currentStep').textContent = 'Operation complete';
-                return false;
-            }
-
-            const step = steps[currentStepIndex];
-            document.getElementById('currentStep').textContent = step.description;
-            
-            step.action();
-            log(`Step ${currentStepIndex + 1}: ${step.description}`);
-            
-            currentStepIndex++;
-            return true;
-        }
-
-        // Animation loop
-        function animate() {
-            if (isPlaying && executeStep()) {
-                setTimeout(animate, 1100 - animationSpeed * 100);
-            } else {
-                isPlaying = false;
-            }
-        }
-
-        // Log execution step
-        function log(message) {
-            const logContainer = document.getElementById('executionLog');
-            const logEntry = document.createElement('div');
-            logEntry.className = 'mb-1';
-            logEntry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
-            logContainer.appendChild(logEntry);
-            logContainer.scrollTop = logContainer.scrollHeight;
-        }
-
-        // Reset visualization
-        function resetVisualization() {
-            currentStep = 0;
-            currentStepIndex = 0;
-            isPlaying = false;
-            currentOperation = 'none';
-            encodedString = '';
-            decodedStrings = [];
-            encodeSteps = [];
-            decodeSteps = [];
-            
-            document.getElementById('currentOperation').textContent = 'Ready';
-            document.getElementById('currentStep').textContent = 'Select operation to begin';
-            document.getElementById('executionLog').innerHTML = '';
-            
-            updateEncodedStringDisplay();
-            updateDecodedStringsDisplay();
-            
-            // Clear highlighting
-            document.querySelectorAll('.string-item').forEach(el => {
-                el.classList.remove('string-processing', 'string-done');
-            });
-            
-            log('🔄 Visualization reset');
-        }
-
-        // Initialize on page load
-        initializeVisualization();
-    </script>
+  viz.run();
+  </script>
 </body>
 </html>

@@ -1,526 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valid Sudoku | LC 36 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        .code-line { transition: all 0.3s ease; }
-        .active-line { background-color: #fef3c7; border-left: 4px solid #f59e0b; }
-        .sudoku-cell { 
-            width: 40px; 
-            height: 40px; 
-            border: 1px solid #9ca3af;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        .sudoku-grid { display: grid; grid-template-columns: repeat(9, 40px); gap: 1px; }
-        .box-border-right { border-right: 3px solid #374151; }
-        .box-border-bottom { border-bottom: 3px solid #374151; }
-        .highlighted-row { background-color: #fee2e2 !important; }
-        .highlighted-col { background-color: #e0f2fe !important; }
-        .highlighted-box { background-color: #f3e8ff !important; }
-        .conflict-cell { background-color: #fecaca !important; color: #dc2626; }
-        .valid-cell { background-color: #dcfce7 !important; color: #16a34a; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valid Sudoku — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .sud-wrap { display: flex; justify-content: center; }
+    .sud-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 34px);
+      grid-template-rows: repeat(9, 34px);
+      gap: 1px;
+      background: var(--border);
+      border: 2px solid var(--border-strong);
+      border-radius: .5rem;
+      overflow: hidden;
+    }
+    .sud-cell {
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,.35);
+      font-family: var(--mono); font-size: .95rem; font-weight: 700;
+      color: var(--text-1);
+      transition: all .25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .sud-cell.empty { color: var(--text-3); font-weight: 400; }
+    .sud-cell.br3 { border-right: 2px solid var(--border-strong); }
+    .sud-cell.bb3 { border-bottom: 2px solid var(--border-strong); }
+    .sud-cell.active { background: rgba(129,140,248,.28); color: #fff; box-shadow: inset 0 0 0 2px var(--indigo); z-index: 2; }
+    .sud-cell.ok { background: rgba(52,211,153,.22); color: #a7f3d0; }
+    .sud-cell.bad { background: rgba(251,113,133,.3); color: #fecdd3; box-shadow: inset 0 0 0 2px var(--bad); animation: shake .4s; z-index: 2; }
+    .sud-cell.dim { opacity: .4; }
+    .constraint-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .75rem; }
+    .constraint-box { padding: .7rem .8rem; border-radius: .7rem; border: 1px solid var(--border); background: rgba(0,0,0,.22); min-height: 84px; }
+    .constraint-box.hot { border-color: var(--indigo); background: rgba(129,140,248,.08); }
+    .constraint-box .cb-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); margin-bottom: .5rem; }
+    .constraint-box .cb-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+    textarea#in-board {
+      width: 100%; min-height: 130px; padding: .7rem .9rem; border-radius: .75rem;
+      border: 1px solid var(--border); background: rgba(0,0,0,.25); color: var(--text-1);
+      font-family: var(--mono); font-size: .8rem; line-height: 1.5; outline: none; resize: vertical;
+    }
+    textarea#in-board:focus { border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(129,140,248,.18); }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header Section -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-white mb-2">Valid Sudoku Validator</h1>
-            <p class="text-xl text-blue-100 mb-2">LC 36 - Interactive Visualization</p>
-            <p class="text-sm text-blue-200">Idea By: Chetan Pachpande | Executed By: Claude</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Arrays &amp; Hashing</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 36</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Valid Sudoku</h1>
+      <div class="chips">
+        <span class="chip accent">HashSets per Row/Col/Box</span>
+        <span class="chip">⏱ O(81) time</span>
+        <span class="chip">💾 O(81) space</span>
+      </div>
+    </header>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Determine if a <code>9×9</code> Sudoku board is valid. Only the filled cells need to be validated: each <strong>row</strong>, <strong>column</strong>, and <strong>3×3 sub-box</strong> must contain each digit <code>1-9</code> at most once. The board doesn't need to be solvable, just consistent so far.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">partially filled 9×9 board</span></div>
+            <div><span class="lbl">Output:&nbsp;</span><span class="val">true if no row/col/box has a repeated digit</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Three independent constraints, three independent HashSets. For every filled cell <code>(r, c)</code> with digit <code>d</code>, we need three memories: <strong>"has row <code>r</code> seen <code>d</code>?"</strong>, <strong>"has column <code>c</code> seen <code>d</code>?"</strong>, and <strong>"has box <code>⌊r/3⌋·3 + ⌊c/3⌋</code> seen <code>d</code>?"</strong></p>
+          <p>Scan the board once, left to right, top to bottom. At each filled cell, check all three sets — if any already contains <code>d</code>, the board is invalid immediately. Otherwise add <code>d</code> to all three and move on.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(81)</div><div class="lbl">Time — fixed 9×9 board</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(81)</div><div class="lbl">Space — 27 sets, 9 slots each</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div class="field"><label for="in-board">board — 9 rows, comma-separated, "." for empty</label>
+          <textarea id="in-board">5,3,.,.,7,.,.,.,.
+6,.,.,1,9,5,.,.,.
+.,9,8,.,.,.,.,6,.
+8,.,.,.,6,.,.,.,3
+4,.,.,8,.,3,.,.,1
+7,.,.,.,2,.,.,.,6
+.,6,.,.,.,.,2,8,.
+.,.,.,4,1,9,.,.,5
+.,.,.,.,8,.,.,7,9</textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-board="valid">valid board</button>
+          <button class="preset-btn" data-board="invalid">duplicate in column</button>
         </div>
 
-        <!-- Navigation -->
-        <div class="mb-6">
-            <a href="../../index.html" class="inline-block bg-white bg-opacity-20 text-white px-6 py-2 rounded-lg hover:bg-opacity-30 transition duration-300 backdrop-blur-sm border border-white border-opacity-30">
-                ← Back to Home
-            </a>
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Board</div>
+          <div class="sud-wrap"><div id="stage-board" class="sud-grid"></div></div>
+          <div class="stage-label" style="margin-top:1.1rem;">Constraint sets for the active cell</div>
+          <div class="constraint-cols">
+            <div id="cb-row" class="constraint-box"><div class="cb-label">Row set</div><div class="cb-chips"></div></div>
+            <div id="cb-col" class="constraint-box"><div class="cb-label">Col set</div><div class="cb-chips"></div></div>
+            <div id="cb-box" class="constraint-box"><div class="cb-label">Box set</div><div class="cb-chips"></div></div>
+          </div>
+          <div id="result" class="result-banner"></div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-4 max-w-4xl mx-auto mb-8">
-            <div class="text-sm text-gray-600 mb-4">
-                <strong>Algorithm:</strong> HashSet validation for rows, columns, and 3x3 boxes
-                <br><strong>Time Complexity:</strong> O(1) - constant 9x9 grid
-                <br><strong>Space Complexity:</strong> O(1) - constant space for HashSets
-            </div>
-        </div>
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
 
-        <main class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <!-- Visualization Panel -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Sudoku Board Validation</h2>
-                    
-                    <!-- Controls -->
-                    <div class="mb-6 space-y-4">
-                        <div class="flex flex-wrap gap-2">
-                            <button id="playBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
-                                ▶ Play
-                            </button>
-                            <button id="pauseBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">
-                                ⏸ Pause
-                            </button>
-                            <button id="resetBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
-                                🔄 Reset
-                            </button>
-                            <button id="stepBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
-                                ⏭ Step
-                            </button>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <label class="text-sm font-medium">Speed:</label>
-                            <input type="range" id="speedSlider" min="1" max="10" value="5" class="w-32">
-                            <span id="speedValue" class="text-sm">5x</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button id="validBoardBtn" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
-                                Valid Board
-                            </button>
-                            <button id="invalidBoardBtn" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors">
-                                Invalid Board
-                            </button>
-                        </div>
-                    </div>
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
 
-                    <!-- Sudoku Grid -->
-                    <div class="flex justify-center mb-6">
-                        <div id="sudokuGrid" class="sudoku-grid border-2 border-gray-800"></div>
-                    </div>
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>We keep one HashSet per row, one per column, and one per three by three box — twenty seven sets in total, each capable of holding the digits one through nine. The board index of a box is computed as row divided by three, times three, plus column divided by three, using integer division, which maps every cell to one of nine boxes.</p>
+        <p>We scan the board once. Empty cells are skipped. For every filled cell we check whether its digit is already present in the corresponding row set, column set, or box set. If any of the three already contains it, we have found a duplicate and the board is invalid. Otherwise we insert the digit into all three sets and continue. Because the board size is fixed at eighty one cells, this runs in constant time and constant space relative to any larger input.</p>
+      </div>
+    </section>
 
-                    <!-- Current Status -->
-                    <div class="space-y-2">
-                        <div class="text-center">
-                            <span id="currentPosition" class="text-lg font-semibold">Position: (0, 0)</span>
-                            <span id="currentValue" class="text-lg font-semibold ml-4">Value: -</span>
-                        </div>
-                        <div id="validationStatus" class="text-center text-lg font-bold">Ready to validate</div>
-                    </div>
-                </div>
+  </div>
 
-                <!-- Data Structures Panel -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">HashSet Tracking</h2>
-                    
-                    <!-- HashSets Display -->
-                    <div class="space-y-4">
-                        <!-- Row HashSets -->
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Row HashSets</h3>
-                            <div id="rowHashSets" class="grid grid-cols-3 gap-2 text-xs"></div>
-                        </div>
-                        
-                        <!-- Column HashSets -->
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Column HashSets</h3>
-                            <div id="colHashSets" class="grid grid-cols-3 gap-2 text-xs"></div>
-                        </div>
-                        
-                        <!-- Box HashSets -->
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">3×3 Box HashSets</h3>
-                            <div id="boxHashSets" class="grid grid-cols-3 gap-2 text-xs"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Code Panel -->
-            <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Java Implementation</h2>
-                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
-                    <pre id="codeDisplay" class="text-sm"><code>class Solution {
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
     public boolean isValidSudoku(char[][] board) {
-        int N = 9;
-        
-        // Use hash sets to record the status  
-        HashSet&lt;Character&gt;[] rows = new HashSet[N];
-        HashSet&lt;Character&gt;[] cols = new HashSet[N];
-        HashSet&lt;Character&gt;[] boxes = new HashSet[N];
-        
-        // Initialize all hash sets
-        for (int r = 0; r &lt; N; r++) {
-            rows[r] = new HashSet&lt;Character&gt;();
-            cols[r] = new HashSet&lt;Character&gt;();
-            boxes[r] = new HashSet&lt;Character&gt;();
+        Set<Character>[] rows = new HashSet[9];
+        Set<Character>[] cols = new HashSet[9];
+        Set<Character>[] boxes = new HashSet[9];
+        for (int i = 0; i < 9; i++) {
+            rows[i] = new HashSet<>();
+            cols[i] = new HashSet<>();
+            boxes[i] = new HashSet<>();
         }
-        
-        // Check each cell in the board
-        for (int r = 0; r &lt; N; r++) {
-            for (int c = 0; c &lt; N; c++) {
-                char val = board[r][c];
-                
-                // Skip empty cells
-                if (val == '.') {
-                    continue;
-                }
-                
-                // Check the row
-                if (rows[r].contains(val)) {
+
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                char d = board[r][c];
+                if (d == '.') continue;
+
+                int b = (r / 3) * 3 + (c / 3);
+                if (rows[r].contains(d) || cols[c].contains(d) || boxes[b].contains(d)) {
                     return false;
                 }
-                rows[r].add(val);
-                
-                // Check the column  
-                if (cols[c].contains(val)) {
-                    return false;
-                }
-                cols[c].add(val);
-                
-                // Check the 3x3 box
-                int idx = (r / 3) * 3 + c / 3;
-                if (boxes[idx].contains(val)) {
-                    return false;
-                }
-                boxes[idx].add(val);
+
+                rows[r].add(d);
+                cols[c].add(d);
+                boxes[b].add(d);
             }
         }
         return true;
     }
-}</code></pre>
-                </div>
-            </div>
+}`;
 
-            <!-- Execution Log -->
-            <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Execution Log</h2>
-                <div id="executionLog" class="bg-gray-50 p-4 rounded-lg h-40 overflow-y-auto font-mono text-sm">
-                    <!-- Execution steps will be logged here -->
-                </div>
-            </div>
-        </main>
-    </div>
+  const PRESETS = {
+    valid: `5,3,.,.,7,.,.,.,.
+6,.,.,1,9,5,.,.,.
+.,9,8,.,.,.,.,6,.
+8,.,.,.,6,.,.,.,3
+4,.,.,8,.,3,.,.,1
+7,.,.,.,2,.,.,.,6
+.,6,.,.,.,.,2,8,.
+.,.,.,4,1,9,.,.,5
+.,.,.,.,8,.,.,7,9`,
+    invalid: `5,3,.,.,7,.,.,.,.
+6,.,.,1,9,5,.,.,.
+5,9,8,.,.,.,.,6,.
+8,.,.,.,6,.,.,.,3
+4,.,.,8,.,3,.,.,1
+7,.,.,.,2,.,.,.,6
+.,6,.,.,.,.,2,8,.
+.,.,.,4,1,9,.,.,5
+.,.,.,.,8,.,.,7,9`,
+  };
 
-    <script>
-        // Algorithm state
-        let currentStep = 0;
-        let isPlaying = false;
-        let animationSpeed = 500;
-        let currentRow = 0;
-        let currentCol = 0;
-        let isValid = true;
+  function parseBoard() {
+    return document.getElementById('in-board').value
+      .trim().split('\n')
+      .map(line => line.split(',').map(s => s.trim()).slice(0, 9));
+  }
 
-        // Sample boards
-        const validBoard = [
-            ["5","3",".",".","7",".",".",".","."],
-            ["6",".",".","1","9","5",".",".","."],
-            [".","9","8",".",".",".",".","6","."],
-            ["8",".",".",".","6",".",".",".","3"],
-            ["4",".",".","8",".","3",".",".","1"],
-            ["7",".",".",".","2",".",".",".","6"],
-            [".","6",".",".",".",".","2","8","."],
-            [".",".",".","4","1","9",".",".","5"],
-            [".",".",".",".","8",".",".","7","9"]
-        ];
+  function boxIndex(r, c) {
+    return Math.floor(r / 3) * 3 + Math.floor(c / 3);
+  }
 
-        const invalidBoard = [
-            ["8","3",".",".","7",".",".",".","."],
-            ["6",".",".","1","9","5",".",".","."],
-            [".","9","8",".",".",".",".","6","."],
-            ["8",".",".",".","6",".",".",".","3"],
-            ["4",".",".","8",".","3",".",".","1"],
-            ["7",".",".",".","2",".",".",".","6"],
-            [".","6",".",".",".",".","2","8","."],
-            [".",".",".","4","1","9",".",".","5"],
-            [".",".",".",".","8",".",".","7","9"]
-        ];
+  function buildFrames() {
+    const board = parseBoard();
+    const F = [];
+    const rows = Array.from({ length: 9 }, () => []);
+    const cols = Array.from({ length: 9 }, () => []);
+    const boxes = Array.from({ length: 9 }, () => []);
+    const snap = arr => arr.map(s => s.slice());
 
-        let currentBoard = [...validBoard.map(row => [...row])];
-        
-        // Data structures
-        let rows = Array(9).fill().map(() => new Set());
-        let cols = Array(9).fill().map(() => new Set());
-        let boxes = Array(9).fill().map(() => new Set());
+    F.push({
+      line: [3, 4, 5, 6, 7, 8, 9, 10],
+      msg: 'Create 27 empty HashSets — one per row, column, and 3×3 box.',
+      board, rows: snap(rows), cols: snap(cols), boxes: snap(boxes),
+    });
 
-        // Algorithm steps
-        const steps = [
-            "Initialize HashSets for rows, columns, and 3×3 boxes",
-            "Begin scanning the board row by row",
-            "Check current cell value",
-            "Skip if cell is empty ('.')",
-            "Validate row constraint",
-            "Validate column constraint", 
-            "Validate 3×3 box constraint",
-            "Move to next cell",
-            "Return validation result"
-        ];
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const d = board[r][c];
+        if (d === '.' || d === '') continue;
+        const b = boxIndex(r, c);
 
-        // Initialize the visualization
-        function initializeVisualization() {
-            createSudokuGrid();
-            initializeHashSets();
-            updateHashSetDisplay();
-            resetVisualization();
-        }
-
-        // Create the Sudoku grid
-        function createSudokuGrid() {
-            const grid = document.getElementById('sudokuGrid');
-            grid.innerHTML = '';
-            
-            for (let r = 0; r < 9; r++) {
-                for (let c = 0; c < 9; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'sudoku-cell';
-                    cell.id = `cell-${r}-${c}`;
-                    
-                    // Add box borders
-                    if (c === 2 || c === 5) cell.classList.add('box-border-right');
-                    if (r === 2 || r === 5) cell.classList.add('box-border-bottom');
-                    
-                    cell.textContent = currentBoard[r][c] === '.' ? '' : currentBoard[r][c];
-                    grid.appendChild(cell);
-                }
-            }
-        }
-
-        // Initialize HashSets
-        function initializeHashSets() {
-            rows = Array(9).fill().map(() => new Set());
-            cols = Array(9).fill().map(() => new Set());
-            boxes = Array(9).fill().map(() => new Set());
-        }
-
-        // Update HashSet display
-        function updateHashSetDisplay() {
-            const rowContainer = document.getElementById('rowHashSets');
-            const colContainer = document.getElementById('colHashSets');
-            const boxContainer = document.getElementById('boxHashSets');
-            
-            rowContainer.innerHTML = '';
-            colContainer.innerHTML = '';
-            boxContainer.innerHTML = '';
-            
-            for (let i = 0; i < 9; i++) {
-                // Row HashSets
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'p-2 bg-gray-100 rounded border';
-                rowDiv.innerHTML = `<div class="font-semibold">Row ${i}</div><div>{${Array.from(rows[i]).join(', ')}}</div>`;
-                rowContainer.appendChild(rowDiv);
-                
-                // Column HashSets
-                const colDiv = document.createElement('div');
-                colDiv.className = 'p-2 bg-gray-100 rounded border';
-                colDiv.innerHTML = `<div class="font-semibold">Col ${i}</div><div>{${Array.from(cols[i]).join(', ')}}</div>`;
-                colContainer.appendChild(colDiv);
-                
-                // Box HashSets
-                const boxDiv = document.createElement('div');
-                boxDiv.className = 'p-2 bg-gray-100 rounded border';
-                boxDiv.innerHTML = `<div class="font-semibold">Box ${i}</div><div>{${Array.from(boxes[i]).join(', ')}}</div>`;
-                boxContainer.appendChild(boxDiv);
-            }
-        }
-
-        // Clear highlights
-        function clearHighlights() {
-            for (let r = 0; r < 9; r++) {
-                for (let c = 0; c < 9; c++) {
-                    const cell = document.getElementById(`cell-${r}-${c}`);
-                    cell.classList.remove('highlighted-row', 'highlighted-col', 'highlighted-box', 'conflict-cell', 'valid-cell');
-                }
-            }
-        }
-
-        // Highlight current context
-        function highlightContext(row, col) {
-            clearHighlights();
-            
-            if (row >= 0 && col >= 0) {
-                // Highlight row
-                for (let c = 0; c < 9; c++) {
-                    document.getElementById(`cell-${row}-${c}`).classList.add('highlighted-row');
-                }
-                
-                // Highlight column
-                for (let r = 0; r < 9; r++) {
-                    document.getElementById(`cell-${r}-${col}`).classList.add('highlighted-col');
-                }
-                
-                // Highlight 3x3 box
-                const boxRow = Math.floor(row / 3) * 3;
-                const boxCol = Math.floor(col / 3) * 3;
-                for (let r = boxRow; r < boxRow + 3; r++) {
-                    for (let c = boxCol; c < boxCol + 3; c++) {
-                        document.getElementById(`cell-${r}-${c}`).classList.add('highlighted-box');
-                    }
-                }
-                
-                // Highlight current cell
-                const currentCell = document.getElementById(`cell-${row}-${col}`);
-                currentCell.classList.add('valid-cell');
-            }
-        }
-
-        // Perform one step of the algorithm
-        function performStep() {
-            if (currentRow >= 9) {
-                // Algorithm completed
-                log(`✅ Sudoku validation completed. Result: ${isValid ? 'VALID' : 'INVALID'}`);
-                document.getElementById('validationStatus').textContent = `Board is ${isValid ? 'VALID' : 'INVALID'}`;
-                document.getElementById('validationStatus').className = `text-center text-lg font-bold ${isValid ? 'text-green-600' : 'text-red-600'}`;
-                clearHighlights();
-                isPlaying = false;
-                return false;
-            }
-
-            const val = currentBoard[currentRow][currentCol];
-            
-            // Update current position display
-            document.getElementById('currentPosition').textContent = `Position: (${currentRow}, ${currentCol})`;
-            document.getElementById('currentValue').textContent = `Value: ${val === '.' ? 'empty' : val}`;
-            
-            // Highlight current context
-            highlightContext(currentRow, currentCol);
-            
-            if (val === '.') {
-                log(`⏭️ Cell (${currentRow}, ${currentCol}) is empty, skipping...`);
-            } else {
-                log(`🔍 Checking cell (${currentRow}, ${currentCol}) with value '${val}'`);
-                
-                // Check row constraint
-                if (rows[currentRow].has(val)) {
-                    log(`❌ Row ${currentRow} already contains '${val}' - INVALID!`);
-                    document.getElementById(`cell-${currentRow}-${currentCol}`).classList.add('conflict-cell');
-                    isValid = false;
-                    document.getElementById('validationStatus').textContent = 'INVALID - Duplicate in row';
-                    document.getElementById('validationStatus').className = 'text-center text-lg font-bold text-red-600';
-                    return false;
-                }
-                rows[currentRow].add(val);
-                log(`✅ Added '${val}' to row ${currentRow} HashSet`);
-                
-                // Check column constraint
-                if (cols[currentCol].has(val)) {
-                    log(`❌ Column ${currentCol} already contains '${val}' - INVALID!`);
-                    document.getElementById(`cell-${currentRow}-${currentCol}`).classList.add('conflict-cell');
-                    isValid = false;
-                    document.getElementById('validationStatus').textContent = 'INVALID - Duplicate in column';
-                    document.getElementById('validationStatus').className = 'text-center text-lg font-bold text-red-600';
-                    return false;
-                }
-                cols[currentCol].add(val);
-                log(`✅ Added '${val}' to column ${currentCol} HashSet`);
-                
-                // Check box constraint
-                const boxIdx = Math.floor(currentRow / 3) * 3 + Math.floor(currentCol / 3);
-                if (boxes[boxIdx].has(val)) {
-                    log(`❌ Box ${boxIdx} already contains '${val}' - INVALID!`);
-                    document.getElementById(`cell-${currentRow}-${currentCol}`).classList.add('conflict-cell');
-                    isValid = false;
-                    document.getElementById('validationStatus').textContent = 'INVALID - Duplicate in box';
-                    document.getElementById('validationStatus').className = 'text-center text-lg font-bold text-red-600';
-                    return false;
-                }
-                boxes[boxIdx].add(val);
-                log(`✅ Added '${val}' to box ${boxIdx} HashSet`);
-            }
-
-            updateHashSetDisplay();
-            
-            // Move to next cell
-            currentCol++;
-            if (currentCol >= 9) {
-                currentCol = 0;
-                currentRow++;
-            }
-            
-            return true;
-        }
-
-        // Log execution step
-        function log(message) {
-            const logContainer = document.getElementById('executionLog');
-            const logEntry = document.createElement('div');
-            logEntry.className = 'mb-1';
-            logEntry.textContent = `Step ${currentStep + 1}: ${message}`;
-            logContainer.appendChild(logEntry);
-            logContainer.scrollTop = logContainer.scrollHeight;
-            currentStep++;
-        }
-
-        // Reset visualization
-        function resetVisualization() {
-            currentStep = 0;
-            currentRow = 0;
-            currentCol = 0;
-            isValid = true;
-            isPlaying = false;
-            
-            initializeHashSets();
-            updateHashSetDisplay();
-            clearHighlights();
-            
-            document.getElementById('currentPosition').textContent = 'Position: (0, 0)';
-            document.getElementById('currentValue').textContent = 'Value: -';
-            document.getElementById('validationStatus').textContent = 'Ready to validate';
-            document.getElementById('validationStatus').className = 'text-center text-lg font-bold text-gray-600';
-            document.getElementById('executionLog').innerHTML = '';
-            
-            log('🚀 Sudoku validation algorithm initialized');
-        }
-
-        // Animation loop
-        function animate() {
-            if (isPlaying && performStep()) {
-                setTimeout(animate, 1100 - animationSpeed * 100);
-            } else {
-                isPlaying = false;
-            }
-        }
-
-        // Event listeners
-        document.getElementById('playBtn').addEventListener('click', () => {
-            if (!isPlaying) {
-                isPlaying = true;
-                animate();
-            }
+        F.push({
+          line: [15, 16],
+          msg: `Visit cell (${r}, ${c}) = '${d}'. It belongs to row ${r}, col ${c}, box ${b}.`,
+          board, r, c, d, b, rows: snap(rows), cols: snap(cols), boxes: snap(boxes),
         });
 
-        document.getElementById('pauseBtn').addEventListener('click', () => {
-            isPlaying = false;
+        const inRow = rows[r].includes(d);
+        const inCol = cols[c].includes(d);
+        const inBox = boxes[b].includes(d);
+
+        if (inRow || inCol || inBox) {
+          const where = inRow ? `row ${r}` : inCol ? `col ${c}` : `box ${b}`;
+          F.push({
+            line: [18, 19, 20],
+            msg: `'${d}' is already in ${where}'s set — duplicate! Return false.`,
+            board, r, c, d, b, rows: snap(rows), cols: snap(cols), boxes: snap(boxes),
+            done: 'bad',
+          });
+          return F;
+        }
+
+        F.push({
+          line: [18, 19, 20],
+          msg: `'${d}' is not in row ${r}, col ${c}, or box ${b} — no conflict so far.`,
+          board, r, c, d, b, rows: snap(rows), cols: snap(cols), boxes: snap(boxes), clear: true,
         });
 
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            isPlaying = false;
-            resetVisualization();
-        });
+        rows[r].push(d);
+        cols[c].push(d);
+        boxes[b].push(d);
 
-        document.getElementById('stepBtn').addEventListener('click', () => {
-            if (!isPlaying) {
-                performStep();
-            }
+        F.push({
+          line: [22, 23, 24],
+          msg: `Record '${d}' in row ${r}, col ${c}, and box ${b}.`,
+          board, r, c, d, b, rows: snap(rows), cols: snap(cols), boxes: snap(boxes), added: true,
         });
+      }
+    }
 
-        document.getElementById('speedSlider').addEventListener('input', (e) => {
-            animationSpeed = parseInt(e.target.value);
-            document.getElementById('speedValue').textContent = `${animationSpeed}x`;
-        });
+    F.push({
+      line: 28,
+      msg: 'Scanned every filled cell — no conflicts anywhere. Return true.',
+      board, rows: snap(rows), cols: snap(cols), boxes: snap(boxes), done: 'ok',
+    });
+    return F;
+  }
 
-        document.getElementById('validBoardBtn').addEventListener('click', () => {
-            currentBoard = validBoard.map(row => [...row]);
-            createSudokuGrid();
-            resetVisualization();
-        });
+  function render(f) {
+    const boardEl = document.getElementById('stage-board');
+    let html = '';
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const d = f.board[r][c];
+        const empty = d === '.' || d === '';
+        let cls = empty ? 'empty' : '';
+        if (c === 2 || c === 5) cls += ' br3';
+        if (r === 2 || r === 5) cls += ' bb3';
+        if (f.r === r && f.c === c) {
+          cls += f.done === 'bad' ? ' bad' : ' active';
+        } else if (f.done === 'ok') {
+          cls += empty ? '' : ' ok';
+        }
+        html += `<div class="sud-cell ${cls}">${empty ? '' : d}</div>`;
+      }
+    }
+    boardEl.innerHTML = html;
 
-        document.getElementById('invalidBoardBtn').addEventListener('click', () => {
-            currentBoard = invalidBoard.map(row => [...row]);
-            createSudokuGrid();
-            resetVisualization();
-        });
+    function chipsFor(mountId, set, activeIdx, currentDigit, label) {
+      const mount = document.querySelector(`#${mountId} .cb-chips`);
+      const box = document.getElementById(mountId);
+      box.classList.toggle('hot', activeIdx != null);
+      document.querySelector(`#${mountId} .cb-label`).textContent = activeIdx != null ? label : label.split(' ')[0] + ' set';
+      mount.innerHTML = set.length
+        ? set.map(v => `<div class="kv ${v === currentDigit ? (f.done === 'bad' ? 'bad' : 'warn') : ''}"><span class="k">${v}</span></div>`).join('')
+        : '<span style="color:var(--text-3);font-size:.78rem;">empty</span>';
+    }
 
-        // Initialize on page load
-        initializeVisualization();
-    </script>
+    if (f.r != null) {
+      chipsFor('cb-row', f.rows[f.r], f.r, f.d, `Row ${f.r} set`);
+      chipsFor('cb-col', f.cols[f.c], f.c, f.d, `Col ${f.c} set`);
+      chipsFor('cb-box', f.boxes[f.b], f.b, f.d, `Box ${f.b} set`);
+    } else {
+      ['cb-row', 'cb-col', 'cb-box'].forEach(id => {
+        document.querySelector(`#${id} .cb-chips`).innerHTML = '<span style="color:var(--text-3);font-size:.78rem;">—</span>';
+        document.getElementById(id).classList.remove('hot');
+      });
+    }
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ` show ${f.done}` : '');
+    res.textContent = f.done === 'ok' ? '✓ return true — valid board' : f.done === 'bad' ? '✗ return false — conflict found' : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-board]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-board').value = PRESETS[b.dataset.board];
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

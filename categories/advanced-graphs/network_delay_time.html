@@ -1,21 +1,337 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Delay Time | LC 743 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Delay Time — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    /* weighted directed graph — extends the tree-node visual language */
+    .wgraph-edge { stroke: var(--border-strong); stroke-width: 2; transition: stroke .25s; }
+    .wgraph-edge.hot { stroke: var(--indigo); stroke-width: 2.5; filter: drop-shadow(0 0 4px rgba(129,140,248,.7)); }
+    .wgraph-edge.relax { stroke: var(--ok); stroke-width: 2.5; filter: drop-shadow(0 0 4px rgba(52,211,153,.7)); }
+    .wgraph-w {
+      font-family: var(--mono); font-size: 11px; font-weight: 700;
+      fill: var(--text-2); text-anchor: middle;
+      paint-order: stroke; stroke: #070b16; stroke-width: 4px;
+    }
+    .wgraph-w.hot { fill: #c7d2fe; }
+    .wgraph-w.relax { fill: #6ee7b7; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Network Delay Time | LC 743</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Advanced Graphs</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 743</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Network Delay Time</h1>
+      <div class="chips">
+        <span class="chip accent">Dijkstra's Algorithm</span>
+        <span class="chip">⏱ O(E log V) time</span>
+        <span class="chip">💾 O(V + E) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>A signal starts at node <code>k</code> in a directed, weighted network. <code>times[i] = (u, v, w)</code> means travelling <code>u → v</code> takes <code>w</code> time. Return the time for the signal to reach <strong>all</strong> nodes, or <code>-1</code> if some node is unreachable.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">2</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>The answer is the <strong>largest shortest-path distance</strong> from <code>k</code> — the last node the signal reaches. Shortest paths from one source in a weighted graph is exactly <strong>Dijkstra's algorithm</strong>.</p>
+          <p>Dijkstra is BFS upgraded with a <strong>priority queue</strong>: always expand the <em>closest</em> unvisited node next. When a node is popped for the first time, its distance is final — nothing cheaper can appear later, because everything still queued is already farther. Popping a node, we <strong>relax</strong> its outgoing edges: if going through it beats a neighbor's best-known distance, update and requeue.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(E log V)</div><div class="lbl">Time — each edge can push once</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(V + E)</div><div class="lbl">Space — adjacency + queue</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:.75rem;">
+          <div class="field"><label for="in-edges">edges — u,v,w ; u,v,w …</label><input id="in-edges" value="1,2,1; 1,3,4; 2,3,1; 3,4,2; 2,4,6"></div>
+          <div class="field"><label for="in-n">n (nodes)</label><input id="in-n" type="number" min="2" max="8" value="4"></div>
+          <div class="field"><label for="in-k">k (start)</label><input id="in-k" type="number" min="1" value="1"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-edges="1,2,1; 1,3,4; 2,3,1; 3,4,2; 2,4,6" data-n="4" data-k="1">relaxation demo</button>
+          <button class="preset-btn" data-edges="2,1,1; 2,3,1; 3,4,1" data-n="4" data-k="2">LC example</button>
+          <button class="preset-btn" data-edges="1,2,1" data-n="3" data-k="1">unreachable → -1</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">The network — labels under nodes show best-known distance from k</div>
+          <div id="stage-graph" style="display:flex;justify-content:center;"></div>
+          <div class="stage-label" style="margin-top:1rem;">Priority queue · (node, dist) — smallest dist pops first</div>
+          <div id="stage-pq" class="cell-row" style="justify-content:flex-start;min-height:40px;"></div>
+          <div class="stage-label" style="margin-top:1rem;">Distance table</div>
+          <div id="stage-dist" class="cell-row" style="justify-content:flex-start;min-height:40px;"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>The signal reaches every node along its shortest path, so the total delay is the largest of the shortest-path distances from the source. Dijkstra's algorithm computes exactly that. We keep a best-known distance for every node — infinity at first, zero for the source — and a priority queue that always hands us the closest unfinished node.</p>
+        <p>When a node comes off the queue for the first time, its distance is locked in: every other candidate path must pass through nodes that are already farther away, so nothing can improve it. We then relax each outgoing edge — if reaching a neighbor through this node is cheaper than its current best, we record the better distance and add the neighbor to the queue with its new price. Stale queue entries are harmless; they're skipped when popped because the node is already visited.</p>
+        <p>When the queue empties, every reachable node has a final distance. If any node is still at infinity the signal can never get there, so we return minus one; otherwise the answer is the maximum distance in the table — the arrival time at the last node the signal touches.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int networkDelayTime(int[][] times, int n, int k) {
+        Map<Integer, List<int[]>> adj = new HashMap<>();
+        for (int[] t : times) {
+            adj.computeIfAbsent(t[0], x -> new ArrayList<>())
+               .add(new int[] { t[1], t[2] });
+        }
+
+        int[] dist = new int[n + 1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[k] = 0;
+
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);
+        pq.offer(new int[] { k, 0 });
+        boolean[] visited = new boolean[n + 1];
+
+        while (!pq.isEmpty()) {
+            int[] cur = pq.poll();
+            int node = cur[0], d = cur[1];
+            if (visited[node]) continue;
+            visited[node] = true;
+
+            for (int[] next : adj.getOrDefault(node, List.of())) {
+                int nei = next[0], w = next[1];
+                if (d + w < dist[nei]) {
+                    dist[nei] = d + w;
+                    pq.offer(new int[] { nei, dist[nei] });
+                }
+            }
+        }
+
+        int max = 0;
+        for (int i = 1; i <= n; i++) {
+            if (dist[i] == Integer.MAX_VALUE) return -1;
+            max = Math.max(max, dist[i]);
+        }
+        return max;
+    }
+}`;
+
+  const INF = Infinity;
+  const fmt = (v) => (v === INF ? '∞' : v);
+
+  function parseInputs() {
+    const edges = document.getElementById('in-edges').value
+      .split(';').map(s => s.split(',').map(x => parseInt(x.trim(), 10)))
+      .filter(e => e.length === 3 && e.every(x => !isNaN(x)));
+    const n = Math.max(2, Math.min(8, parseInt(document.getElementById('in-n').value, 10) || 2));
+    document.getElementById('in-n').value = n;
+    let k = parseInt(document.getElementById('in-k').value, 10) || 1;
+    k = Math.max(1, Math.min(n, k));
+    document.getElementById('in-k').value = k;
+    return { edges: edges.filter(([u, v]) => u >= 1 && u <= n && v >= 1 && v <= n), n, k };
+  }
+
+  function buildFrames() {
+    const { edges, n, k } = parseInputs();
+    const F = [];
+    const dist = {};
+    for (let i = 1; i <= n; i++) dist[i] = INF;
+    const visited = {};
+    let pq = [];
+
+    const snap = (extra) => Object.assign({
+      edges, n, k,
+      dist: Object.assign({}, dist),
+      visited: Object.assign({}, visited),
+      pq: pq.slice().sort((a, b) => a[1] - b[1]),
+    }, extra);
+
+    F.push(snap({ line: [3, 4, 5, 6], msg: `Build the adjacency list from ${edges.length} edge(s).` }));
+
+    dist[k] = 0;
+    F.push(snap({ line: [9, 10, 11], msg: `All distances start at ∞ — except dist[${k}] = 0, the source.` }));
+
+    pq.push([k, 0]);
+    F.push(snap({ line: [13, 14], msg: `Seed the priority queue with (node ${k}, dist 0).` }));
+
+    while (pq.length) {
+      pq.sort((a, b) => a[1] - b[1]);
+      const [node, d] = pq.shift();
+
+      if (visited[node]) {
+        F.push(snap({ line: 20, msg: `Pop (${node}, ${d}) — node ${node} already finished, stale entry. Skip.`, current: node }));
+        continue;
+      }
+
+      visited[node] = true;
+      F.push(snap({ line: [18, 19, 21], msg: `Pop (${node}, ${d}) — closest unfinished node. Its distance ${d} is now FINAL.`, current: node }));
+
+      for (const [u, v, w] of edges) {
+        if (u !== node) continue;
+        const cand = d + w;
+        if (cand < dist[v]) {
+          const prev = fmt(dist[v]);
+          dist[v] = cand;
+          pq.push([v, cand]);
+          F.push(snap({ line: [26, 27], msg: `Relax ${node} → ${v} (w=${w}): ${d} + ${w} = ${cand} beats dist[${v}] = ${prev}. Update and queue (${v}, ${cand}).`, current: node, hotEdge: [u, v], relaxed: true }));
+        } else {
+          F.push(snap({ line: [24, 25], msg: `Check ${node} → ${v} (w=${w}): ${d} + ${w} = ${cand} ≥ dist[${v}] = ${fmt(dist[v])} — no improvement.`, current: node, hotEdge: [u, v] }));
+        }
+      }
+    }
+
+    const unreachable = [];
+    for (let i = 1; i <= n; i++) if (dist[i] === INF) unreachable.push(i);
+
+    if (unreachable.length) {
+      F.push(snap({ line: 34, msg: `Queue empty, but node(s) ${unreachable.join(', ')} still at ∞ — unreachable. Return -1.`, done: 'bad', answer: -1 }));
+    } else {
+      let max = 0, maxNode = k;
+      for (let i = 1; i <= n; i++) if (dist[i] > max) { max = dist[i]; maxNode = i; }
+      F.push(snap({ line: [35, 37], msg: `All nodes reached. The slowest arrival is node ${maxNode} at t = ${max}. Return ${max}.`, done: 'ok', answer: max, maxNode }));
+    }
+    return F;
+  }
+
+  function renderGraph(f) {
+    const W = 460, H = 300, cx = W / 2, cy = H / 2, R = Math.min(110, H / 2 - 40), r = 20;
+    const pos = {};
+    for (let i = 1; i <= f.n; i++) {
+      const ang = -Math.PI / 2 + (i - 1) * (2 * Math.PI / f.n);
+      pos[i] = [cx + R * Math.cos(ang), cy + R * Math.sin(ang)];
+    }
+
+    let svg = `<defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4b5673"/></marker>
+      <marker id="arr-hot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#818cf8"/></marker>
+      <marker id="arr-relax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#34d399"/></marker>
+    </defs>`;
+
+    for (const [u, v, w] of f.edges) {
+      const [x1, y1] = pos[u], [x2, y2] = pos[v];
+      const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len, uy = dy / len;
+      const sx = x1 + ux * (r + 2), sy = y1 + uy * (r + 2);
+      const ex = x2 - ux * (r + 6), ey = y2 - uy * (r + 6);
+      const isHot = f.hotEdge && f.hotEdge[0] === u && f.hotEdge[1] === v;
+      const cls = isHot ? (f.relaxed ? 'relax' : 'hot') : '';
+      const marker = isHot ? (f.relaxed ? 'arr-relax' : 'arr-hot') : 'arr';
+      svg += `<line class="wgraph-edge ${cls}" x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" marker-end="url(#${marker})"/>`;
+      const mx = (sx + ex) / 2 - uy * 11, my = (sy + ey) / 2 + ux * 11;
+      svg += `<text class="wgraph-w ${cls}" x="${mx}" y="${my + 4}">${w}</text>`;
+    }
+
+    for (let i = 1; i <= f.n; i++) {
+      const [x, y] = pos[i];
+      let cls = '';
+      if (f.done === 'ok' && i === f.maxNode) cls = 'active';
+      else if (f.done === 'bad' && f.dist[i] === INF) cls = 'bad';
+      else if (i === f.current) cls = 'active';
+      else if (f.visited[i]) cls = 'ok';
+      else if (f.dist[i] !== INF) cls = 'warn';
+      else cls = 'dim';
+      svg += `<g class="tree-node ${cls}"><circle cx="${x}" cy="${y}" r="${r}"></circle><text x="${x}" y="${y}">${i}</text></g>`;
+      svg += `<text class="tree-sub" x="${x}" y="${y + r + 14}">d=${fmt(f.dist[i])}</text>`;
+      if (i === f.k) svg += `<text class="tree-sub" x="${x}" y="${y - r - 8}" style="fill:#c7d2fe;">start</text>`;
+    }
+
+    document.getElementById('stage-graph').innerHTML =
+      `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:520px;height:auto;">${svg}</svg>`;
+  }
+
+  function render(f) {
+    renderGraph(f);
+
+    document.getElementById('stage-pq').innerHTML = f.pq.length
+      ? f.pq.map(([node, d], i) => Viz.kvChip(`n${node}`, d, i === 0 ? 'warn' : '')).join('')
+      : '<span style="color:var(--text-3);font-size:.8rem;align-self:center;">empty</span>';
+
+    document.getElementById('stage-dist').innerHTML =
+      Object.keys(f.dist).map(i =>
+        Viz.kvChip(`n${i}`, fmt(f.dist[i]),
+          f.done === 'ok' && Number(i) === f.maxNode ? 'ok'
+          : f.done === 'bad' && f.dist[i] === INF ? 'bad'
+          : f.visited[i] ? 'ok' : '')
+      ).join('');
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ` show ${f.done}` : '');
+    res.textContent = f.done === 'ok' ? `✓ signal reaches everyone at t = ${f.answer}` : f.done === 'bad' ? '✗ return -1 — network is not fully reachable' : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-edges]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-edges').value = b.dataset.edges;
+      document.getElementById('in-n').value = b.dataset.n;
+      document.getElementById('in-k').value = b.dataset.k;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

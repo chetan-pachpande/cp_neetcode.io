@@ -1,21 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>House Robber | LC 198 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>House Robber — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .formula {
+      display: flex; align-items: center; justify-content: center; gap: .55rem;
+      font-family: var(--mono); font-size: .95rem; font-weight: 700; flex-wrap: wrap;
+    }
+    .formula .op { color: var(--text-3); font-weight: 400; }
+    .formula .cell { height: 40px; font-size: .85rem; }
+    .house-emoji { position: absolute; top: -21px; left: 50%; transform: translateX(-50%); font-size: .8rem; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">House Robber | LC 198</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">1-D Dynamic Programming</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 198</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">House Robber</h1>
+      <div class="chips">
+        <span class="chip accent">Decision DP</span>
+        <span class="chip">⏱ O(n) time</span>
+        <span class="chip">💾 O(n) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Each house on a street holds <code>nums[i]</code> money. You can't rob <strong>two adjacent houses</strong> (alarms connect neighbors). Return the <strong>maximum</strong> you can rob.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">nums = [2,7,9,3,1]</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">12 &nbsp;(rob houses 0, 2, 4 → 2 + 9 + 1)</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Standing at house <code>i</code>, you face one binary decision: <strong>rob it or skip it</strong>. Skip it, and the best you can do is whatever was best up to house <code>i−1</code>. Rob it, and you're locked out of <code>i−1</code> — you get <code>nums[i]</code> plus the best up to <code>i−2</code>.</p>
+          <p>So <code>dp[i] = max(dp[i−1], dp[i−2] + nums[i])</code>. Every entry is one comparison over answers we already have. Even better: the finished table remembers <em>why</em> each choice won — walking it backwards reveals exactly <strong>which houses to rob</strong>, not just the total.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Time — one decision per house</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Space — the dp table (O(1) possible)</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div class="field"><label for="in-nums">house values (comma-separated)</label><input id="in-nums" value="2, 7, 9, 3, 1"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-nums="2, 7, 9, 3, 1">[2,7,9,3,1]</button>
+          <button class="preset-btn" data-nums="1, 2, 3, 1">[1,2,3,1]</button>
+          <button class="preset-btn" data-nums="2, 1, 1, 2">[2,1,1,2]</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">The street — 🏠 marks the current house; final frame shows who gets robbed</div>
+          <div id="stage-houses" class="cell-row has-idx" style="margin-top:24px;"></div>
+          <div class="stage-label" style="margin-top:1rem;">The decision</div>
+          <div id="stage-formula" class="formula" style="min-height:44px;"></div>
+          <div class="stage-label" style="margin-top:1rem;">dp table — best loot using houses 0..i</div>
+          <div id="stage-dp" class="cell-row has-idx"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>Define dp of i as the most money obtainable considering only the first i plus one houses. At each house the robber makes one choice. Skipping house i means the total stays at dp of i minus one. Robbing house i adds its value to dp of i minus two, because the adjacent house is now off limits. The larger of those two candidates becomes dp of i.</p>
+        <p>The base cases anchor everything: with one house you rob it, and with two you rob the richer one. After filling the table left to right, the last entry is the maximum loot. To recover the actual plan, walk the table backwards: if dp of i equals dp of i minus one, house i was skipped, so step back one; otherwise house i was robbed, so collect it and jump back two. This traceback costs nothing extra and turns an abstract number into a concrete heist plan — a technique that works for almost any dynamic program.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int rob(int[] nums) {
+        int n = nums.length;
+        if (n == 1) return nums[0];
+
+        int[] dp = new int[n];
+        dp[0] = nums[0];
+        dp[1] = Math.max(nums[0], nums[1]);
+
+        for (int i = 2; i < n; i++) {
+            int skip = dp[i - 1];
+            int robIt = dp[i - 2] + nums[i];
+            dp[i] = Math.max(skip, robIt);
+        }
+        return dp[n - 1];
+    }
+}`;
+
+  function buildFrames() {
+    const nums = document.getElementById('in-nums').value
+      .split(',').map(s => parseInt(s.trim(), 10)).filter(v => !isNaN(v) && v >= 0);
+    const n = nums.length;
+    const F = [];
+    const dp = new Array(n).fill(null);
+    const base = { nums, phase: 'fill' };
+
+    if (n === 0) return [Object.assign({ line: 3, msg: 'No houses — nothing to rob.', dp: [], done: 'ok', answer: 0, robbed: [] }, base)];
+
+    if (n === 1) {
+      dp[0] = nums[0];
+      F.push(Object.assign({ line: 4, msg: `Only one house — rob it. Return ${nums[0]}.`, dp: dp.slice(), done: 'ok', answer: nums[0], robbed: [0], phase: 'done' }, base));
+      return F;
+    }
+
+    F.push(Object.assign({ line: 6, msg: `Create a dp table for ${n} houses. dp[i] = best loot using houses 0..i.`, dp: dp.slice() }, base));
+
+    dp[0] = nums[0];
+    F.push(Object.assign({ line: 7, msg: `Base case: dp[0] = ${nums[0]} — only house 0 exists, rob it.`, dp: dp.slice(), justSet: 0, i: 0 }, base));
+    dp[1] = Math.max(nums[0], nums[1]);
+    F.push(Object.assign({ line: 8, msg: `Base case: dp[1] = max(${nums[0]}, ${nums[1]}) = ${dp[1]} — rob the richer of the first two.`, dp: dp.slice(), justSet: 1, i: 1 }, base));
+
+    for (let i = 2; i < n; i++) {
+      const skip = dp[i - 1];
+      const robIt = dp[i - 2] + nums[i];
+      F.push(Object.assign({
+        line: [11, 12],
+        msg: `House ${i} ($${nums[i]}): skip keeps ${skip}; robbing yields ${dp[i - 2]} + ${nums[i]} = ${robIt}.`,
+        dp: dp.slice(), i, skip, robIt, dep1: i - 1, dep2: i - 2,
+      }, base));
+
+      dp[i] = Math.max(skip, robIt);
+      F.push(Object.assign({
+        line: 13,
+        msg: `dp[${i}] = max(${skip}, ${robIt}) = ${dp[i]} — ${robIt > skip ? `rob house ${i}` : `skip house ${i}`}.`,
+        dp: dp.slice(), i, skip, robIt, dep1: i - 1, dep2: i - 2, justSet: i, winner: robIt > skip ? 'rob' : 'skip',
+      }, base));
+    }
+
+    F.push(Object.assign({ line: 15, msg: `Table full — maximum loot is dp[${n - 1}] = ${dp[n - 1]}. Now trace back to find WHICH houses.`, dp: dp.slice() }, base));
+
+    // traceback: recover the actual set of robbed houses
+    const robbed = [];
+    let i = n - 1;
+    while (i >= 0) {
+      if (i === 0) {
+        robbed.unshift(0);
+        F.push(Object.assign({ line: 15, msg: `Reached house 0 — it was robbed. Collect $${nums[0]}.`, dp: dp.slice(), phase: 'trace', traceIdx: 0, robbed: robbed.slice() }, base, { phase: 'trace' }));
+        break;
+      }
+      if (dp[i] === dp[i - 1]) {
+        F.push(Object.assign({ line: 15, msg: `dp[${i}] equals dp[${i - 1}] — house ${i} was skipped. Step back one.`, dp: dp.slice(), traceIdx: i, robbed: robbed.slice() }, base, { phase: 'trace' }));
+        i -= 1;
+      } else {
+        robbed.unshift(i);
+        F.push(Object.assign({ line: 15, msg: `dp[${i}] beats dp[${i - 1}] — house ${i} was robbed! Collect $${nums[i]}, jump back two.`, dp: dp.slice(), traceIdx: i, robbed: robbed.slice() }, base, { phase: 'trace' }));
+        i -= 2;
+      }
+    }
+
+    F.push(Object.assign({
+      line: 15,
+      msg: `Heist plan: rob house${robbed.length === 1 ? '' : 's'} ${robbed.join(', ')} for a total of ${dp[n - 1]}.`,
+      dp: dp.slice(), robbed: robbed.slice(), done: 'ok', answer: dp[n - 1],
+    }, base, { phase: 'done' }));
+    return F;
+  }
+
+  function render(f) {
+    const robbed = f.robbed || [];
+
+    document.getElementById('stage-houses').innerHTML = f.nums.map((v, idx) => {
+      let cls = '';
+      if (f.phase === 'done') cls = robbed.includes(idx) ? 'ok' : 'dim';
+      else if (f.phase === 'trace') cls = robbed.includes(idx) ? 'ok' : idx === f.traceIdx ? 'active' : '';
+      else if (idx === f.i) cls = 'active';
+      const emoji = (f.phase === 'fill' && idx === f.i) ? '<span class="house-emoji">🏠</span>' :
+                    (f.phase === 'done' && robbed.includes(idx)) ? '<span class="house-emoji">💰</span>' : '';
+      return `<div class="cell ${cls}">${emoji}${v}<span class="idx">${idx}</span></div>`;
+    }).join('');
+
+    const fx = document.getElementById('stage-formula');
+    if (f.skip != null) {
+      const skipWon = f.winner === 'skip';
+      const robWon = f.winner === 'rob';
+      fx.innerHTML = `
+        <div class="cell ${f.justSet != null ? 'ok' : 'active'}">dp[${f.i}]${f.justSet != null ? ' = ' + f.dp[f.i] : ''}</div>
+        <span class="op">=</span>
+        <span class="op">max(</span>
+        <div class="cell ${skipWon ? 'ok' : 'warn'}">skip: ${f.skip}</div>
+        <span class="op">,</span>
+        <div class="cell ${robWon ? 'ok' : ''}" style="border-color:rgba(34,211,238,.5);${robWon ? '' : 'color:#67e8f9;'}">rob: ${f.dp[f.dep2]} + ${f.nums[f.i]} = ${f.robIt}</div>
+        <span class="op">)</span>`;
+    } else {
+      fx.innerHTML = '<span style="color:var(--text-3);font-size:.85rem;">dp[i] = max( dp[i−1] , dp[i−2] + nums[i] )</span>';
+    }
+
+    document.getElementById('stage-dp').innerHTML = f.dp.map((v, idx) => {
+      let cls = v == null ? 'dim' : '';
+      if (f.phase === 'trace' || f.phase === 'done') cls = idx === f.traceIdx ? 'active' : '';
+      else if (f.justSet === idx) cls = 'ok pop';
+      else if (idx === f.dep1 && v != null) cls = 'warn';
+      return `<div class="cell ${cls}">${v == null ? '·' : v}<span class="idx">${idx}</span></div>`;
+    }).join('');
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? `✓ max loot = ${f.answer} — rob house${(f.robbed || []).length === 1 ? '' : 's'} [${(f.robbed || []).join(', ')}]` : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-nums]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-nums').value = b.dataset.nums;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

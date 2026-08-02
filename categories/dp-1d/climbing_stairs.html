@@ -1,21 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Climbing Stairs | LC 70 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Climbing Stairs — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    /* staircase: cells rise left-to-right so the metaphor is visible */
+    .stair-row { display: flex; align-items: flex-end; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .stair { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .stair .step-no { font-family: var(--mono); font-size: .65rem; color: var(--text-3); }
+    .formula {
+      display: flex; align-items: center; justify-content: center; gap: .6rem;
+      font-family: var(--mono); font-size: 1.05rem; font-weight: 700; flex-wrap: wrap;
+    }
+    .formula .op { color: var(--text-3); font-weight: 400; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Climbing Stairs | LC 70</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">1-D Dynamic Programming</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 70</span>
+      <span class="chip easy">Easy</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Climbing Stairs</h1>
+      <div class="chips">
+        <span class="chip accent">Bottom-up DP</span>
+        <span class="chip">⏱ O(n) time</span>
+        <span class="chip">💾 O(n) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>You are climbing a staircase with <code>n</code> steps. Each move you climb <strong>1 or 2 steps</strong>. How many <strong>distinct ways</strong> can you reach the top?</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">n = 3</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">3 &nbsp;(1+1+1, 1+2, 2+1)</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Think about the <strong>last move</strong> that lands you on step <code>i</code>: it was either a 1-step hop from <code>i−1</code> or a 2-step hop from <code>i−2</code>. Those are the only options, and they never overlap.</p>
+          <p>So the number of ways to reach step <code>i</code> is exactly <code>dp[i−1] + dp[i−2]</code> — the Fibonacci recurrence in disguise. Solve the tiny cases by hand (<code>dp[1] = 1</code>, <code>dp[2] = 2</code>), then each new answer is one addition using answers we already computed. That's the whole essence of dynamic programming: <strong>solve small, reuse, build up</strong>.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Time — one addition per step</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Space — the dp table (O(1) possible)</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div class="field" style="max-width:180px;"><label for="in-n">n (1–14)</label><input id="in-n" type="number" min="1" max="14" value="5"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-n="3">n = 3</button>
+          <button class="preset-btn" data-n="5">n = 5</button>
+          <button class="preset-btn" data-n="10">n = 10</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Recurrence</div>
+          <div id="stage-formula" class="formula" style="min-height:44px;"></div>
+          <div class="stage-label" style="margin-top:1.1rem;">The staircase — each step shows dp[i] = ways to reach it</div>
+          <div id="stage-stairs" class="stair-row"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>The key question in any dynamic programming problem is: what does the answer to a big case look like in terms of smaller cases? Here, every way of reaching step i ends with either a single step from i minus one, or a double step from i minus two. Since those two groups can't overlap and cover every possibility, the count for step i is simply the sum of the counts for the two steps below it.</p>
+        <p>We anchor the recurrence with the trivial cases — one way to reach step one, two ways to reach step two — and then fill the table upward, each entry costing one addition. The final entry is the answer. This is the Fibonacci sequence wearing a staircase costume, and because each entry only ever looks back two slots, the table can even be replaced by two rolling variables for constant space.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int climbStairs(int n) {
+        if (n <= 2) return n;
+
+        int[] dp = new int[n + 1];
+        dp[1] = 1;
+        dp[2] = 2;
+
+        for (int i = 3; i <= n; i++) {
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+        return dp[n];
+    }
+}`;
+
+  function buildFrames() {
+    const n = Math.max(1, Math.min(14, parseInt(document.getElementById('in-n').value, 10) || 1));
+    document.getElementById('in-n').value = n;
+    const F = [];
+    const dp = new Array(n + 1).fill(null);
+
+    if (n <= 2) {
+      dp[n] = n;
+      F.push({ line: 3, msg: `n = ${n} is a base case — ${n} way${n === 1 ? '' : 's'}. Return ${n}.`, n, dp: dp.slice(), done: 'ok', answer: n });
+      return F;
+    }
+
+    F.push({ line: 5, msg: `Create a dp table for steps 1..${n}. dp[i] = number of ways to reach step i.`, n, dp: dp.slice() });
+
+    dp[1] = 1;
+    F.push({ line: 6, msg: 'Base case: dp[1] = 1 — one way to reach step 1 (a single hop).', n, dp: dp.slice(), justSet: 1 });
+    dp[2] = 2;
+    F.push({ line: 7, msg: 'Base case: dp[2] = 2 — (1+1) or (2).', n, dp: dp.slice(), justSet: 2 });
+
+    for (let i = 3; i <= n; i++) {
+      F.push({
+        line: 9,
+        msg: `Step ${i}: the last hop came from step ${i - 1} or step ${i - 2}.`,
+        n, dp: dp.slice(), i, dep1: i - 1, dep2: i - 2,
+      });
+      dp[i] = dp[i - 1] + dp[i - 2];
+      F.push({
+        line: 10,
+        msg: `dp[${i}] = dp[${i - 1}] + dp[${i - 2}] = ${dp[i - 1]} + ${dp[i - 2]} = ${dp[i]}.`,
+        n, dp: dp.slice(), i, dep1: i - 1, dep2: i - 2, justSet: i,
+      });
+    }
+
+    F.push({ line: 12, msg: `Table full — there are ${dp[n]} distinct ways to climb ${n} steps. Return dp[${n}] = ${dp[n]}.`, n, dp: dp.slice(), done: 'ok', answer: dp[n] });
+    return F;
+  }
+
+  function render(f) {
+    const fx = document.getElementById('stage-formula');
+    if (f.i != null) {
+      fx.innerHTML = `
+        <div class="cell ${f.justSet === f.i ? 'ok' : 'active'}" style="height:40px;">dp[${f.i}]${f.justSet === f.i ? ' = ' + f.dp[f.i] : ''}</div>
+        <span class="op">=</span>
+        <div class="cell warn" style="height:40px;">dp[${f.dep1}] = ${f.dp[f.dep1]}</div>
+        <span class="op">+</span>
+        <div class="cell" style="height:40px;border-color:rgba(34,211,238,.5);color:#67e8f9;">dp[${f.dep2}] = ${f.dp[f.dep2]}</div>`;
+    } else {
+      fx.innerHTML = '<span style="color:var(--text-3);font-size:.85rem;">dp[i] = dp[i−1] + dp[i−2]</span>';
+    }
+
+    const stairs = document.getElementById('stage-stairs');
+    let html = '';
+    for (let s = 1; s <= f.n; s++) {
+      const v = f.dp[s];
+      let cls = v == null ? 'dim' : '';
+      if (f.done) cls = s === f.n ? 'ok' : 'dim';
+      else if (f.justSet === s) cls = 'ok pop';
+      else if (s === f.i) cls = 'active';
+      else if (s === f.dep1) cls = 'warn';
+      else if (s === f.dep2) cls = '';
+      // staircase rise: each step sits a little higher
+      const lift = Math.min((s - 1) * 7, 90);
+      html += `
+        <div class="stair" style="margin-bottom:${lift}px;">
+          <div class="cell ${cls}" style="min-width:46px;height:46px;">${v == null ? '·' : v}</div>
+          <span class="step-no">step ${s}</span>
+        </div>`;
+    }
+    stairs.innerHTML = html;
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? `✓ ${f.answer} distinct ways` : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-n]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-n').value = b.dataset.n;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

@@ -1,21 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Number of Connected Components in an Undirected Graph | LC 323 (Premium) Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number of Connected Components — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Number of Connected Components in an Undirected Graph | LC 323 (Premium)</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Graphs</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 323</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+    <header class="phero">
+      <h1 class="grad-text">Number of Connected Components</h1>
+      <div class="chips"><span class="chip accent">Union-Find</span><span class="chip">⏱ O(E α(V)) time</span><span class="chip">💾 O(V) space</span></div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card"><h2 class="card-title"><span class="dot"></span>Problem</h2><div class="prose-dark"><p>Given <code>n</code> nodes and undirected edges, return the number of connected components.</p><div class="example-box"><div><span class="lbl">Input:</span> <span class="val">n = 5, edges = [[0,1],[1,2],[3,4]]</span></div><div><span class="lbl">Output:</span> <span class="val">2</span></div></div></div></section>
+      <section class="card"><h2 class="card-title"><span class="dot"></span>Intuition</h2><div class="prose-dark"><p>Start with every node as its own island. Every edge that joins two different islands reduces the component count by one.</p><p>If an edge connects nodes already in the same component, it does not change the count.</p><div class="complexity-grid"><div class="complexity-item"><div class="big grad-text">O(E α(V))</div><div class="lbl">Time — union each edge</div></div><div class="complexity-item"><div class="big grad-text">O(V)</div><div class="lbl">Space — parent array</div></div></div></div></section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card"><h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2><div id="code-panel" class="code-panel"></div></section>
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;"><div class="field"><label for="in-n">n</label><input id="in-n" type="number" value="5"></div><div class="field"><label for="in-edges">edges</label><input id="in-edges" value="0-1,1-2,3-4"></div></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;"><button id="run-btn" class="btn-primary">▶ Run</button><span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span><button class="preset-btn" data-n="5" data-edges="0-1,1-2,3-4">two groups</button><button class="preset-btn" data-n="5" data-edges="0-1,1-2,2-3,3-4">one group</button><button class="preset-btn" data-n="6" data-edges="0-1,2-3,4-5">three pairs</button></div>
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+        <div class="viz-stage" style="margin-top:1rem;"><div class="stage-label">Components merging</div><div id="stage-graph" class="graph-stage"></div><div class="state-grid"><div class="state-tile"><div class="k">Components</div><div id="state-count" class="v">0</div></div><div class="state-tile"><div class="k">Current edge</div><div id="state-edge" class="v">-</div></div></div><div id="result" class="result-banner"></div></div>
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap"><h2 class="card-title"><span class="dot"></span>Execution Log</h2><div id="log-panel" class="log-panel"></div></section>
+    <section class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2><button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button></div><div id="narration" class="prose-dark"><p>Union-Find makes component counting visual: every node starts alone. Each successful union ties two separate groups together and lowers the count. Failed unions mean the edge stayed inside an existing group.</p></div></section>
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int countComponents(int n, int[][] edges) {
+        int[] parent = new int[n];
+        for (int i = 0; i < n; i++) parent[i] = i;
+        int count = n;
+
+        for (int[] e : edges) {
+            int a = find(parent, e[0]);
+            int b = find(parent, e[1]);
+            if (a != b) {
+                parent[a] = b;
+                count--;
+            }
+        }
+        return count;
+    }
+
+    private int find(int[] parent, int x) {
+        if (parent[x] != x) parent[x] = find(parent, parent[x]);
+        return parent[x];
+    }
+}`;
+  function parseEdges(){return document.getElementById('in-edges').value.split(',').map(s=>s.trim()).filter(Boolean).map(p=>p.split('-').map(x=>parseInt(x.trim(),10))).filter(e=>e.length===2&&e.every(Number.isFinite));}
+  function find(p,x){while(p[x]!==x)x=p[x];return x;}
+  function edgeKey(a,b){return a<b?`${a}-${b}`:`${b}-${a}`;}
+  function buildFrames(){const n=parseInt(document.getElementById('in-n').value,10)||0,edges=parseEdges(),parent=Array.from({length:n},(_,i)=>i),accepted=new Set(),F=[];let count=n;const snap=(line,msg,extra)=>F.push(Object.assign({line,msg,n,edges,parent:parent.slice(),accepted:new Set(accepted),count},extra||{}));snap(4,`Start with ${n} separate components.`);for(const [u,v] of edges){snap(7,`Inspect edge ${u} - ${v}.`,{activeEdge:edgeKey(u,v),active:[u,v]});const ru=find(parent,u),rv=find(parent,v);snap([8,9],`Roots: ${u} → ${ru}, ${v} → ${rv}.`,{active:[ru,rv],activeEdge:edgeKey(u,v)});if(ru!==rv){parent[ru]=rv;count--;accepted.add(edgeKey(u,v));snap([10,11],`Merge groups. Component count drops to ${count}.`,{active:[u,v],activeEdge:edgeKey(u,v)});}else{snap(9,`Already connected, count stays ${count}.`,{active:[u,v],activeEdge:edgeKey(u,v)});}}snap(14,`Return ${count} connected component${count===1?'':'s'}.`,{done:'ok'});return F;}
+  function positions(n){const pos=[],cx=290,cy=150,r=Math.min(108,45+n*8);for(let i=0;i<n;i++){const a=-Math.PI/2+2*Math.PI*i/Math.max(n,1);pos[i]={x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r};}return pos;}
+  function renderGraph(f){const pos=positions(f.n);let svg='<svg class="graph-svg" viewBox="0 0 580 300">';f.edges.forEach(([u,v])=>{const k=edgeKey(u,v),p=pos[u],q=pos[v];svg+=`<line class="graph-edge ${f.activeEdge===k?'active':f.accepted.has(k)?'ok':''}" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`;});for(let i=0;i<f.n;i++){const p=pos[i],root=find(f.parent.slice(),i),cls=f.active&&f.active.includes(i)?'active':root===i?'ok':'warn';svg+=`<g class="graph-node ${cls}"><circle cx="${p.x}" cy="${p.y}" r="20"></circle><text x="${p.x}" y="${p.y}">${i}</text></g>`;}svg+='</svg>';document.getElementById('stage-graph').innerHTML=svg;}
+  function render(f){renderGraph(f);document.getElementById('state-count').textContent=f.count;document.getElementById('state-edge').textContent=f.activeEdge||'-';const res=document.getElementById('result');res.className='result-banner'+(f.done?' show ok':'');res.textContent=f.done?`✓ ${f.count} component${f.count===1?'':'s'}`:'';}
+  const viz=Viz.init({code:JAVA,buildFrames,render});document.getElementById('run-btn').addEventListener('click',()=>viz.run());document.querySelectorAll('.preset-btn[data-n]').forEach(b=>b.addEventListener('click',()=>{document.getElementById('in-n').value=b.dataset.n;document.getElementById('in-edges').value=b.dataset.edges;viz.run();}));document.getElementById('narrate-btn').addEventListener('click',function(){if(speechSynthesis.speaking){speechSynthesis.cancel();this.textContent='🔊 Narrate';return;}const u=new SpeechSynthesisUtterance(document.getElementById('narration').innerText);u.onend=()=>this.textContent='🔊 Narrate';this.textContent='⏹ Stop';speechSynthesis.speak(u);});viz.run();
+  </script>
 </body>
 </html>

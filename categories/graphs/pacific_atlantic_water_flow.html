@@ -1,21 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacific Atlantic Water Flow | LC 417 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pacific Atlantic Water Flow — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .height-tile { position: relative; width: 100%; height: 100%; display: grid; place-items: center; }
+    .height-tile .terrain-art { position: absolute; inset: 5px; width: 34px; height: 34px; opacity: 0.78; }
+    .height-tile .h { position: relative; z-index: 2; font-family: var(--mono); font-weight: 900; }
+    .ocean-badges { position: absolute; right: 3px; bottom: 2px; display: flex; gap: 2px; z-index: 3; }
+    .ocean-badge { width: 13px; height: 13px; border-radius: 99px; display: grid; place-items: center; font-size: 8px; font-weight: 900; color: #06111f; }
+    .ocean-badge.p { background: #38bdf8; }
+    .ocean-badge.a { background: #34d399; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Pacific Atlantic Water Flow | LC 417</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Graphs</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 417</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+    <header class="phero">
+      <h1 class="grad-text">Pacific Atlantic Water Flow</h1>
+      <div class="chips">
+        <span class="chip accent">Reverse DFS from oceans</span>
+        <span class="chip">⏱ O(mn) time</span>
+        <span class="chip">💾 O(mn) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Water can flow from a cell to adjacent cells with height less than or equal to the current height. Return all coordinates where water can flow to both the Pacific and Atlantic oceans.</p>
+          <p>The Pacific touches the top and left edges. The Atlantic touches the bottom and right edges.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:</span> <span class="val">1,2,2,3,5 / 3,2,3,4,4 / 2,4,5,3,1 / 6,7,1,4,5 / 5,1,1,2,4</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">cells reachable by both oceans</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Checking every cell by flowing downhill to oceans is repetitive. Reverse the direction: start from each ocean edge and climb uphill or flat.</p>
+          <p>If an ocean can climb from its edge to a cell, then water from that cell can flow back down to that ocean. Intersect Pacific-reachable and Atlantic-reachable cells.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(mn)</div><div class="lbl">Time — two flood fills</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(mn)</div><div class="lbl">Space — two visited sets</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+        <div class="field"><label for="in-heights">height rows — comma rows separated by /</label><input id="in-heights" value="1,2,2,3,5/3,2,3,4,4/2,4,5,3,1/6,7,1,4,5/5,1,1,2,4"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-heights="1,2,2,3,5/3,2,3,4,4/2,4,5,3,1/6,7,1,4,5/5,1,1,2,4">classic</button>
+          <button class="preset-btn" data-heights="1">single</button>
+          <button class="preset-btn" data-heights="10,10,10/10,1,10/10,10,10">basin</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Reverse ocean reachability</div>
+          <div id="stage-grid" class="matrix-grid"></div>
+          <div class="state-grid">
+            <div class="state-tile"><div class="k">Pacific reach</div><div id="state-p" class="v">0</div></div>
+            <div class="state-tile"><div class="k">Atlantic reach</div><div id="state-a" class="v">0</div></div>
+            <div class="state-tile"><div class="k">Both oceans</div><div id="state-both" class="v">0</div></div>
+          </div>
+          <div id="result" class="result-banner"></div>
+        </div>
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>The trick is reversing the flow. Instead of dropping water from every mountain cell and asking whether it reaches an ocean, we let each ocean climb inward. From an ocean edge, the search may move to a neighbor only when that neighbor is at least as tall as the current cell.</p>
+        <p>That reversed move means water could flow downhill from the neighbor back to the ocean. After running this search from Pacific edges and Atlantic edges, cells marked by both searches are exactly the answer.</p>
+      </div>
+    </section>
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public List<List<Integer>> pacificAtlantic(int[][] heights) {
+        int rows = heights.length, cols = heights[0].length;
+        boolean[][] pac = new boolean[rows][cols];
+        boolean[][] atl = new boolean[rows][cols];
+
+        for (int r = 0; r < rows; r++) {
+            dfs(heights, pac, r, 0, heights[r][0]);
+            dfs(heights, atl, r, cols - 1, heights[r][cols - 1]);
+        }
+        for (int c = 0; c < cols; c++) {
+            dfs(heights, pac, 0, c, heights[0][c]);
+            dfs(heights, atl, rows - 1, c, heights[rows - 1][c]);
+        }
+
+        List<List<Integer>> res = new ArrayList<>();
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                if (pac[r][c] && atl[r][c]) res.add(Arrays.asList(r, c));
+            }
+        }
+        return res;
+    }
+
+    private void dfs(int[][] h, boolean[][] seen, int r, int c, int prev) {
+        if (r < 0 || c < 0 || r == h.length || c == h[0].length) return;
+        if (seen[r][c] || h[r][c] < prev) return;
+        seen[r][c] = true;
+        dfs(h, seen, r + 1, c, h[r][c]);
+        dfs(h, seen, r - 1, c, h[r][c]);
+        dfs(h, seen, r, c + 1, h[r][c]);
+        dfs(h, seen, r, c - 1, h[r][c]);
+    }
+}`;
+
+  function parseHeights() {
+    return document.getElementById('in-heights').value.split('/').map(row =>
+      row.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n))
+    ).filter(r => r.length);
+  }
+  function key(r, c) { return `${r},${c}`; }
+  function countBoth(pac, atl) { let n = 0; pac.forEach(k => { if (atl.has(k)) n++; }); return n; }
+  function terrainArt(reachesPacific, reachesAtlantic) {
+    const fill = reachesPacific && reachesAtlantic ? '#10b981' : reachesPacific ? '#0ea5e9' : reachesAtlantic ? '#22c55e' : '#64748b';
+    return `<svg class="terrain-art" viewBox="0 0 36 36" aria-hidden="true">
+      <rect x="3" y="6" width="30" height="24" rx="8" fill="${fill}" opacity="0.22"/>
+      <path d="M6 27l7-11 5 7 5-10 7 14H6Z" fill="${fill}" opacity="0.68"/>
+      <path d="M7 27c5-4 8 4 12 0s7 3 11 0" fill="none" stroke="#bfdbfe" stroke-width="1.8" stroke-linecap="round" opacity="0.85"/>
+    </svg>`;
+  }
+
+  function buildFrames() {
+    const heights = parseHeights();
+    const rows = heights.length, cols = rows ? heights[0].length : 0;
+    const pac = new Set(), atl = new Set();
+    const F = [];
+    const snap = (line, msg, extra) => F.push(Object.assign({ line, msg, heights, pac: new Set(pac), atl: new Set(atl) }, extra || {}));
+    snap(4, `Create Pacific and Atlantic reachability grids for ${rows} x ${cols} heights.`);
+
+    function dfs(seen, ocean, r, c, prev, line) {
+      snap(25, `${ocean} DFS(${r}, ${c}) tries to climb from height ${prev}.`, { active: [r, c], ocean });
+      if (r < 0 || c < 0 || r >= rows || c >= cols) return;
+      const k = key(r, c);
+      snap(26, `Cell (${r}, ${c}) has height ${heights[r][c]}; ${seen.has(k) ? 'already reached' : 'not reached yet'}.`, { active: [r, c], ocean });
+      if (seen.has(k) || heights[r][c] < prev) return;
+      seen.add(k);
+      snap(27, `${ocean} can reach (${r}, ${c}).`, { active: [r, c], ocean, reached: [r, c], line });
+      dfs(seen, ocean, r + 1, c, heights[r][c], line);
+      dfs(seen, ocean, r - 1, c, heights[r][c], line);
+      dfs(seen, ocean, r, c + 1, heights[r][c], line);
+      dfs(seen, ocean, r, c - 1, heights[r][c], line);
+    }
+
+    for (let r = 0; r < rows; r++) {
+      snap(7, `Seed Pacific from left edge row ${r}.`, { active: [r, 0], ocean: 'Pacific' });
+      dfs(pac, 'Pacific', r, 0, heights[r][0], 8);
+      snap(8, `Seed Atlantic from right edge row ${r}.`, { active: [r, cols - 1], ocean: 'Atlantic' });
+      dfs(atl, 'Atlantic', r, cols - 1, heights[r][cols - 1], 9);
+    }
+    for (let c = 0; c < cols; c++) {
+      snap(11, `Seed Pacific from top edge column ${c}.`, { active: [0, c], ocean: 'Pacific' });
+      dfs(pac, 'Pacific', 0, c, heights[0][c], 12);
+      snap(12, `Seed Atlantic from bottom edge column ${c}.`, { active: [rows - 1, c], ocean: 'Atlantic' });
+      dfs(atl, 'Atlantic', rows - 1, c, heights[rows - 1][c], 13);
+    }
+    const both = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      snap([17, 18], `Check whether (${r}, ${c}) can reach both oceans.`, { active: [r, c] });
+      if (pac.has(key(r, c)) && atl.has(key(r, c))) {
+        both.push([r, c]);
+        snap(19, `Cell (${r}, ${c}) reaches both oceans. Add it to the answer.`, { active: [r, c], bothCell: [r, c] });
+      }
+    }
+    snap(22, `Return ${both.length} coordinate${both.length === 1 ? '' : 's'}.`, { done: 'ok', answer: both });
+    return F;
+  }
+
+  function render(f) {
+    const rows = f.heights.length, cols = rows ? f.heights[0].length : 0;
+    const active = f.active ? key(f.active[0], f.active[1]) : '';
+    const bothCount = countBoth(f.pac, f.atl);
+    const cells = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const k = key(r, c);
+      let cls = f.pac.has(k) && f.atl.has(k) ? 'ok' : f.pac.has(k) || f.atl.has(k) ? 'warn' : '';
+      if (k === active) cls += ' active';
+      const reachesPacific = f.pac.has(k), reachesAtlantic = f.atl.has(k);
+      const badges = `<span class="ocean-badges">${reachesPacific ? '<span class="ocean-badge p">P</span>' : ''}${reachesAtlantic ? '<span class="ocean-badge a">A</span>' : ''}</span>`;
+      cells.push(`<div class="matrix-cell ${cls}"><div class="height-tile">${terrainArt(reachesPacific, reachesAtlantic)}<span class="h">${f.heights[r][c]}</span>${badges}</div></div>`);
+    }
+    const mount = document.getElementById('stage-grid');
+    mount.style.gridTemplateColumns = `repeat(${cols || 1}, 44px)`;
+    mount.innerHTML = cells.join('');
+    document.getElementById('state-p').textContent = f.pac.size;
+    document.getElementById('state-a').textContent = f.atl.size;
+    document.getElementById('state-both').textContent = bothCount;
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? `✓ ${f.answer.length} cells reach both oceans` : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-heights]').forEach(b => b.addEventListener('click', () => { document.getElementById('in-heights').value = b.dataset.heights; viz.run(); }));
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+  viz.run();
+  </script>
 </body>
 </html>

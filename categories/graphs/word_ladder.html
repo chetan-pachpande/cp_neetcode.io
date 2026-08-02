@@ -1,21 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Ladder | LC 127 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Ladder — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .word-card { min-width: 72px; height: 44px; border-radius: .7rem; border:1px solid var(--border); background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:900; letter-spacing:.04em; }
+    .word-card.active { border-color:var(--indigo); background:rgba(129,140,248,.22); box-shadow:0 0 20px rgba(129,140,248,.28); }
+    .word-card.ok { border-color:var(--ok); background:rgba(52,211,153,.18); color:#a7f3d0; }
+    .word-card.warn { border-color:var(--warn); background:rgba(251,191,36,.14); color:#fde68a; }
+    .ladder-arrow { color:var(--text-3); font-weight:900; align-self:center; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Word Ladder | LC 127</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
-    </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+<body>
+  <nav class="topbar"><a class="back-link" href="../../index.html">← All Problems</a><span style="color:var(--text-3);font-size:.85rem;">Graphs</span><span style="margin-left:auto;display:flex;gap:.5rem;"><span class="chip accent">LC 127</span><span class="chip hard">Hard</span></span></nav>
+  <div class="pwrap">
+    <header class="phero"><h1 class="grad-text">Word Ladder</h1><div class="chips"><span class="chip accent">BFS shortest path</span><span class="chip">⏱ O(N · L · 26) time</span><span class="chip">💾 O(N) space</span></div></header>
+    <div class="grid2">
+      <section class="card"><h2 class="card-title"><span class="dot"></span>Problem</h2><div class="prose-dark"><p>Transform <code>beginWord</code> into <code>endWord</code> by changing one letter at a time, where every intermediate word must be in the word list. Return the shortest transformation length.</p><div class="example-box"><div><span class="lbl">Input:</span> <span class="val">hit → cog, words = [hot,dot,dog,lot,log,cog]</span></div><div><span class="lbl">Output:</span> <span class="val">5</span></div></div></div></section>
+      <section class="card"><h2 class="card-title"><span class="dot"></span>Intuition</h2><div class="prose-dark"><p>Each word is a room. A doorway exists between two words that differ by exactly one letter. We need the shortest route from begin to end, so BFS is the natural tool.</p><p>Each BFS layer is one transformation length. The first time we see the end word, that layer gives the shortest ladder.</p><div class="complexity-grid"><div class="complexity-item"><div class="big grad-text">O(NL26)</div><div class="lbl">Time — generate neighbors</div></div><div class="complexity-item"><div class="big grad-text">O(N)</div><div class="lbl">Space — queue and visited</div></div></div></div></section>
+    </div>
+    <div class="gridmain">
+      <section class="card"><h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2><div id="code-panel" class="code-panel"></div></section>
+      <section class="card"><h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;"><div class="field"><label for="in-begin">beginWord</label><input id="in-begin" value="hit"></div><div class="field"><label for="in-end">endWord</label><input id="in-end" value="cog"></div></div>
+        <div class="field" style="margin-top:.75rem;"><label for="in-words">wordList</label><input id="in-words" value="hot,dot,dog,lot,log,cog"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;"><button id="run-btn" class="btn-primary">▶ Run</button><span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span><button class="preset-btn" data-begin="hit" data-end="cog" data-words="hot,dot,dog,lot,log,cog">classic</button><button class="preset-btn" data-begin="hit" data-end="cog" data-words="hot,dot,dog,lot,log">missing end</button><button class="preset-btn" data-begin="lost" data-end="cost" data-words="most,fist,lost,cost,fish">short</button></div>
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+        <div class="viz-stage" style="margin-top:1rem;"><div class="stage-label">Current ladder path</div><div id="stage-path" class="cell-row" style="min-height:48px;"></div><div class="stage-label" style="margin-top:1rem;">BFS frontier</div><div id="stage-frontier" class="cell-row" style="min-height:48px;"></div><div class="stage-label" style="margin-top:1rem;">Dictionary</div><div id="stage-dict" class="cell-row" style="min-height:48px;"></div><div id="result" class="result-banner"></div></div>
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+    <section class="card section-gap"><h2 class="card-title"><span class="dot"></span>Execution Log</h2><div id="log-panel" class="log-panel"></div></section>
+    <section class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2><button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button></div><div id="narration" class="prose-dark"><p>Word Ladder is shortest path in an implicit graph. We do not build every edge upfront; from the current word, we try changing each character to every letter and keep only real dictionary words. BFS guarantees the first time we reach the target is the shortest transformation.</p></div></section>
   </div>
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int ladderLength(String beginWord, String endWord, List<String> wordList) {
+        Set<String> words = new HashSet<>(wordList);
+        if (!words.contains(endWord)) return 0;
+
+        Queue<String> q = new ArrayDeque<>();
+        q.offer(beginWord);
+        int length = 1;
+
+        while (!q.isEmpty()) {
+            int size = q.size();
+            for (int i = 0; i < size; i++) {
+                String word = q.poll();
+                if (word.equals(endWord)) return length;
+                char[] chars = word.toCharArray();
+                for (int j = 0; j < chars.length; j++) {
+                    char old = chars[j];
+                    for (char ch = 'a'; ch <= 'z'; ch++) {
+                        chars[j] = ch;
+                        String next = new String(chars);
+                        if (words.remove(next)) q.offer(next);
+                    }
+                    chars[j] = old;
+                }
+            }
+            length++;
+        }
+        return 0;
+    }
+}`;
+  function parseWords(){return document.getElementById('in-words').value.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);}
+  function neighbors(word, words){const out=[];for(let i=0;i<word.length;i++){for(let c=97;c<=122;c++){const next=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(next!==word&&words.has(next))out.push(next);}}return out;}
+  function buildFrames(){const begin=document.getElementById('in-begin').value.trim().toLowerCase(),end=document.getElementById('in-end').value.trim().toLowerCase(),dict=new Set(parseWords()),q=[],F=[];let length=1;const seen=new Set([begin]);const paths=new Map([[begin,[begin]]]);const snap=(line,msg,extra)=>F.push(Object.assign({line,msg,begin,end,dict:new Set(dict),q:q.slice(),seen:new Set(seen),length,path:extra&&extra.word?paths.get(extra.word)||[extra.word]:[]},extra||{}));snap(3,`Load dictionary with ${dict.size} words.`);if(!dict.has(end)){snap(4,`${end} is missing from the dictionary. Return 0.`,{done:'bad',answer:0});return F;}q.push(begin);snap(7,`Start BFS from ${begin}.`,{word:begin});while(q.length){const size=q.length;snap(10,`Layer length ${length}: explore ${size} word${size===1?'':'s'} in the frontier.`,{});for(let i=0;i<size;i++){const word=q.shift();snap(12,`Pop ${word}.`,{word,active:word});if(word===end){snap(13,`Reached ${end}. Shortest ladder length is ${length}.`,{word,done:'ok',answer:length});return F;}const ns=neighbors(word,dict);snap(16,`Generate one-letter neighbors of ${word}: ${ns.length?ns.join(', '):'none'}.`,{word,active:word,candidates:ns});for(const next of ns){dict.delete(next);seen.add(next);q.push(next);paths.set(next,(paths.get(word)||[word]).concat(next));snap(21,`${next} is a valid next word. Remove it from dictionary and enqueue it.`,{word:next,active:next});}}length++;snap(26,`Move to ladder length ${length}.`,{});}snap(28,`Queue emptied before reaching ${end}. Return 0.`,{done:'bad',answer:0});return F;}
+  function wordCard(w,cls){return `<div class="word-card ${cls||''}">${Viz.escapeHtml(w)}</div>`;}
+  function render(f){document.getElementById('stage-path').innerHTML=f.path&&f.path.length?f.path.map((w,i)=>wordCard(w,i===f.path.length-1?'active':'ok')).join('<span class="ladder-arrow">→</span>'):'<span style="color:var(--text-3);font-size:.8rem;align-self:center;">empty</span>';document.getElementById('stage-frontier').innerHTML=f.q.length?f.q.map(w=>wordCard(w,w===f.active?'active':'warn')).join(''):'<span style="color:var(--text-3);font-size:.8rem;align-self:center;">empty</span>';const words=[...new Set([f.begin,f.end,...f.seen,...f.dict])].sort();document.getElementById('stage-dict').innerHTML=words.map(w=>wordCard(w,w===f.active?'active':f.seen.has(w)?'ok':w===f.end?'warn':'')).join('');const res=document.getElementById('result');res.className='result-banner'+(f.done?` show ${f.answer?'ok':'bad'}`:'');res.textContent=f.done?(f.answer?`✓ shortest ladder length = ${f.answer}`:'✗ return 0'):'';}
+  const viz=Viz.init({code:JAVA,buildFrames,render});document.getElementById('run-btn').addEventListener('click',()=>viz.run());document.querySelectorAll('.preset-btn[data-begin]').forEach(b=>b.addEventListener('click',()=>{document.getElementById('in-begin').value=b.dataset.begin;document.getElementById('in-end').value=b.dataset.end;document.getElementById('in-words').value=b.dataset.words;viz.run();}));document.getElementById('narrate-btn').addEventListener('click',function(){if(speechSynthesis.speaking){speechSynthesis.cancel();this.textContent='🔊 Narrate';return;}const u=new SpeechSynthesisUtterance(document.getElementById('narration').innerText);u.onend=()=>this.textContent='🔊 Narrate';this.textContent='⏹ Stop';speechSynthesis.speak(u);});viz.run();
+  </script>
 </body>
 </html>

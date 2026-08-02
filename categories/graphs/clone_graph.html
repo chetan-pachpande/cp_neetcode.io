@@ -1,21 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clone Graph | LC 133 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clone Graph — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Clone Graph | LC 133</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Graphs</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 133</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+    <header class="phero">
+      <h1 class="grad-text">Clone Graph</h1>
+      <div class="chips">
+        <span class="chip accent">DFS + HashMap</span>
+        <span class="chip">⏱ O(V + E) time</span>
+        <span class="chip">💾 O(V) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Given a reference to a node in a connected undirected graph, return a deep copy of the graph.</p>
+          <p>Each node contains a value and a list of neighbor nodes. The clone must use entirely new nodes with the same connections.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:</span> <span class="val">1: [2,4], 2: [1,3], 3: [2,4], 4: [1,3]</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">deep copy of the same adjacency structure</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>A graph can contain cycles, so recursive cloning needs memory. A HashMap from original node to cloned node prevents infinite recursion and preserves shared edges.</p>
+          <p>When DFS sees a node for the first time, create its clone and store it immediately. Then recursively clone each neighbor and append those cloned neighbors to the current clone.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(V+E)</div><div class="lbl">Time — nodes and edges</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(V)</div><div class="lbl">Space — clone map</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+        <div class="field"><label for="in-graph">adjacency list — node:neighbors separated by semicolons</label><input id="in-graph" value="1:2,4;2:1,3;3:2,4;4:1,3"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-graph="1:2,4;2:1,3;3:2,4;4:1,3">cycle square</button>
+          <button class="preset-btn" data-graph="1:2,3;2:1,4;3:1,4;4:2,3">diamond</button>
+          <button class="preset-btn" data-graph="1:2;2:1,3;3:2">chain</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Original graph and cloned graph</div>
+          <div id="stage-graph" class="graph-stage"></div>
+          <div class="stage-label" style="margin-top:1rem;">Clone map · original → clone</div>
+          <div id="stage-map" class="cell-row" style="min-height:40px;"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>Clone Graph is a deep-copy problem with cycles. The map is the core idea: it records which original nodes already have cloned counterparts. That lets DFS return an existing clone when a cycle points back to a previously visited node.</p>
+        <p>For a new node, create a clone before cloning its neighbors. Storing the clone immediately is what breaks cycles. Then each neighbor is cloned recursively and added to the clone's neighbor list. By the time DFS returns to the start node, every reachable node and edge has an independent copy.</p>
+      </div>
+    </section>
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    private Map<Node, Node> clones = new HashMap<>();
+
+    public Node cloneGraph(Node node) {
+        if (node == null) return null;
+        if (clones.containsKey(node)) return clones.get(node);
+
+        Node copy = new Node(node.val);
+        clones.put(node, copy);
+
+        for (Node nei : node.neighbors) {
+            copy.neighbors.add(cloneGraph(nei));
+        }
+        return copy;
+    }
+}`;
+
+  function parseGraph() {
+    const adj = new Map();
+    document.getElementById('in-graph').value.split(';').map(s => s.trim()).filter(Boolean).forEach(part => {
+      const pieces = part.split(':');
+      const node = parseInt(pieces[0], 10);
+      if (!Number.isFinite(node)) return;
+      const neighbors = (pieces[1] || '').split(',').map(s => parseInt(s.trim(), 10)).filter(Number.isFinite);
+      adj.set(node, neighbors);
+      neighbors.forEach(n => { if (!adj.has(n)) adj.set(n, []); });
+    });
+    return new Map([...adj.entries()].sort((a, b) => a[0] - b[0]));
+  }
+
+  function edgeKey(a, b) { return a < b ? `${a}-${b}` : `${b}-${a}`; }
+
+  function buildFrames() {
+    const adj = parseGraph();
+    const nodes = [...adj.keys()];
+    const start = nodes[0] || null;
+    const cloned = new Set();
+    const cloneEdges = new Set();
+    const F = [];
+
+    const snap = (line, msg, extra) => F.push(Object.assign({
+      line, msg, adj, cloned: new Set(cloned), cloneEdges: new Set(cloneEdges), active: null, neighbor: null
+    }, extra || {}));
+
+    if (start == null) {
+      snap(5, 'Empty graph — return null.', { done: 'bad' });
+      return F;
+    }
+
+    snap(4, `Start DFS from node ${start}.`);
+
+    function dfs(node) {
+      snap(5, `cloneGraph(${node}) — node is not null.`, { active: node });
+      if (cloned.has(node)) {
+        snap(6, `Node ${node} already has a clone. Return that existing copy.`, { active: node });
+        return;
+      }
+      cloned.add(node);
+      snap([8, 9], `Create clone ${node}' and store ${node} → ${node}'.`, { active: node, created: node });
+      for (const nei of adj.get(node) || []) {
+        snap(11, `Visit neighbor ${nei} of node ${node}.`, { active: node, neighbor: nei });
+        dfs(nei);
+        cloneEdges.add(edgeKey(node, nei));
+        snap(12, `Add cloned neighbor ${nei}' to clone ${node}'.`, { active: node, neighbor: nei, edge: edgeKey(node, nei) });
+      }
+      snap(14, `All neighbors of ${node} are cloned. Return ${node}'.`, { active: node });
+    }
+
+    dfs(start);
+    snap(14, 'DFS finished — the cloned graph has all reachable nodes and edges.', { done: 'ok' });
+    return F;
+  }
+
+  function positions(nodes, cx, cy, radius) {
+    const out = new Map();
+    nodes.forEach((n, i) => {
+      const angle = -Math.PI / 2 + (Math.PI * 2 * i) / Math.max(nodes.length, 1);
+      out.set(n, { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius });
+    });
+    return out;
+  }
+
+  function renderGraph(f) {
+    const nodes = [...f.adj.keys()];
+    const left = positions(nodes, 150, 150, 88);
+    const right = positions(nodes, 430, 150, 88);
+    const originalEdges = new Set();
+    f.adj.forEach((neighbors, node) => neighbors.forEach(nei => originalEdges.add(edgeKey(node, nei))));
+    let svg = '<svg class="graph-svg" viewBox="0 0 580 300">';
+    svg += '<text x="150" y="24" fill="var(--text-3)" font-family="Inter" font-size="13" text-anchor="middle" font-weight="700">Original</text>';
+    svg += '<text x="430" y="24" fill="var(--text-3)" font-family="Inter" font-size="13" text-anchor="middle" font-weight="700">Clone</text>';
+    originalEdges.forEach(e => {
+      const [a, b] = e.split('-').map(Number);
+      const p = left.get(a), q = left.get(b);
+      svg += `<line class="graph-edge ${f.edge === e ? 'active' : ''}" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`;
+    });
+    f.cloneEdges.forEach(e => {
+      const [a, b] = e.split('-').map(Number);
+      const p = right.get(a), q = right.get(b);
+      svg += `<line class="graph-edge ${f.edge === e ? 'active' : ''}" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`;
+    });
+    nodes.forEach(n => {
+      const p = left.get(n);
+      const cls = n === f.active ? 'active' : n === f.neighbor ? 'warn' : f.cloned.has(n) ? 'ok' : '';
+      svg += `<g class="graph-node ${cls}"><circle cx="${p.x}" cy="${p.y}" r="20"></circle><text x="${p.x}" y="${p.y}">${n}</text></g>`;
+    });
+    nodes.forEach(n => {
+      const p = right.get(n);
+      const cls = !f.cloned.has(n) ? 'dim' : n === f.active ? 'active' : n === f.neighbor ? 'warn' : 'ok';
+      svg += `<g class="graph-node ${cls}"><circle cx="${p.x}" cy="${p.y}" r="20"></circle><text x="${p.x}" y="${p.y}">${n}'</text></g>`;
+    });
+    svg += '</svg>';
+    document.getElementById('stage-graph').innerHTML = svg;
+  }
+
+  function render(f) {
+    renderGraph(f);
+    document.getElementById('stage-map').innerHTML = f.cloned.size
+      ? [...f.cloned].sort((a, b) => a - b).map(n => Viz.kvChip(n, `${n}'`, n === f.created ? 'active pop' : 'ok')).join('')
+      : '<span style="color:var(--text-3);font-size:.8rem;align-self:center;">empty</span>';
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ` show ${f.done}` : '');
+    res.textContent = f.done === 'ok' ? '✓ graph cloned' : f.done === 'bad' ? 'empty graph' : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-graph]').forEach(b => b.addEventListener('click', () => {
+    document.getElementById('in-graph').value = b.dataset.graph;
+    viz.run();
+  }));
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+  viz.run();
+  </script>
 </body>
 </html>

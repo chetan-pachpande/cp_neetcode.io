@@ -1,21 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Schedule | LC 207 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Schedule — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Course Schedule | LC 207</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Graphs</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 207</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+    <header class="phero">
+      <h1 class="grad-text">Course Schedule</h1>
+      <div class="chips">
+        <span class="chip accent">Topological Sort</span>
+        <span class="chip">⏱ O(V + E) time</span>
+        <span class="chip">💾 O(V + E) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Given <code>numCourses</code> and prerequisite pairs <code>[course, prerequisite]</code>, decide if it is possible to finish all courses.</p>
+          <p>A cycle means some courses wait on each other forever, so finishing is impossible.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:</span> <span class="val">numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">true</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Think of each course as locked behind prerequisite keys. Courses with indegree <code>0</code> are unlocked and can be taken immediately.</p>
+          <p>Taking a course removes its outgoing prerequisite edges. If that unlocks another course, add it to the queue. If every course gets taken, no cycle exists.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(V+E)</div><div class="lbl">Time — process graph once</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(V+E)</div><div class="lbl">Space — adjacency + queue</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;">
+          <div class="field"><label for="in-n">numCourses</label><input id="in-n" type="number" value="4"></div>
+          <div class="field"><label for="in-prereq">pairs [course, prerequisite]</label><input id="in-prereq" value="1-0,2-0,3-1,3-2"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-n="4" data-prereq="1-0,2-0,3-1,3-2">possible</button>
+          <button class="preset-btn" data-n="2" data-prereq="1-0,0-1">cycle</button>
+          <button class="preset-btn" data-n="6" data-prereq="1-0,2-0,3-1,4-2,5-3,5-4">chain</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Prerequisite graph</div>
+          <div id="stage-graph" class="graph-stage"></div>
+          <div class="stage-label" style="margin-top:1rem;">Unlocked queue</div>
+          <div id="stage-queue" class="cell-row" style="min-height:44px;"></div>
+          <div class="state-grid">
+            <div class="state-tile"><div class="k">Taken</div><div id="state-taken" class="v">0</div></div>
+            <div class="state-tile"><div class="k">Remaining locks</div><div id="state-locks" class="v">0</div></div>
+          </div>
+          <div id="result" class="result-banner"></div>
+        </div>
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>Topological sort turns prerequisites into a queue of unlocked courses. Every course tracks its indegree, the number of prerequisites still blocking it.</p>
+        <p>When we take a course, we remove its edges to dependent courses. If a dependent course's indegree drops to zero, it becomes unlocked. A cycle keeps at least one course locked forever, so the final taken count reveals whether all courses can be finished.</p>
+      </div>
+    </section>
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        List<List<Integer>> graph = new ArrayList<>();
+        int[] indegree = new int[numCourses];
+
+        for (int i = 0; i < numCourses; i++) graph.add(new ArrayList<>());
+        for (int[] p : prerequisites) {
+            graph.get(p[1]).add(p[0]);
+            indegree[p[0]]++;
+        }
+
+        Queue<Integer> q = new ArrayDeque<>();
+        for (int i = 0; i < numCourses; i++) {
+            if (indegree[i] == 0) q.offer(i);
+        }
+
+        int taken = 0;
+        while (!q.isEmpty()) {
+            int course = q.poll();
+            taken++;
+            for (int next : graph.get(course)) {
+                indegree[next]--;
+                if (indegree[next] == 0) q.offer(next);
+            }
+        }
+        return taken == numCourses;
+    }
+}`;
+
+  function parsePairs() {
+    return document.getElementById('in-prereq').value.split(',').map(s => s.trim()).filter(Boolean).map(p => {
+      const [a, b] = p.split('-').map(x => parseInt(x.trim(), 10));
+      return [a, b];
+    }).filter(p => p.every(Number.isFinite));
+  }
+
+  function buildFrames() {
+    const n = parseInt(document.getElementById('in-n').value, 10) || 0;
+    const pairs = parsePairs();
+    const graph = Array.from({ length: n }, () => []);
+    const indegree = Array(n).fill(0);
+    const q = [];
+    let taken = 0;
+    const F = [];
+    const snap = (line, msg, extra) => F.push(Object.assign({ line, msg, n, pairs, graph: graph.map(a => a.slice()), indegree: indegree.slice(), q: q.slice(), taken }, extra || {}));
+    snap(3, `Create graph and indegree array for ${n} courses.`);
+    pairs.forEach(([course, pre]) => {
+      graph[pre].push(course);
+      indegree[course]++;
+      snap([7, 8], `Course ${course} is locked by prerequisite ${pre}.`, { edge: [pre, course], active: course });
+    });
+    for (let i = 0; i < n; i++) {
+      snap(12, `Check course ${i}: indegree is ${indegree[i]}.`, { active: i });
+      if (indegree[i] === 0) { q.push(i); snap(13, `Course ${i} has no locks, add it to the queue.`, { active: i }); }
+    }
+    while (q.length) {
+      const course = q.shift();
+      taken++;
+      snap([17, 18], `Take unlocked course ${course}. Taken count is ${taken}.`, { active: course, doneCourse: course });
+      for (const next of graph[course]) {
+        indegree[next]--;
+        snap(20, `Remove edge ${course} → ${next}; course ${next} has ${indegree[next]} locks left.`, { active: next, edge: [course, next] });
+        if (indegree[next] === 0) { q.push(next); snap(21, `Course ${next} is now unlocked, enqueue it.`, { active: next }); }
+      }
+    }
+    const ok = taken === n;
+    snap(24, ok ? 'Every course was taken. Return true.' : 'Some courses are still locked by a cycle. Return false.', { done: ok ? 'ok' : 'bad', answer: ok });
+    return F;
+  }
+
+  function nodePositions(n) {
+    const out = [];
+    const cx = 290, cy = 150, radius = Math.min(105, 44 + n * 10);
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (2 * Math.PI * i) / Math.max(n, 1);
+      out.push({ x: cx + Math.cos(a) * radius, y: cy + Math.sin(a) * radius });
+    }
+    return out;
+  }
+
+  function renderGraph(f) {
+    const pos = nodePositions(f.n);
+    const activeEdge = f.edge ? `${f.edge[0]}-${f.edge[1]}` : '';
+    let svg = '<svg class="graph-svg" viewBox="0 0 580 300"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 Z" fill="rgba(255,255,255,.45)"/></marker></defs>';
+    f.pairs.forEach(([course, pre]) => {
+      const p = pos[pre], q = pos[course];
+      svg += `<line class="graph-edge ${activeEdge === `${pre}-${course}` ? 'active' : ''}" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" marker-end="url(#arrow)"/>`;
+    });
+    for (let i = 0; i < f.n; i++) {
+      const p = pos[i];
+      const cls = i === f.active ? 'active' : f.indegree[i] === 0 ? 'ok' : 'warn';
+      svg += `<g class="graph-node ${cls}"><circle cx="${p.x}" cy="${p.y}" r="22"></circle><text x="${p.x}" y="${p.y - 2}">C${i}</text><text x="${p.x}" y="${p.y + 16}" style="font-size:9px;fill:var(--text-3)">in:${f.indegree[i]}</text></g>`;
+    }
+    svg += '</svg>';
+    document.getElementById('stage-graph').innerHTML = svg;
+  }
+
+  function render(f) {
+    renderGraph(f);
+    document.getElementById('stage-queue').innerHTML = f.q.length ? f.q.map(c => Viz.kvChip('C' + c, undefined, 'ok')).join('') : '<span style="color:var(--text-3);font-size:.8rem;align-self:center;">empty</span>';
+    document.getElementById('state-taken').textContent = `${f.taken} / ${f.n}`;
+    document.getElementById('state-locks').textContent = f.indegree.reduce((a, b) => a + b, 0);
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ` show ${f.done}` : '');
+    res.textContent = f.done === 'ok' ? '✓ can finish all courses' : f.done === 'bad' ? '✗ cycle blocks completion' : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-n]').forEach(b => b.addEventListener('click', () => { document.getElementById('in-n').value = b.dataset.n; document.getElementById('in-prereq').value = b.dataset.prereq; viz.run(); }));
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+  viz.run();
+  </script>
 </body>
 </html>

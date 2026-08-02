@@ -1,21 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surrounded Regions | LC 130 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Surrounded Regions — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Surrounded Regions | LC 130</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Graphs</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 130</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+    <header class="phero">
+      <h1 class="grad-text">Surrounded Regions</h1>
+      <div class="chips">
+        <span class="chip accent">Border DFS</span>
+        <span class="chip">⏱ O(mn) time</span>
+        <span class="chip">💾 O(mn) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Capture every region of <code>O</code>s that is fully surrounded by <code>X</code>s by flipping those <code>O</code>s to <code>X</code>s.</p>
+          <p>Any <code>O</code> connected to the border cannot be captured.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:</span> <span class="val">XXXX / XOOX / XXOX / XOXX</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">XXXX / XXXX / XXXX / XOXX</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Instead of searching for surrounded regions directly, find the regions that are definitely not surrounded: <code>O</code>s connected to the border.</p>
+          <p>Mark border-connected <code>O</code>s as safe. Then any remaining <code>O</code> must be enclosed, so flip it to <code>X</code>. Finally restore safe marks back to <code>O</code>.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(mn)</div><div class="lbl">Time — scan and DFS</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(mn)</div><div class="lbl">Space — recursion stack</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+        <div class="field"><label for="in-board">board rows — use X and O</label><input id="in-board" value="XXXX/XOOX/XXOX/XOXX"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-board="XXXX/XOOX/XXOX/XOXX">classic</button>
+          <button class="preset-btn" data-board="OOO/OXO/OOO">border safe</button>
+          <button class="preset-btn" data-board="XXXXX/XOOOX/XOXOX/XOOOX/XXXXX">large capture</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Safe marking and capture</div>
+          <div id="stage-grid" class="matrix-grid"></div>
+          <div class="state-grid">
+            <div class="state-tile"><div class="k">Safe O cells</div><div id="state-safe" class="v">0</div></div>
+            <div class="state-tile"><div class="k">Captured</div><div id="state-captured" class="v">0</div></div>
+            <div class="state-tile"><div class="k">Current cell</div><div id="state-cell" class="v">-</div></div>
+          </div>
+          <div id="result" class="result-banner"></div>
+        </div>
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>An <code>O</code> survives only if it can reach the border through other <code>O</code>s. So we run DFS from every border <code>O</code> and temporarily mark those cells as safe.</p>
+        <p>After safe cells are marked, the board has a simple rule: every remaining <code>O</code> is surrounded and flips to <code>X</code>; every safe mark changes back to <code>O</code>. This avoids checking each region for enclosure from the inside.</p>
+      </div>
+    </section>
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public void solve(char[][] board) {
+        int rows = board.length, cols = board[0].length;
+
+        for (int r = 0; r < rows; r++) {
+            dfs(board, r, 0);
+            dfs(board, r, cols - 1);
+        }
+        for (int c = 0; c < cols; c++) {
+            dfs(board, 0, c);
+            dfs(board, rows - 1, c);
+        }
+
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                if (board[r][c] == 'O') board[r][c] = 'X';
+                if (board[r][c] == 'S') board[r][c] = 'O';
+            }
+        }
+    }
+
+    private void dfs(char[][] board, int r, int c) {
+        if (r < 0 || c < 0 || r == board.length || c == board[0].length) return;
+        if (board[r][c] != 'O') return;
+        board[r][c] = 'S';
+        dfs(board, r + 1, c);
+        dfs(board, r - 1, c);
+        dfs(board, r, c + 1);
+        dfs(board, r, c - 1);
+    }
+}`;
+
+  function parseBoard() {
+    return document.getElementById('in-board').value.split('/').map(r => r.trim().toUpperCase().replace(/[^XO]/g, '').split('')).filter(r => r.length);
+  }
+  function cloneBoard(b) { return b.map(r => r.slice()); }
+  function key(r, c) { return `${r},${c}`; }
+  function regionSvg(v) {
+    if (v === 'X') {
+      return `<svg class="tile-svg" viewBox="0 0 36 36" aria-hidden="true">
+        <rect x="6" y="6" width="24" height="24" rx="7" fill="#334155" opacity="0.65"/>
+        <path d="M12 12l12 12M24 12L12 24" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>
+      </svg>`;
+    }
+    if (v === 'S') {
+      return `<svg class="tile-svg" viewBox="0 0 36 36" aria-hidden="true">
+        <circle cx="18" cy="18" r="12" fill="#22c55e" opacity="0.22"/>
+        <path d="M18 6l10 4v7c0 6-4 10-10 13C12 27 8 23 8 17v-7l10-4Z" fill="#16a34a" opacity="0.9"/>
+        <path d="M13 18l3 3 7-8" fill="none" stroke="#dcfce7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+    }
+    return `<svg class="tile-svg" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="12" fill="#38bdf8" opacity="0.22"/>
+      <circle cx="18" cy="18" r="8" fill="none" stroke="#bae6fd" stroke-width="3"/>
+      <circle cx="14" cy="14" r="2" fill="#e0f2fe" opacity="0.9"/>
+    </svg>`;
+  }
+
+  function buildFrames() {
+    const board = parseBoard();
+    const rows = board.length, cols = rows ? board[0].length : 0;
+    const F = [];
+    let captured = 0;
+    const snap = (line, msg, extra) => F.push(Object.assign({ line, msg, board: cloneBoard(board), captured }, extra || {}));
+    snap(3, `Board size is ${rows} x ${cols}.`);
+
+    function dfs(r, c) {
+      snap(23, `DFS(${r}, ${c}) — check bounds.`, { active: [r, c] });
+      if (r < 0 || c < 0 || r >= rows || c >= cols) return;
+      snap(24, `Cell (${r}, ${c}) is ${board[r][c]}.`, { active: [r, c] });
+      if (board[r][c] !== 'O') return;
+      board[r][c] = 'S';
+      snap(25, `Mark (${r}, ${c}) safe because it reaches the border.`, { active: [r, c], safe: [r, c] });
+      dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);
+    }
+
+    for (let r = 0; r < rows; r++) {
+      snap(5, `Check row border cells at row ${r}.`);
+      dfs(r, 0);
+      dfs(r, cols - 1);
+    }
+    for (let c = 0; c < cols; c++) {
+      snap(9, `Check column border cells at column ${c}.`);
+      dfs(0, c);
+      dfs(rows - 1, c);
+    }
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        snap([14, 15], `Finalize cell (${r}, ${c}).`, { active: [r, c] });
+        if (board[r][c] === 'O') {
+          board[r][c] = 'X';
+          captured++;
+          snap(16, `Capture surrounded O at (${r}, ${c}) by flipping it to X.`, { active: [r, c], capturedCell: [r, c] });
+        } else if (board[r][c] === 'S') {
+          board[r][c] = 'O';
+          snap(17, `Restore safe cell (${r}, ${c}) back to O.`, { active: [r, c], restored: [r, c] });
+        }
+      }
+    }
+    snap(19, 'Board update complete.', { done: 'ok' });
+    return F;
+  }
+
+  function render(f) {
+    const rows = f.board.length, cols = rows ? f.board[0].length : 0;
+    const active = f.active ? key(f.active[0], f.active[1]) : '';
+    let safeCount = 0;
+    const cells = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const v = f.board[r][c], k = key(r, c);
+      if (v === 'S') safeCount++;
+      let cls = v === 'X' ? 'dim' : v === 'S' ? 'ok' : 'warn';
+      if (k === active) cls += ' active';
+      if (f.capturedCell && k === key(f.capturedCell[0], f.capturedCell[1])) cls += ' bad';
+      cells.push(`<div class="matrix-cell ${cls}" title="${v === 'S' ? 'safe O' : v}">${regionSvg(v)}</div>`);
+    }
+    const mount = document.getElementById('stage-grid');
+    mount.style.gridTemplateColumns = `repeat(${cols || 1}, 44px)`;
+    mount.innerHTML = cells.join('');
+    document.getElementById('state-safe').textContent = safeCount;
+    document.getElementById('state-captured').textContent = f.captured;
+    document.getElementById('state-cell').textContent = f.active ? `(${f.active[0]},${f.active[1]})` : '-';
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? `✓ captured ${f.captured} cell${f.captured === 1 ? '' : 's'}` : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-board]').forEach(b => b.addEventListener('click', () => { document.getElementById('in-board').value = b.dataset.board; viz.run(); }));
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+  viz.run();
+  </script>
 </body>
 </html>

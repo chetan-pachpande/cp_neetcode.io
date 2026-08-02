@@ -1,21 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Max Area of Island | LC 695 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Max Area of Island — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Max Area of Island | LC 695</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Graphs</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 695</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+    <header class="phero">
+      <h1 class="grad-text">Max Area of Island</h1>
+      <div class="chips">
+        <span class="chip accent">DFS component size</span>
+        <span class="chip">⏱ O(mn) time</span>
+        <span class="chip">💾 O(mn) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Given a binary grid, return the maximum area of an island. The area is the number of land cells in one connected component.</p>
+          <p>Connections are horizontal and vertical only. If there is no land, return <code>0</code>.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:</span> <span class="val">11000 / 11010 / 00111 / 00000</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">4</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>This is the same connected-component traversal as Number of Islands, but instead of counting components, we measure each component.</p>
+          <p>Whenever a fresh land cell appears, DFS returns the size of that island: <code>1</code> for the current cell plus the areas from its four neighbors. Track the largest return value.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(mn)</div><div class="lbl">Time — each cell once</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(mn)</div><div class="lbl">Space — recursion depth worst case</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+        <div class="field"><label for="in-grid">grid rows — use 1 for land, 0 for water</label><input id="in-grid" value="11000/11010/00111/00000"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-grid="11000/11010/00111/00000">area 4</button>
+          <button class="preset-btn" data-grid="10010/11010/01011/00001">area 5</button>
+          <button class="preset-btn" data-grid="000/000/000">no land</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Island area traversal</div>
+          <div id="stage-grid" class="matrix-grid"></div>
+          <div class="state-grid">
+            <div class="state-tile"><div class="k">Current area</div><div id="state-area" class="v">0</div></div>
+            <div class="state-tile"><div class="k">Best area</div><div id="state-best" class="v">0</div></div>
+            <div class="state-tile"><div class="k">Current cell</div><div id="state-cell" class="v">-</div></div>
+          </div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>For every cell, we only care about unvisited land. Starting DFS from that land cell measures the connected component it belongs to. The DFS marks each land cell visited and contributes one to the area, then recursively adds the areas from the four neighbors.</p>
+        <p>The outer scan compares each finished island area with the best area seen so far. Water and already visited cells return zero, which naturally stops the recursion at boundaries and prevents double-counting.</p>
+      </div>
+    </section>
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int maxAreaOfIsland(int[][] grid) {
+        int best = 0;
+        boolean[][] visited = new boolean[grid.length][grid[0].length];
+
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[0].length; c++) {
+                best = Math.max(best, dfs(grid, visited, r, c));
+            }
+        }
+        return best;
+    }
+
+    private int dfs(int[][] grid, boolean[][] visited, int r, int c) {
+        if (r < 0 || c < 0 || r == grid.length || c == grid[0].length) return 0;
+        if (grid[r][c] == 0 || visited[r][c]) return 0;
+
+        visited[r][c] = true;
+        return 1
+            + dfs(grid, visited, r + 1, c)
+            + dfs(grid, visited, r - 1, c)
+            + dfs(grid, visited, r, c + 1)
+            + dfs(grid, visited, r, c - 1);
+    }
+}`;
+
+  function parseGrid() {
+    const rows = document.getElementById('in-grid').value.split('/').map(r => r.trim()).filter(Boolean);
+    return rows.map(row => row.replace(/[^01]/g, '').split('').map(Number)).filter(r => r.length);
+  }
+
+  function key(r, c) { return `${r},${c}`; }
+  function terrainSvg(v, inCurrent) {
+    if (!v) {
+      return `<svg class="tile-svg" viewBox="0 0 36 36" aria-hidden="true">
+        <rect x="3" y="8" width="30" height="20" rx="7" fill="#1d4ed8" opacity="0.22"/>
+        <path d="M6 17c5-4 8 4 12 0s8 4 12 0" fill="none" stroke="#93c5fd" stroke-width="2.3" stroke-linecap="round"/>
+        <path d="M7 24c4-3 7 3 11 0s7 3 11 0" fill="none" stroke="#60a5fa" stroke-width="1.7" stroke-linecap="round" opacity="0.75"/>
+      </svg>`;
+    }
+    return `<svg class="tile-svg" viewBox="0 0 36 36" aria-hidden="true">
+      <path d="M5 26c1.8-10 6.2-15 13-15s11.6 5 13 15H5Z" fill="${inCurrent ? '#f59e0b' : '#16a34a'}"/>
+      <path d="M10 25c3-4 5.5-6 9-6s6.6 2 8.5 6" fill="none" stroke="${inCurrent ? '#fef3c7' : '#bbf7d0'}" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="14" cy="15" r="2" fill="#fde68a"/>
+      <circle cx="23" cy="17" r="1.6" fill="#dcfce7"/>
+    </svg>`;
+  }
+
+  function buildFrames() {
+    const grid = parseGrid();
+    const rows = grid.length;
+    const cols = rows ? grid[0].length : 0;
+    const visited = new Set();
+    const F = [];
+    let best = 0;
+    let currentArea = 0;
+    let component = new Set();
+
+    const snap = (line, msg, extra) => F.push(Object.assign({
+      line, msg, grid, visited: new Set(visited), component: new Set(component), best, currentArea
+    }, extra || {}));
+
+    snap(4, `Create visited matrix. Grid size is ${rows} x ${cols}.`);
+
+    function dfs(r, c) {
+      snap(15, `DFS(${r}, ${c}) — boundary check.`, { active: [r, c] });
+      if (r < 0 || c < 0 || r >= rows || c >= cols) {
+        snap(15, `(${r}, ${c}) is outside the grid, contributes 0.`, { active: [r, c] });
+        return 0;
+      }
+      snap(16, `Cell (${r}, ${c}) is ${grid[r][c] ? 'land' : 'water'}${visited.has(key(r, c)) ? ' and already visited' : ''}.`, { active: [r, c] });
+      if (grid[r][c] === 0 || visited.has(key(r, c))) return 0;
+      visited.add(key(r, c));
+      component.add(key(r, c));
+      currentArea++;
+      snap(18, `Mark (${r}, ${c}) visited. Current island area is ${currentArea}.`, { active: [r, c] });
+      return 1 + dfs(r + 1, c) + dfs(r - 1, c) + dfs(r, c + 1) + dfs(r, c - 1);
+    }
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        snap([6, 7], `Scan cell (${r}, ${c}).`, { active: [r, c] });
+        currentArea = 0;
+        component = new Set();
+        const area = dfs(r, c);
+        if (area > 0) {
+          best = Math.max(best, area);
+          snap(8, `Island finished with area ${area}. Best area is now ${best}.`, { active: [r, c], component: new Set(component), currentArea: area, best });
+        }
+      }
+    }
+
+    snap(10, `Finished scanning. Return max area ${best}.`, { done: 'ok' });
+    return F;
+  }
+
+  function render(f) {
+    const rows = f.grid.length;
+    const cols = rows ? f.grid[0].length : 0;
+    const activeKey = f.active ? key(f.active[0], f.active[1]) : '';
+    const cells = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const k = key(r, c);
+        let cls = f.grid[r][c] ? 'land' : 'water';
+        if (f.component.has(k)) cls += ' warn';
+        else if (f.visited.has(k)) cls += ' ok';
+        if (k === activeKey) cls += ' active';
+        cells.push(`<div class="matrix-cell ${cls}" title="${f.grid[r][c] ? 'land' : 'water'}">${terrainSvg(f.grid[r][c], f.component.has(k))}</div>`);
+      }
+    }
+    const mount = document.getElementById('stage-grid');
+    mount.style.gridTemplateColumns = `repeat(${cols || 1}, 44px)`;
+    mount.innerHTML = cells.join('');
+    document.getElementById('state-area').textContent = f.currentArea;
+    document.getElementById('state-best').textContent = f.best;
+    document.getElementById('state-cell').textContent = f.active ? `(${f.active[0]},${f.active[1]})` : '-';
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? `✓ max area = ${f.best}` : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-grid]').forEach(b => b.addEventListener('click', () => {
+    document.getElementById('in-grid').value = b.dataset.grid;
+    viz.run();
+  }));
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+  viz.run();
+  </script>
 </body>
 </html>

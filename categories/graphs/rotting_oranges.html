@@ -1,21 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rotting Oranges | LC 994 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rotting Oranges — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .orange-icon { width: 30px; height: 30px; display: block; }
+    .empty-cell { width: 8px; height: 8px; border-radius: 999px; background: var(--text-3); opacity: 0.45; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Rotting Oranges | LC 994</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Graphs</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 994</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+    <header class="phero">
+      <h1 class="grad-text">Rotting Oranges</h1>
+      <div class="chips">
+        <span class="chip accent">Multi-source BFS</span>
+        <span class="chip">⏱ O(mn) time</span>
+        <span class="chip">💾 O(mn) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Each minute, every rotten orange makes its adjacent fresh oranges rotten. Return the minimum minutes until no fresh oranges remain, or <code>-1</code> if impossible.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:</span> <span class="val">2,1,1 / 1,1,0 / 0,1,1</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">4</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>All rotten oranges spread at the same time, so this is a breadth-first search starting from every rotten orange at once.</p>
+          <p>Process the queue level by level. One BFS layer equals one minute. When a fresh neighbor rots, decrement the fresh count and enqueue it for the next minute.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(mn)</div><div class="lbl">Time — each cell enqueued once</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(mn)</div><div class="lbl">Space — queue</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+        <div class="field"><label for="in-grid">grid rows — 0 empty, 1 fresh, 2 rotten</label><input id="in-grid" value="2,1,1/1,1,0/0,1,1"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-grid="2,1,1/1,1,0/0,1,1">4 minutes</button>
+          <button class="preset-btn" data-grid="2,1,1/0,1,1/1,0,1">impossible</button>
+          <button class="preset-btn" data-grid="0,2">already done</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">BFS infection wave</div>
+          <div id="stage-grid" class="matrix-grid"></div>
+          <div class="state-grid">
+            <div class="state-tile"><div class="k">Minutes</div><div id="state-min" class="v">0</div></div>
+            <div class="state-tile"><div class="k">Fresh left</div><div id="state-fresh" class="v">0</div></div>
+            <div class="state-tile"><div class="k">Queue</div><div id="state-queue" class="v">0</div></div>
+          </div>
+          <div id="result" class="result-banner"></div>
+        </div>
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>Rotting spreads simultaneously, so a normal DFS would not model time correctly. Multi-source BFS does: put every initially rotten orange into the queue, count fresh oranges, then process the queue one layer at a time.</p>
+        <p>Each layer is one minute of spread. Whenever a fresh neighbor becomes rotten, it is added to the queue for a future layer. If all fresh oranges rot, the minute counter is the answer. If some fresh oranges remain unreachable, return -1.</p>
+      </div>
+    </section>
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int orangesRotting(int[][] grid) {
+        Queue<int[]> q = new ArrayDeque<>();
+        int fresh = 0, minutes = 0;
+
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[0].length; c++) {
+                if (grid[r][c] == 2) q.offer(new int[] { r, c });
+                if (grid[r][c] == 1) fresh++;
+            }
+        }
+
+        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+        while (!q.isEmpty() && fresh > 0) {
+            int size = q.size();
+            for (int i = 0; i < size; i++) {
+                int[] cur = q.poll();
+                for (int[] d : dirs) {
+                    int nr = cur[0] + d[0], nc = cur[1] + d[1];
+                    if (nr < 0 || nc < 0 || nr == grid.length || nc == grid[0].length) continue;
+                    if (grid[nr][nc] != 1) continue;
+                    grid[nr][nc] = 2;
+                    fresh--;
+                    q.offer(new int[] { nr, nc });
+                }
+            }
+            minutes++;
+        }
+        return fresh == 0 ? minutes : -1;
+    }
+}`;
+
+  function parseGrid() {
+    return document.getElementById('in-grid').value.split('/').map(row =>
+      row.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n))
+    ).filter(r => r.length);
+  }
+  function cloneGrid(g) { return g.map(r => r.slice()); }
+  function orangeSvg(rotten) {
+    const mold = rotten ? `
+      <circle cx="22" cy="21" r="4.2" fill="#6b7280" opacity="0.9"/>
+      <circle cx="13" cy="24" r="2.7" fill="#9ca3af" opacity="0.9"/>
+      <circle cx="20" cy="13" r="2.2" fill="#374151" opacity="0.75"/>` : '';
+    const face = rotten ? `
+      <path d="M12 22c3-2 7-2 10 0" fill="none" stroke="#4b5563" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="13" cy="17" r="1.5" fill="#4b5563"/>
+      <circle cx="21" cy="17" r="1.5" fill="#4b5563"/>` : `
+      <path d="M12 21c3 2 7 2 10 0" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="13" cy="16.5" r="1.4" fill="#92400e"/>
+      <circle cx="21" cy="16.5" r="1.4" fill="#92400e"/>`;
+    return `<svg class="orange-icon" viewBox="0 0 34 34" aria-hidden="true">
+      <path d="M18 7c2.5-4 6.1-4.5 9.2-3.2-1 3.9-4.2 5.9-8.3 5.2" fill="#22c55e"/>
+      <path d="M17 8c.7-2.4 1.9-4 3.7-5.4" fill="none" stroke="#166534" stroke-width="1.7" stroke-linecap="round"/>
+      <circle cx="17" cy="18" r="12" fill="${rotten ? '#d97706' : '#f97316'}"/>
+      <circle cx="13" cy="14" r="5.5" fill="#fdba74" opacity="${rotten ? '0.28' : '0.5'}"/>
+      <path d="M6 20c1.4 6 6.2 9.5 12.2 9.6" fill="none" stroke="#c2410c" stroke-width="1.2" opacity="0.45"/>
+      ${mold}
+      ${face}
+    </svg>`;
+  }
+
+  function buildFrames() {
+    const grid = parseGrid();
+    const rows = grid.length, cols = rows ? grid[0].length : 0;
+    const q = [];
+    let fresh = 0, minutes = 0;
+    const F = [];
+    const snap = (line, msg, extra) => F.push(Object.assign({ line, msg, grid: cloneGrid(grid), q: q.slice(), fresh, minutes }, extra || {}));
+    snap(3, 'Create a queue for all initially rotten oranges.');
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (grid[r][c] === 2) { q.push([r, c]); snap(8, `Initial rotten orange at (${r}, ${c}) goes into the queue.`, { active: [r, c] }); }
+        if (grid[r][c] === 1) { fresh++; snap(9, `Fresh orange found at (${r}, ${c}). Fresh count is ${fresh}.`, { active: [r, c] }); }
+      }
+    }
+    const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+    snap(13, `Start BFS with ${q.length} rotten orange${q.length === 1 ? '' : 's'} and ${fresh} fresh orange${fresh === 1 ? '' : 's'}.`);
+    while (q.length && fresh > 0) {
+      const size = q.length;
+      snap(15, `Minute ${minutes + 1}: process ${size} rotten orange${size === 1 ? '' : 's'} currently in the queue.`, { wave: q.slice() });
+      for (let i = 0; i < size; i++) {
+        const cur = q.shift();
+        snap(17, `Pop (${cur[0]}, ${cur[1]}) and inspect its neighbors.`, { active: cur });
+        for (const d of dirs) {
+          const nr = cur[0] + d[0], nc = cur[1] + d[1];
+          snap(20, `Check neighbor (${nr}, ${nc}).`, { active: [nr, nc], from: cur });
+          if (nr < 0 || nc < 0 || nr >= rows || nc >= cols) continue;
+          if (grid[nr][nc] !== 1) continue;
+          grid[nr][nc] = 2;
+          fresh--;
+          q.push([nr, nc]);
+          snap([22, 23, 24], `Fresh orange at (${nr}, ${nc}) rots. Fresh left: ${fresh}.`, { active: [nr, nc], rotted: [nr, nc] });
+        }
+      }
+      minutes++;
+      snap(28, `Minute ${minutes} complete.`, { wave: q.slice() });
+    }
+    snap(30, fresh === 0 ? `All oranges are rotten. Return ${minutes}.` : `Fresh oranges remain unreachable. Return -1.`, { done: fresh === 0 ? 'ok' : 'bad', answer: fresh === 0 ? minutes : -1 });
+    return F;
+  }
+
+  function render(f) {
+    const rows = f.grid.length, cols = rows ? f.grid[0].length : 0;
+    const active = f.active ? `${f.active[0]},${f.active[1]}` : '';
+    const rotted = f.rotted ? `${f.rotted[0]},${f.rotted[1]}` : '';
+    const cells = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const v = f.grid[r][c], k = `${r},${c}`;
+      let cls = v === 0 ? 'dim' : v === 1 ? 'warn' : 'bad';
+      if (k === rotted) cls += ' active';
+      else if (k === active) cls += ' active';
+      const content = v === 0 ? '<span class="empty-cell"></span>' : orangeSvg(v === 2);
+      cells.push(`<div class="matrix-cell ${cls}" title="${v === 0 ? 'empty' : v === 1 ? 'fresh orange' : 'rotten orange'}">${content}</div>`);
+    }
+    const mount = document.getElementById('stage-grid');
+    mount.style.gridTemplateColumns = `repeat(${cols || 1}, 44px)`;
+    mount.innerHTML = cells.join('');
+    document.getElementById('state-min').textContent = f.minutes;
+    document.getElementById('state-fresh').textContent = f.fresh;
+    document.getElementById('state-queue').textContent = f.q.length;
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ` show ${f.done}` : '');
+    res.textContent = f.done === 'ok' ? `✓ ${f.answer} minute${f.answer === 1 ? '' : 's'}` : f.done === 'bad' ? '✗ return -1' : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-grid]').forEach(b => b.addEventListener('click', () => { document.getElementById('in-grid').value = b.dataset.grid; viz.run(); }));
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+  viz.run();
+  </script>
 </body>
 </html>

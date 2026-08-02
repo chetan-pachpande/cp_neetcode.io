@@ -1,21 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redundant Connection | LC 684 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redundant Connection — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Redundant Connection | LC 684</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Graphs</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 684</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+    <header class="phero">
+      <h1 class="grad-text">Redundant Connection</h1>
+      <div class="chips">
+        <span class="chip accent">Union-Find</span>
+        <span class="chip">⏱ O(E α(V)) time</span>
+        <span class="chip">💾 O(V) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>A graph started as a tree, then one extra edge was added. Return the edge that creates a cycle.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:</span> <span class="val">edges = [[1,2],[1,3],[2,3]]</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">[2,3]</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Union-Find treats each connected component like an island with a representative root.</p>
+          <p>For each edge, if the endpoints are in different components, the edge safely connects two islands. If they already share a root, the new edge closes a loop and is redundant.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(E α(V))</div><div class="lbl">Time — near constant unions</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(V)</div><div class="lbl">Space — parent array</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+        <div class="field"><label for="in-edges">edges — u-v pairs</label><input id="in-edges" value="1-2,1-3,2-3"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-edges="1-2,1-3,2-3">triangle</button>
+          <button class="preset-btn" data-edges="1-2,2-3,3-4,1-4,1-5">late cycle</button>
+          <button class="preset-btn" data-edges="1-4,3-4,1-3,1-2,4-5">bridge</button>
+        </div>
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Edges become bridges until one closes a cycle</div>
+          <div id="stage-graph" class="graph-stage"></div>
+          <div class="stage-label" style="margin-top:1rem;">Parent map</div>
+          <div id="stage-parent" class="cell-row" style="min-height:44px;"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>Every accepted edge joins two previously separate components. Union-Find lets us ask whether two nodes already belong to the same component before adding an edge.</p>
+        <p>When an edge connects nodes that already share a root, there is already a path between them. Adding that edge creates the first cycle, so that edge is redundant.</p>
+      </div>
+    </section>
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int[] findRedundantConnection(int[][] edges) {
+        int n = edges.length;
+        int[] parent = new int[n + 1];
+        for (int i = 1; i <= n; i++) parent[i] = i;
+
+        for (int[] e : edges) {
+            int a = find(parent, e[0]);
+            int b = find(parent, e[1]);
+            if (a == b) return e;
+            parent[a] = b;
+        }
+        return new int[0];
+    }
+
+    private int find(int[] parent, int x) {
+        if (parent[x] != x) parent[x] = find(parent, parent[x]);
+        return parent[x];
+    }
+}`;
+
+  function parseEdges() {
+    return document.getElementById('in-edges').value.split(',').map(s => s.trim()).filter(Boolean).map(p => p.split('-').map(x => parseInt(x.trim(), 10))).filter(e => e.length === 2 && e.every(Number.isFinite));
+  }
+  function edgeKey(a, b) { return a < b ? `${a}-${b}` : `${b}-${a}`; }
+  function find(parent, x) { while (parent[x] !== x) x = parent[x]; return x; }
+
+  function buildFrames() {
+    const edges = parseEdges();
+    const n = Math.max(...edges.flat(), edges.length, 1);
+    const parent = Array.from({ length: n + 1 }, (_, i) => i);
+    const accepted = new Set();
+    const F = [];
+    const snap = (line, msg, extra) => F.push(Object.assign({ line, msg, edges, n, parent: parent.slice(), accepted: new Set(accepted) }, extra || {}));
+    snap(5, `Start with each node as its own component.`);
+    for (const [u, v] of edges) {
+      snap(7, `Inspect edge ${u} - ${v}.`, { activeEdge: edgeKey(u, v), active: [u, v] });
+      const ru = find(parent, u), rv = find(parent, v);
+      snap([8, 9], `Find roots: ${u} → ${ru}, ${v} → ${rv}.`, { activeEdge: edgeKey(u, v), active: [ru, rv] });
+      if (ru === rv) {
+        snap(10, `${u} and ${v} already share root ${ru}. This edge closes the cycle.`, { activeEdge: edgeKey(u, v), redundant: [u, v], done: 'bad' });
+        return F;
+      }
+      parent[ru] = rv;
+      accepted.add(edgeKey(u, v));
+      snap(11, `Union components: parent[${ru}] = ${rv}. Edge ${u} - ${v} becomes a bridge.`, { activeEdge: edgeKey(u, v), active: [u, v] });
+    }
+    snap(13, 'No redundant edge found.', { done: 'ok' });
+    return F;
+  }
+
+  function positions(n) {
+    const pos = [], cx = 290, cy = 150, radius = Math.min(108, 45 + n * 8);
+    for (let i = 1; i <= n; i++) {
+      const a = -Math.PI / 2 + (2 * Math.PI * (i - 1)) / n;
+      pos[i] = { x: cx + Math.cos(a) * radius, y: cy + Math.sin(a) * radius };
+    }
+    return pos;
+  }
+
+  function renderGraph(f) {
+    const pos = positions(f.n);
+    let svg = '<svg class="graph-svg" viewBox="0 0 580 300">';
+    f.edges.forEach(([u, v]) => {
+      const k = edgeKey(u, v), p = pos[u], q = pos[v];
+      const cls = f.activeEdge === k ? 'active' : f.accepted.has(k) ? 'ok' : f.redundant && edgeKey(f.redundant[0], f.redundant[1]) === k ? 'bad' : '';
+      svg += `<line class="graph-edge ${cls}" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`;
+    });
+    for (let i = 1; i <= f.n; i++) {
+      const p = pos[i], cls = f.active && f.active.includes(i) ? 'active' : '';
+      svg += `<g class="graph-node ${cls}"><circle cx="${p.x}" cy="${p.y}" r="20"></circle><text x="${p.x}" y="${p.y}">${i}</text></g>`;
+    }
+    svg += '</svg>';
+    document.getElementById('stage-graph').innerHTML = svg;
+  }
+
+  function render(f) {
+    renderGraph(f);
+    document.getElementById('stage-parent').innerHTML = Array.from({ length: f.n }, (_, i) => i + 1).map(i => Viz.kvChip(i, f.parent[i], f.parent[i] === i ? '' : 'ok')).join('');
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show bad' : '');
+    res.textContent = f.redundant ? `✗ redundant edge [${f.redundant[0]}, ${f.redundant[1]}]` : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-edges]').forEach(b => b.addEventListener('click', () => { document.getElementById('in-edges').value = b.dataset.edges; viz.run(); }));
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+  viz.run();
+  </script>
 </body>
 </html>

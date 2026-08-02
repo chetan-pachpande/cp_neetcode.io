@@ -1,21 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Implement Trie (Prefix Tree) | LC 208 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Implement Trie (Prefix Tree) — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .op-script {
+      width: 100%; min-height: 96px; padding: .6rem .9rem; border-radius: .75rem;
+      border: 1px solid var(--border); background: rgba(0,0,0,.25); color: var(--text-1);
+      font-family: var(--mono); font-size: .85rem; outline: none; resize: vertical;
+    }
+    .op-script:focus { border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(129,140,248,.18); }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Implement Trie (Prefix Tree) | LC 208</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Tries</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 208</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Implement Trie (Prefix Tree)</h1>
+      <div class="chips">
+        <span class="chip accent">Character-by-character Tree</span>
+        <span class="chip">⏱ O(L) per op</span>
+        <span class="chip">💾 O(total characters)</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Implement a trie with <code>insert(word)</code>, <code>search(word)</code> (exact match), and <code>startsWith(prefix)</code> (any word begins with this prefix).</p>
+          <div class="example-box">
+            <div><span class="lbl">Ops:&nbsp;&nbsp;</span><span class="val">insert("apple"); search("apple") → true; search("app") → false</span></div>
+            <div><span class="lbl">Then:</span> <span class="val">startsWith("app") → true; insert("app"); search("app") → true</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Words that share a prefix should <strong>share the same path</strong> in a tree — that's the whole idea of a trie. Each node has up to 26 labeled children, one per possible next letter, plus a flag marking "a word ends here."</p>
+          <p><code>insert</code> walks the word letter by letter, creating any missing nodes along the way, then flags the final node. <code>search</code> and <code>startsWith</code> both just walk the existing path for a string — the only difference is <code>search</code> also requires the end-of-word flag, while <code>startsWith</code> doesn't care.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(L)</div><div class="lbl">Time — L = word/prefix length</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(Σ L)</div><div class="lbl">Space — shared prefixes cost nothing extra</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div class="field">
+          <label for="in-ops">operations — one per line</label>
+          <textarea id="in-ops" class="op-script">insert apple
+search apple
+search app
+startsWith app
+insert app
+search app</textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-ops="insert apple
+search apple
+search app
+startsWith app
+insert app
+search app">apple / app</button>
+          <button class="preset-btn" data-ops="insert cat
+insert car
+insert cart
+search cat
+search ca
+startsWith ca">cat / car / cart</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Trie — dashed ring = end of a word</div>
+          <div id="stage-trie" class="tree-stage"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>A trie stores strings by sharing common prefixes as a single path through a tree. Each node holds a map from character to child node; inserting a word walks that map one letter at a time, creating a new child whenever the next letter hasn't been seen yet at that point, and finally marks the last node as the end of a complete word.</p>
+        <p>Searching for an exact word and checking for a prefix use the identical walk — follow the letters down the tree, and if any letter is missing, fail immediately. The only difference comes at the end: search additionally requires that the node we land on is flagged as an end-of-word, while startsWith only cares that the path exists at all. Because the walk's length equals the string's length regardless of how many words are stored, every operation runs in time proportional only to the word or prefix being processed.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Trie {
+    class TrieNode {
+        Map<Character, TrieNode> children = new HashMap<>();
+        boolean isEnd = false;
+    }
+
+    private final TrieNode root = new TrieNode();
+
+    public void insert(String word) {
+        TrieNode node = root;
+        for (char c : word.toCharArray()) {
+            node = node.children.computeIfAbsent(c, k -> new TrieNode());
+        }
+        node.isEnd = true;
+    }
+
+    public boolean search(String word) {
+        TrieNode node = find(word);
+        return node != null && node.isEnd;
+    }
+
+    public boolean startsWith(String prefix) {
+        return find(prefix) != null;
+    }
+
+    private TrieNode find(String s) {
+        TrieNode node = root;
+        for (char c : s.toCharArray()) {
+            node = node.children.get(c);
+            if (node == null) return null;
+        }
+        return node;
+    }
+}`;
+
+  let nextId = 0;
+  function newNode() { return { id: nextId++, children: {}, isEnd: false }; }
+
+  function buildFrames() {
+    const lines = document.getElementById('in-ops').value.split('\n').map(l => l.trim()).filter(Boolean);
+    const F = [];
+    nextId = 0;
+    const root = newNode();
+
+    const snap = (extra) => Object.assign({ root }, extra);
+
+    function insert(word) {
+      let node = root;
+      const path = [root.id];
+      F.push(snap({ line: [9, 10], msg: `insert("${word}") — walk/create nodes for each letter.`, path: path.slice() }));
+      for (const c of word) {
+        if (!node.children[c]) {
+          node.children[c] = newNode();
+          F.push(snap({ line: 10, msg: `No child '${c}' yet — create it.`, path: path.slice(), created: node.children[c].id }));
+        }
+        node = node.children[c];
+        path.push(node.id);
+        F.push(snap({ line: 10, msg: `Move into child '${c}'.`, path: path.slice() }));
+      }
+      node.isEnd = true;
+      F.push(snap({ line: 11, msg: `Mark the final node as end-of-word for "${word}".`, path: path.slice(), markedEnd: node.id }));
+    }
+
+    function find(s) {
+      let node = root;
+      const path = [root.id];
+      for (const c of s) {
+        if (!node.children[c]) {
+          F.push(snap({ line: [22, 23], msg: `No child '${c}' from here — path doesn't exist.`, path: path.slice(), missing: true }));
+          return null;
+        }
+        node = node.children[c];
+        path.push(node.id);
+        F.push(snap({ line: 22, msg: `Follow child '${c}'.`, path: path.slice() }));
+      }
+      return { node, path };
+    }
+
+    lines.forEach((line) => {
+      const [cmd, arg] = line.split(/\s+/);
+      if (cmd === 'insert') {
+        insert(arg);
+      } else if (cmd === 'search') {
+        F.push(snap({ line: [15, 16], msg: `search("${arg}") — walk the path, then check end-of-word.` }));
+        const found = find(arg);
+        const ok = !!found && found.node.isEnd;
+        F.push(snap({ line: 16, msg: `search("${arg}") → ${ok}.`, path: found ? found.path : [], answer: ok, done: 'ok' }));
+      } else if (cmd === 'startsWith') {
+        F.push(snap({ line: 19, msg: `startsWith("${arg}") — walk the path; end-of-word doesn't matter.` }));
+        const found = find(arg);
+        const ok = !!found;
+        F.push(snap({ line: 19, msg: `startsWith("${arg}") → ${ok}.`, path: found ? found.path : [], answer: ok, done: 'ok' }));
+      }
+    });
+
+    return F;
+  }
+
+  function render(f) {
+    const path = f.path || [];
+    Viz.renderNaryTree(
+      document.getElementById('stage-trie'),
+      f.root,
+      (n) => (n.id === f.created ? 'active pop' : n.id === f.markedEnd ? 'ok' : path.includes(n.id) ? 'active' : ''),
+      (n) => (n === f.root ? '•' : '')
+    );
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ` show ${f.answer ? 'ok' : 'bad'}` : '');
+    res.textContent = f.done ? (f.answer ? '✓ true' : '✗ false') : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-ops]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-ops').value = b.dataset.ops;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

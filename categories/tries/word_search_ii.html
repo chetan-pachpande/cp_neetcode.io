@@ -1,21 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Search II | LC 212 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Search II — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .heap-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 800px) { .heap-pair { grid-template-columns: 1fr; } }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Word Search II | LC 212</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Tries</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 212</span>
+      <span class="chip hard">Hard</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Word Search II</h1>
+      <div class="chips">
+        <span class="chip accent">Trie-pruned Board DFS</span>
+        <span class="chip">⏱ O(mn · 4^L) worst case</span>
+        <span class="chip">💾 O(Σ L) for the trie</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Given a <code>board</code> of letters and a list of <code>words</code>, return every word that can be formed by a path of <strong>adjacent cells</strong> (horizontally/vertically, no cell reused within one word).</p>
+          <div class="example-box">
+            <div><span class="lbl">Board:</span> <span class="val">oaan / etae / ihkr / iflv</span></div>
+            <div><span class="lbl">Words:</span> <span class="val">["oath","pea","eat","rain"]</span> → <span class="val">["eat","oath"]</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Searching for each word separately with its own DFS repeats a lot of work when words share prefixes. Instead, build <strong>one trie of all the words</strong> and run a <strong>single DFS from every board cell</strong>, walking the trie and the board <em>together</em>.</p>
+          <p>At each cell, only continue if the current letter is an existing child of the current trie node — this instantly prunes any path that can't possibly complete a word. Whenever the trie node we land on marks the end of a word, we've found it. Mark cells visited during the current path so we don't reuse them, then backtrack (un-mark) after exploring all four directions.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(mn·4^L)</div><div class="lbl">Worst case, L = longest word</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(ΣL)</div><div class="lbl">Space — the shared trie</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div style="display:grid;grid-template-columns:1fr;gap:.75rem;">
+          <div class="field"><label for="in-board">board — rows separated by ";"</label><input id="in-board" value="oaan; etae; ihkr; iflv"></div>
+          <div class="field"><label for="in-words">words (comma-separated)</label><input id="in-words" value="oath, pea, eat, rain"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-board="oaan; etae; ihkr; iflv" data-words="oath, pea, eat, rain">classic 4×4</button>
+          <button class="preset-btn" data-board="ab; cd" data-words="ab, cb, ad, bd">2×2 · small</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="heap-pair">
+            <div>
+              <div class="stage-label">Board</div>
+              <div id="stage-board" class="matrix-grid"></div>
+            </div>
+            <div>
+              <div class="stage-label">Trie of all words</div>
+              <div id="stage-trie" class="tree-stage"></div>
+            </div>
+          </div>
+          <div class="stage-label" style="margin-top:1rem;">Words found</div>
+          <div id="stage-found" class="cell-row" style="justify-content:flex-start;min-height:44px;"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>We first insert every target word into a shared trie, storing the complete word itself at its terminating node so we can recognize a match instantly. Then we launch a depth-first search from every cell of the board, each starting at the trie's root.</p>
+        <p>At each step of the DFS, we check whether the board letter under our finger is a valid child of the current trie node; if not, this path cannot spell any remaining word, so we stop immediately — this pruning is what makes searching for many words at once so much cheaper than repeating a full search per word. If the trie node we've reached stores a complete word, we record it and clear that marker so it can't be reported twice. We temporarily mark the current cell as used, recurse into all four neighboring directions, and then restore the cell before returning, so other paths can still use it.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    class TrieNode {
+        Map<Character, TrieNode> children = new HashMap<>();
+        String word = null;
+    }
+
+    private char[][] board;
+    private List<String> result = new ArrayList<>();
+
+    public List<String> findWords(char[][] board, String[] words) {
+        this.board = board;
+        TrieNode root = buildTrie(words);
+
+        for (int r = 0; r < board.length; r++) {
+            for (int c = 0; c < board[0].length; c++) {
+                dfs(r, c, root);
+            }
+        }
+        return result;
+    }
+
+    private TrieNode buildTrie(String[] words) {
+        TrieNode root = new TrieNode();
+        for (String w : words) {
+            TrieNode node = root;
+            for (char c : w.toCharArray()) {
+                node = node.children.computeIfAbsent(c, k -> new TrieNode());
+            }
+            node.word = w;
+        }
+        return root;
+    }
+
+    private void dfs(int r, int c, TrieNode node) {
+        if (r < 0 || c < 0 || r >= board.length || c >= board[0].length) return;
+        char ch = board[r][c];
+        if (ch == '#' || !node.children.containsKey(ch)) return;
+
+        TrieNode next = node.children.get(ch);
+        if (next.word != null) {
+            result.add(next.word);
+            next.word = null;   // avoid duplicate reports
+        }
+
+        board[r][c] = '#';      // mark visited
+        dfs(r + 1, c, next);
+        dfs(r - 1, c, next);
+        dfs(r, c + 1, next);
+        dfs(r, c - 1, next);
+        board[r][c] = ch;       // backtrack
+    }
+}`;
+
+  let nextId = 0;
+  function newNode() { return { id: nextId++, children: {}, isEnd: false, word: null }; }
+
+  function buildFrames() {
+    const board = document.getElementById('in-board').value.split(';').map(r => r.trim().split(''));
+    const words = document.getElementById('in-words').value.split(',').map(w => w.trim().toLowerCase()).filter(Boolean);
+    const rows = board.length, cols = board[0].length;
+    const F = [];
+    nextId = 0;
+    const root = newNode();
+
+    words.forEach((w) => {
+      let node = root;
+      for (const c of w) {
+        if (!node.children[c]) node.children[c] = newNode();
+        node = node.children[c];
+      }
+      node.isEnd = true;
+      node.word = w;
+    });
+
+    const marked = Array.from({ length: rows }, () => Array(cols).fill(false));
+    const found = [];
+
+    const snap = (extra) => Object.assign({
+      board: board.map(r => r.slice()),
+      marked: marked.map(r => r.slice()),
+      found: found.slice(),
+      root,
+    }, extra);
+
+    F.push(snap({ line: [9, 10], msg: `Build one trie holding all ${words.length} words.`, path: [] }));
+
+    function dfs(r, c, node, path, triePath) {
+      if (r < 0 || c < 0 || r >= rows || c >= cols) return;
+      if (marked[r][c]) return;
+      const ch = board[r][c];
+      if (!node.children[ch]) {
+        F.push(snap({ line: 22, msg: `(${r},${c})='${ch}' has no matching trie child from here — prune this path.`, path, active: [r, c], triePath }));
+        return;
+      }
+
+      const next = node.children[ch];
+      const newTriePath = [...triePath, next.id];
+      const newPath = [...path, [r, c]];
+      F.push(snap({ line: [24, 25], msg: `(${r},${c})='${ch}' matches — descend the trie.`, path: newPath, active: [r, c], triePath: newTriePath }));
+
+      if (next.word) {
+        found.push(next.word);
+        F.push(snap({ line: [26, 27, 28], msg: `Trie node marks a complete word: "${next.word}" found!`, path: newPath, active: [r, c], triePath: newTriePath, justFound: next.word }));
+        next.word = null;
+      }
+
+      marked[r][c] = true;
+      F.push(snap({ line: 31, msg: `Mark (${r},${c}) visited, then explore its 4 neighbors.`, path: newPath, active: [r, c], triePath: newTriePath }));
+
+      dfs(r + 1, c, next, newPath, newTriePath);
+      dfs(r - 1, c, next, newPath, newTriePath);
+      dfs(r, c + 1, next, newPath, newTriePath);
+      dfs(r, c - 1, next, newPath, newTriePath);
+
+      marked[r][c] = false;
+      F.push(snap({ line: 36, msg: `Backtrack — unmark (${r},${c}) so other paths can use it.`, path, triePath }));
+    }
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        F.push(snap({ line: [13, 14], msg: `Start a fresh DFS from (${r},${c}).`, active: [r, c], path: [[r, c]], triePath: [root.id] }));
+        dfs(r, c, root, [], [root.id]);
+      }
+    }
+
+    F.push(snap({ line: 17, msg: `Scanned every cell — found ${found.length} word(s): [${found.join(', ')}].`, done: 'ok', path: [], triePath: [] }));
+    return F;
+  }
+
+  function render(f) {
+    const grid = document.getElementById('stage-board');
+    const cols = f.board[0].length;
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    const pathSet = new Set((f.path || []).map(([r, c]) => `${r},${c}`));
+    grid.innerHTML = f.board.map((row, r) => row.map((ch, c) => {
+      const key = `${r},${c}`;
+      let cls = f.marked[r][c] ? 'dim' : '';
+      if (f.active && f.active[0] === r && f.active[1] === c) cls = 'active';
+      else if (pathSet.has(key)) cls = 'ok';
+      return `<div class="matrix-cell ${cls}">${ch}</div>`;
+    }).join('')).join('');
+
+    Viz.renderNaryTree(
+      document.getElementById('stage-trie'),
+      f.root,
+      (n) => ((f.triePath || []).includes(n.id) ? 'active' : ''),
+      (n) => (n === f.root ? '•' : '')
+    );
+
+    document.getElementById('stage-found').innerHTML = f.found.length
+      ? Viz.cells(f.found.map(w => ({ v: w, cls: w === f.justFound ? 'ok pop' : 'ok' })))
+      : '<span style="color:var(--text-3);font-size:.8rem;align-self:center;">none yet</span>';
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? `✓ [${f.found.join(', ')}]` : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-board]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-board').value = b.dataset.board;
+      document.getElementById('in-words').value = b.dataset.words;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

@@ -1,21 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Design Add and Search Words Data Structure | LC 211 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Add and Search Words Data Structure — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .op-script {
+      width: 100%; min-height: 96px; padding: .6rem .9rem; border-radius: .75rem;
+      border: 1px solid var(--border); background: rgba(0,0,0,.25); color: var(--text-1);
+      font-family: var(--mono); font-size: .85rem; outline: none; resize: vertical;
+    }
+    .op-script:focus { border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(129,140,248,.18); }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Design Add and Search Words Data Structure | LC 211</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Tries</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 211</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Design Add and Search Words</h1>
+      <div class="chips">
+        <span class="chip accent">Trie + Wildcard DFS</span>
+        <span class="chip">⏱ O(26^d) worst case</span>
+        <span class="chip">💾 O(total characters)</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Support <code>addWord(word)</code> and <code>search(word)</code>, where <code>search</code>'s word may contain <code>'.'</code> — a wildcard matching <strong>any single letter</strong>.</p>
+          <div class="example-box">
+            <div><span class="lbl">Ops:&nbsp;&nbsp;</span><span class="val">addWord("bad"); addWord("dad"); addWord("mad")</span></div>
+            <div><span class="lbl">Then:</span> <span class="val">search("pad")→false; search(".ad")→true; search("b..")→true</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Store words in a trie exactly like before. The twist is searching: a plain letter still means <strong>follow one specific child</strong>, but a <code>'.'</code> means <strong>try every existing child</strong> — because we don't know which letter it stands for.</p>
+          <p>That "try every child" step is naturally a <strong>DFS with branching</strong>: recurse into each child on a wildcard, and succeed if <em>any</em> branch eventually matches the rest of the pattern. A plain letter just narrows the DFS to a single child instead of fanning out.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(26^d)</div><div class="lbl">Worst case — d = wildcard count</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(Σ L)</div><div class="lbl">Space — shared prefixes cost nothing extra</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div class="field">
+          <label for="in-ops">operations — one per line</label>
+          <textarea id="in-ops" class="op-script">addWord bad
+addWord dad
+addWord mad
+search pad
+search bad
+search .ad
+search b..</textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Trie — active branches highlighted, dashed ring = end of word</div>
+          <div id="stage-trie" class="tree-stage"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>Words are stored in a standard trie. The interesting part is search, which we implement as a recursive depth-first walk over both the trie and the pattern string at the same time. At each step, if the pattern is exhausted, we succeed exactly when the current node is flagged as the end of a word.</p>
+        <p>Otherwise we look at the next character of the pattern. If it's a normal letter, we simply recurse into that one specific child — if it doesn't exist, this branch fails immediately. If it's a wildcard dot, we don't know which letter it represents, so we recurse into every existing child and succeed if any single one of those branches eventually succeeds. This branching is what makes wildcard search potentially expensive — each dot can multiply the number of paths explored by up to twenty-six — but in practice tries stay shallow and sparse, so it performs well.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class WordDictionary {
+    class TrieNode {
+        Map<Character, TrieNode> children = new HashMap<>();
+        boolean isEnd = false;
+    }
+    private final TrieNode root = new TrieNode();
+
+    public void addWord(String word) {
+        TrieNode node = root;
+        for (char c : word.toCharArray()) {
+            node = node.children.computeIfAbsent(c, k -> new TrieNode());
+        }
+        node.isEnd = true;
+    }
+
+    public boolean search(String word) {
+        return dfs(root, word, 0);
+    }
+
+    private boolean dfs(TrieNode node, String word, int i) {
+        if (node == null) return false;
+        if (i == word.length()) return node.isEnd;
+
+        char c = word.charAt(i);
+        if (c == '.') {
+            for (TrieNode child : node.children.values()) {
+                if (dfs(child, word, i + 1)) return true;
+            }
+            return false;
+        }
+        return dfs(node.children.get(c), word, i + 1);
+    }
+}`;
+
+  let nextId = 0;
+  function newNode() { return { id: nextId++, children: {}, isEnd: false }; }
+
+  function buildFrames() {
+    const lines = document.getElementById('in-ops').value.split('\n').map(l => l.trim()).filter(Boolean);
+    const F = [];
+    nextId = 0;
+    const root = newNode();
+
+    const snap = (extra) => Object.assign({ root }, extra);
+
+    function addWord(word) {
+      let node = root;
+      F.push(snap({ line: [8, 9, 10, 11], msg: `addWord("${word}").`, path: [root.id] }));
+      const path = [root.id];
+      for (const c of word) {
+        if (!node.children[c]) node.children[c] = newNode();
+        node = node.children[c];
+        path.push(node.id);
+      }
+      node.isEnd = true;
+      F.push(snap({ line: 12, msg: `"${word}" stored — final node flagged as end-of-word.`, path, markedEnd: node.id }));
+    }
+
+    function search(word) {
+      let found = false;
+      const visitedPath = [];
+
+      function dfs(node, i, path) {
+        if (!node) {
+          F.push(snap({ line: 19, msg: `Dead end — this branch doesn't exist. Fail.`, path }));
+          return false;
+        }
+        visitedPath.push(...path.filter(id => !visitedPath.includes(id)));
+
+        if (i === word.length) {
+          F.push(snap({ line: 20, msg: `Pattern exhausted at this node — isEnd is ${node.isEnd}.`, path, checkEnd: node.id }));
+          return node.isEnd;
+        }
+
+        const c = word[i];
+        if (c === '.') {
+          const children = Object.entries(node.children);
+          F.push(snap({ line: [23, 24], msg: `'.' — try every child from here (${children.length ? children.map(([k]) => k).join(', ') : 'none'}).`, path }));
+          for (const [ch, child] of children) {
+            F.push(snap({ line: 25, msg: `Branch into child '${ch}'.`, path: [...path, child.id] }));
+            if (dfs(child, i + 1, [...path, child.id])) return true;
+          }
+          return false;
+        }
+
+        if (!node.children[c]) {
+          F.push(snap({ line: 28, msg: `'${c}' — no matching child. Fail.`, path }));
+          return false;
+        }
+        F.push(snap({ line: 28, msg: `'${c}' — follow the one matching child.`, path: [...path, node.children[c].id] }));
+        return dfs(node.children[c], i + 1, [...path, node.children[c].id]);
+      }
+
+      found = dfs(root, 0, [root.id]);
+      F.push(snap({ line: 15, msg: `search("${word}") → ${found}.`, path: [], answer: found, done: 'ok' }));
+    }
+
+    lines.forEach((line) => {
+      const [cmd, arg] = line.split(/\s+/);
+      if (cmd === 'addWord') addWord(arg);
+      else if (cmd === 'search') search(arg);
+    });
+
+    return F;
+  }
+
+  function render(f) {
+    const path = f.path || [];
+    Viz.renderNaryTree(
+      document.getElementById('stage-trie'),
+      f.root,
+      (n) => (n.id === f.checkEnd ? (n.isEnd ? 'ok' : 'bad') : n.id === f.markedEnd ? 'ok' : path.includes(n.id) ? 'active' : ''),
+      (n) => (n === f.root ? '•' : '')
+    );
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ` show ${f.answer ? 'ok' : 'bad'}` : '');
+    res.textContent = f.done ? (f.answer ? '✓ true' : '✗ false') : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

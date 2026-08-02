@@ -1,21 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unique Paths | LC 62 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unique Paths — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .dp-grid { display: inline-grid; gap: 6px; }
+    .dp-grid .cell { min-width: 44px; height: 44px; font-size: .9rem; position: relative; }
+    .dp-grid .cell .bot { position: absolute; top: -13px; right: -7px; font-size: .78rem; }
+    .formula {
+      display: flex; align-items: center; justify-content: center; gap: .55rem;
+      font-family: var(--mono); font-size: .95rem; font-weight: 700; flex-wrap: wrap;
+    }
+    .formula .op { color: var(--text-3); font-weight: 400; }
+    .formula .cell { height: 40px; font-size: .85rem; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Unique Paths | LC 62</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">2-D Dynamic Programming</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 62</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Unique Paths</h1>
+      <div class="chips">
+        <span class="chip accent">Grid DP</span>
+        <span class="chip">⏱ O(m·n) time</span>
+        <span class="chip">💾 O(m·n) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>A robot starts at the <strong>top-left</strong> of an <code>m × n</code> grid and wants to reach the <strong>bottom-right</strong>. It can only move <strong>right or down</strong>. How many unique paths are there?</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">m = 3, n = 7</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">28</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>How did the robot arrive at any cell? Only two ways exist: <strong>from above</strong> or <strong>from the left</strong>. So the number of paths into a cell is the sum of the paths into those two neighbors — <code>dp[r][c] = dp[r−1][c] + dp[r][c−1]</code>.</p>
+          <p>The first row and first column are base cases: there's exactly <strong>one</strong> way to reach them (march straight right, or straight down). Fill the table row by row and the bottom-right cell accumulates the total. It's Climbing Stairs stretched into two dimensions.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(m·n)</div><div class="lbl">Time — one addition per cell</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(m·n)</div><div class="lbl">Space — the table (one row possible)</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:280px;">
+          <div class="field"><label for="in-m">m (rows, 2–7)</label><input id="in-m" type="number" min="2" max="7" value="3"></div>
+          <div class="field"><label for="in-n">n (cols, 2–9)</label><input id="in-n" type="number" min="2" max="9" value="7"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-m="3" data-n="7">3 × 7</button>
+          <button class="preset-btn" data-m="3" data-n="2">3 × 2</button>
+          <button class="preset-btn" data-m="5" data-n="5">5 × 5</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Recurrence</div>
+          <div id="stage-formula" class="formula" style="min-height:44px;"></div>
+          <div class="stage-label" style="margin-top:1.1rem;">dp table — 🤖 marks the cell being computed, 🏁 is the goal</div>
+          <div style="display:flex;justify-content:center;"><div id="stage-grid" class="dp-grid"></div></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>Every cell in the grid asks the same small question: how many ways can the robot possibly get here? Since the robot only moves right or down, it can only have arrived from the cell directly above or the cell directly to the left. Adding those two answers gives this cell's answer — no path is missed and none is counted twice.</p>
+        <p>Cells in the first row or first column can only be reached one way, by marching in a straight line, so they seed the table with ones. Filling the rest row by row, each cell is a single addition of two already-known values. When we reach the bottom-right corner, it holds the total number of unique paths. This is the two-dimensional version of the Climbing Stairs recurrence, and since each cell only looks up and left, the whole table can be compressed to a single rolling row for linear space.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int uniquePaths(int m, int n) {
+        int[][] dp = new int[m][n];
+
+        for (int r = 0; r < m; r++) {
+            for (int c = 0; c < n; c++) {
+                if (r == 0 || c == 0) {
+                    dp[r][c] = 1; // only one straight path
+                } else {
+                    dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
+                }
+            }
+        }
+        return dp[m - 1][n - 1];
+    }
+}`;
+
+  function clampInput(id, lo, hi) {
+    const el = document.getElementById(id);
+    const v = Math.max(lo, Math.min(hi, parseInt(el.value, 10) || lo));
+    el.value = v;
+    return v;
+  }
+
+  function buildFrames() {
+    const m = clampInput('in-m', 2, 7);
+    const n = clampInput('in-n', 2, 9);
+    const F = [];
+    const dp = Array.from({ length: m }, () => new Array(n).fill(null));
+    const snap = () => dp.map(row => row.slice());
+
+    F.push({ line: 3, msg: `Create an empty ${m} × ${n} table. dp[r][c] = paths from start to that cell.`, m, n, dp: snap() });
+
+    for (let r = 0; r < m; r++) {
+      for (let c = 0; c < n; c++) {
+        if (r === 0 || c === 0) {
+          dp[r][c] = 1;
+          F.push({
+            line: [7, 8],
+            msg: `dp[${r}][${c}] = 1 — ${r === 0 ? 'top row: only path is straight right' : 'left column: only path is straight down'}.`,
+            m, n, dp: snap(), r, c, justSet: true,
+          });
+        } else {
+          F.push({
+            line: 9,
+            msg: `Cell (${r}, ${c}): the robot arrived from above (${dp[r - 1][c]}) or from the left (${dp[r][c - 1]}).`,
+            m, n, dp: snap(), r, c, depUp: true, depLeft: true,
+          });
+          dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
+          F.push({
+            line: 10,
+            msg: `dp[${r}][${c}] = ${dp[r - 1][c]} + ${dp[r][c - 1]} = ${dp[r][c]}.`,
+            m, n, dp: snap(), r, c, depUp: true, depLeft: true, justSet: true,
+          });
+        }
+      }
+    }
+
+    F.push({
+      line: 14,
+      msg: `Table full — ${dp[m - 1][n - 1]} unique paths to the goal. Return dp[${m - 1}][${n - 1}].`,
+      m, n, dp: snap(), done: 'ok', answer: dp[m - 1][n - 1],
+    });
+    return F;
+  }
+
+  function render(f) {
+    const fx = document.getElementById('stage-formula');
+    if (f.r != null && f.r > 0 && f.c > 0) {
+      fx.innerHTML = `
+        <div class="cell ${f.justSet ? 'ok' : 'active'}">dp[${f.r}][${f.c}]${f.justSet ? ' = ' + f.dp[f.r][f.c] : ''}</div>
+        <span class="op">=</span>
+        <div class="cell warn">↑ above: ${f.dp[f.r - 1][f.c]}</div>
+        <span class="op">+</span>
+        <div class="cell" style="border-color:rgba(34,211,238,.5);color:#67e8f9;">← left: ${f.dp[f.r][f.c - 1]}</div>`;
+    } else if (f.r != null) {
+      fx.innerHTML = `<div class="cell ok">dp[${f.r}][${f.c}] = 1</div><span class="op">— base case (edge of the grid)</span>`;
+    } else {
+      fx.innerHTML = '<span style="color:var(--text-3);font-size:.85rem;">dp[r][c] = dp[r−1][c] + dp[r][c−1]</span>';
+    }
+
+    const grid = document.getElementById('stage-grid');
+    grid.style.gridTemplateColumns = `repeat(${f.n}, 1fr)`;
+    let html = '';
+    for (let r = 0; r < f.m; r++) {
+      for (let c = 0; c < f.n; c++) {
+        const v = f.dp[r][c];
+        let cls = v == null ? 'dim' : '';
+        let bot = '';
+        if (f.done) {
+          cls = (r === f.m - 1 && c === f.n - 1) ? 'ok' : '';
+        } else if (r === f.r && c === f.c) {
+          cls = f.justSet ? 'ok pop' : 'active';
+          bot = '<span class="bot">🤖</span>';
+        } else if (f.depUp && r === f.r - 1 && c === f.c) {
+          cls = 'warn';
+        } else if (f.depLeft && r === f.r && c === f.c - 1) {
+          cls = '';
+          html += `<div class="cell" style="border-color:rgba(34,211,238,.5);color:#67e8f9;">${v == null ? '·' : v}</div>`;
+          continue;
+        }
+        if (r === f.m - 1 && c === f.n - 1 && !f.done && !(r === f.r && c === f.c)) bot = '<span class="bot">🏁</span>';
+        html += `<div class="cell ${cls}">${bot}${v == null ? '·' : v}</div>`;
+      }
+    }
+    grid.innerHTML = html;
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? `✓ ${f.answer} unique paths` : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-m]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-m').value = b.dataset.m;
+      document.getElementById('in-n').value = b.dataset.n;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

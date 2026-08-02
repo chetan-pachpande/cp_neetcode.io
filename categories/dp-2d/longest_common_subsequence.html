@@ -1,21 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Longest Common Subsequence | LC 1143 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Longest Common Subsequence — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .dp-grid { display: inline-grid; gap: 5px; }
+    .dp-grid .cell { min-width: 40px; height: 40px; font-size: .85rem; }
+    .dp-grid .hdr {
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: .8rem; font-weight: 700; color: var(--text-3);
+    }
+    .dp-grid .hdr.ch { color: var(--violet); }
+    .dp-grid .hdr.lit { color: #6ee7b7; text-shadow: 0 0 10px rgba(52,211,153,.6); }
+    .dp-grid .cell.path { border-style: dashed; border-color: rgba(52,211,153,.55); }
+    .str-tiles { display: flex; gap: 6px; align-items: center; }
+    .str-tiles .lbl { font-family: var(--mono); font-size: .72rem; color: var(--text-3); min-width: 44px; }
+    .cell.ch { min-width: 36px; height: 36px; font-size: .85rem; }
+    .formula {
+      display: flex; align-items: center; justify-content: center; gap: .55rem;
+      font-family: var(--mono); font-size: .9rem; font-weight: 700; flex-wrap: wrap;
+    }
+    .formula .op { color: var(--text-3); font-weight: 400; }
+    .formula .cell { height: 38px; font-size: .8rem; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Longest Common Subsequence | LC 1143</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">2-D Dynamic Programming</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 1143</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Longest Common Subsequence</h1>
+      <div class="chips">
+        <span class="chip accent">String-vs-String Table DP</span>
+        <span class="chip">⏱ O(m·n) time</span>
+        <span class="chip">💾 O(m·n) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Given two strings, return the length of their <strong>longest common subsequence</strong> — characters in the same relative order, but not necessarily contiguous. Return <code>0</code> if none exists.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">text1 = "abcde", text2 = "ace"</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">3 &nbsp;("ace")</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Compare the strings <strong>one prefix pair at a time</strong>. Let <code>dp[i][j]</code> = LCS length of the first <code>i</code> chars of <code>text1</code> vs the first <code>j</code> chars of <code>text2</code>.</p>
+          <p>If the two current characters <strong>match</strong>, they extend the best answer of both shorter prefixes: <code>dp[i][j] = dp[i−1][j−1] + 1</code> (diagonal + 1). If they <strong>don't</strong>, one of them is dead weight — drop whichever hurts less: <code>max(dp[i−1][j], dp[i][j−1])</code>. Row 0 and column 0 are zeros (empty prefix has nothing in common). The finished table even remembers the subsequence itself — walking it backwards spells it out.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(m·n)</div><div class="lbl">Time — one cell per prefix pair</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(m·n)</div><div class="lbl">Space — the table (two rows possible)</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+          <div class="field"><label for="in-a">text1 (a–z, max 7)</label><input id="in-a" value="abcde" maxlength="7"></div>
+          <div class="field"><label for="in-b">text2 (a–z, max 7)</label><input id="in-b" value="ace" maxlength="7"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-a="abcde" data-b="ace">abcde · ace</button>
+          <button class="preset-btn" data-a="abc" data-b="abc">abc · abc</button>
+          <button class="preset-btn" data-a="abc" data-b="def">abc · def</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">The strings — green letters are part of the LCS</div>
+          <div id="stage-s1" class="str-tiles" style="margin-bottom:.5rem;"></div>
+          <div id="stage-s2" class="str-tiles"></div>
+          <div class="stage-label" style="margin-top:1.1rem;">The decision</div>
+          <div id="stage-formula" class="formula" style="min-height:42px;"></div>
+          <div class="stage-label" style="margin-top:1.1rem;">dp table — rows = text1 prefixes, cols = text2 prefixes</div>
+          <div style="display:flex;justify-content:center;overflow-x:auto;"><div id="stage-grid" class="dp-grid"></div></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>The table compares every prefix of one string against every prefix of the other. Cell i, j answers: what's the longest common subsequence using only the first i characters of text one and the first j characters of text two? The zeroth row and column are zero because an empty prefix shares nothing.</p>
+        <p>When the characters at the current pair of positions match, that character can safely end the common subsequence for both prefixes, so the answer is one plus the diagonal neighbor — the best result before either character was considered. When they differ, at least one of the two characters cannot be part of the answer, so we take the better of ignoring one or the other: the max of the cell above and the cell to the left.</p>
+        <p>After filling the table, the bottom-right cell holds the length. To recover the actual subsequence we walk backwards from that corner: on a character match we collect the letter and step diagonally; otherwise we follow whichever neighbor holds the larger value. The collected letters, read in order, are the longest common subsequence itself.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int longestCommonSubsequence(String text1, String text2) {
+        int m = text1.length(), n = text2.length();
+        int[][] dp = new int[m + 1][n + 1];
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (text1.charAt(i - 1) == text2.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+        return dp[m][n];
+    }
+}`;
+
+  function readStr(id) {
+    const el = document.getElementById(id);
+    const v = el.value.toLowerCase().replace(/[^a-z]/g, '').slice(0, 7);
+    el.value = v;
+    return v;
+  }
+
+  function buildFrames() {
+    const a = readStr('in-a');
+    const b = readStr('in-b');
+    const m = a.length, n = b.length;
+    const F = [];
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(null));
+    for (let j = 0; j <= n; j++) dp[0][j] = 0;
+    for (let i = 0; i <= m; i++) dp[i][0] = 0;
+    const snap = () => dp.map(row => row.slice());
+    const base = { a, b, phase: 'fill' };
+
+    if (m === 0 || n === 0) {
+      F.push(Object.assign({ line: 15, msg: 'One string is empty — nothing in common. Return 0.', dp: snap(), done: 'ok', answer: 0, lcs: '', aIdx: [], bIdx: [], phase: 'done' }, base, { phase: 'done' }));
+      return F;
+    }
+
+    F.push(Object.assign({ line: 4, msg: `Build a ${m + 1} × ${n + 1} table. Row 0 and column 0 are zeros — empty prefixes share nothing.`, dp: snap() }, base));
+
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        const match = a[i - 1] === b[j - 1];
+        if (match) {
+          F.push(Object.assign({
+            line: 8,
+            msg: `'${a[i - 1]}' == '${b[j - 1]}' — match! Extend the diagonal answer.`,
+            dp: snap(), i, j, match: true,
+          }, base));
+          dp[i][j] = dp[i - 1][j - 1] + 1;
+          F.push(Object.assign({
+            line: 9,
+            msg: `dp[${i}][${j}] = dp[${i - 1}][${j - 1}] + 1 = ${dp[i - 1][j - 1]} + 1 = ${dp[i][j]}.`,
+            dp: snap(), i, j, match: true, justSet: true,
+          }, base));
+        } else {
+          F.push(Object.assign({
+            line: 10,
+            msg: `'${a[i - 1]}' ≠ '${b[j - 1]}' — no match. Take the better of dropping either character.`,
+            dp: snap(), i, j, match: false,
+          }, base));
+          dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+          F.push(Object.assign({
+            line: 11,
+            msg: `dp[${i}][${j}] = max(↑ ${dp[i - 1][j]}, ← ${dp[i][j - 1]}) = ${dp[i][j]}.`,
+            dp: snap(), i, j, match: false, justSet: true,
+          }, base));
+        }
+      }
+    }
+
+    F.push(Object.assign({ line: 15, msg: `Table full — LCS length is ${dp[m][n]}. Now trace back to spell it out.`, dp: snap() }, base));
+
+    // traceback: reconstruct the subsequence
+    let i = m, j = n;
+    let lcs = '';
+    const aIdx = [], bIdx = [], path = [];
+    while (i > 0 && j > 0) {
+      path.push([i, j]);
+      if (a[i - 1] === b[j - 1]) {
+        lcs = a[i - 1] + lcs;
+        aIdx.unshift(i - 1);
+        bIdx.unshift(j - 1);
+        F.push(Object.assign({
+          line: 9,
+          msg: `At (${i}, ${j}): '${a[i - 1]}' matches — it's in the LCS. Step diagonally.`,
+          dp: snap(), traceI: i, traceJ: j, lcs, aIdx: aIdx.slice(), bIdx: bIdx.slice(), path: path.slice(),
+        }, base, { phase: 'trace' }));
+        i--; j--;
+      } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+        F.push(Object.assign({
+          line: 11,
+          msg: `At (${i}, ${j}): no match — the cell above is ≥, move up.`,
+          dp: snap(), traceI: i, traceJ: j, lcs, aIdx: aIdx.slice(), bIdx: bIdx.slice(), path: path.slice(),
+        }, base, { phase: 'trace' }));
+        i--;
+      } else {
+        F.push(Object.assign({
+          line: 11,
+          msg: `At (${i}, ${j}): no match — the cell to the left is larger, move left.`,
+          dp: snap(), traceI: i, traceJ: j, lcs, aIdx: aIdx.slice(), bIdx: bIdx.slice(), path: path.slice(),
+        }, base, { phase: 'trace' }));
+        j--;
+      }
+    }
+
+    F.push(Object.assign({
+      line: 15,
+      msg: lcs ? `Done — the longest common subsequence is "${lcs}" (length ${dp[m][n]}).` : 'Done — the strings share no subsequence. Return 0.',
+      dp: snap(), lcs, aIdx: aIdx.slice(), bIdx: bIdx.slice(), path: path.slice(),
+      done: 'ok', answer: dp[m][n],
+    }, base, { phase: 'done' }));
+    return F;
+  }
+
+  function tiles(mountId, label, str, activePos, litIdx) {
+    document.getElementById(mountId).innerHTML =
+      `<span class="lbl">${label}</span>` +
+      (str ? [...str].map((ch, idx) => {
+        let cls = '';
+        if ((litIdx || []).includes(idx)) cls = 'ok';
+        else if (idx === activePos) cls = 'active';
+        return `<div class="cell ch ${cls}">${ch}</div>`;
+      }).join('') : '<span style="color:var(--text-3);font-size:.8rem;">(empty)</span>');
+  }
+
+  function render(f) {
+    tiles('stage-s1', 'text1', f.a, f.phase === 'fill' && f.i != null ? f.i - 1 : null, f.aIdx);
+    tiles('stage-s2', 'text2', f.b, f.phase === 'fill' && f.j != null ? f.j - 1 : null, f.bIdx);
+
+    const fx = document.getElementById('stage-formula');
+    if (f.phase === 'fill' && f.i != null) {
+      if (f.match) {
+        fx.innerHTML = `
+          <div class="cell ${f.justSet ? 'ok' : 'active'}">dp[${f.i}][${f.j}]${f.justSet ? ' = ' + f.dp[f.i][f.j] : ''}</div>
+          <span class="op">=</span>
+          <div class="cell" style="border-color:rgba(34,211,238,.5);color:#67e8f9;">↖ diag: ${f.dp[f.i - 1][f.j - 1]}</div>
+          <span class="op">+ 1 &nbsp;(match '${f.a[f.i - 1]}')</span>`;
+      } else {
+        fx.innerHTML = `
+          <div class="cell ${f.justSet ? 'ok' : 'active'}">dp[${f.i}][${f.j}]${f.justSet ? ' = ' + f.dp[f.i][f.j] : ''}</div>
+          <span class="op">=</span>
+          <span class="op">max(</span>
+          <div class="cell warn">↑ ${f.dp[f.i - 1][f.j]}</div>
+          <span class="op">,</span>
+          <div class="cell" style="border-color:rgba(34,211,238,.5);color:#67e8f9;">← ${f.dp[f.i][f.j - 1]}</div>
+          <span class="op">)</span>`;
+      }
+    } else if (f.phase === 'trace' || f.phase === 'done') {
+      fx.innerHTML = `<span class="op">LCS so far:</span><div class="cell ok" style="min-width:60px;">${f.lcs ? '"' + f.lcs + '"' : '""'}</div>`;
+    } else {
+      fx.innerHTML = '<span style="color:var(--text-3);font-size:.85rem;">match → diag + 1 · mismatch → max(↑, ←)</span>';
+    }
+
+    const grid = document.getElementById('stage-grid');
+    const m = f.a.length, n = f.b.length;
+    grid.style.gridTemplateColumns = `repeat(${n + 2}, 1fr)`;
+    const pathSet = new Set((f.path || []).map(([pi, pj]) => pi + ',' + pj));
+    let html = '<div class="hdr"></div><div class="hdr">∅</div>';
+    for (let j = 0; j < n; j++) {
+      const lit = (f.bIdx || []).includes(j) || (f.phase === 'fill' && f.j === j + 1);
+      html += `<div class="hdr ch ${(f.bIdx || []).includes(j) ? 'lit' : ''}" style="${f.phase === 'fill' && f.j === j + 1 ? 'color:#c7d2fe;' : ''}">${f.b[j]}</div>`;
+    }
+    for (let i = 0; i <= m; i++) {
+      const rowCh = i === 0 ? '∅' : f.a[i - 1];
+      const rowLit = i > 0 && (f.aIdx || []).includes(i - 1);
+      html += `<div class="hdr ${i > 0 ? 'ch' : ''} ${rowLit ? 'lit' : ''}" style="${f.phase === 'fill' && f.i === i && i > 0 ? 'color:#c7d2fe;' : ''}">${rowCh}</div>`;
+      for (let j = 0; j <= n; j++) {
+        const v = f.dp[i][j];
+        let cls = v == null ? 'dim' : '';
+        if (f.phase === 'fill' && i === f.i && j === f.j) cls = f.justSet ? 'ok pop' : 'active';
+        else if (f.phase === 'fill' && f.i != null && !f.justSet) {
+          if (f.match && i === f.i - 1 && j === f.j - 1) cls = 'warn';
+          else if (!f.match && ((i === f.i - 1 && j === f.j) || (i === f.i && j === f.j - 1))) cls = 'warn';
+        } else if ((f.phase === 'trace' || f.phase === 'done') && pathSet.has(i + ',' + j)) {
+          cls = (i === f.traceI && j === f.traceJ) ? 'active' : 'path';
+        }
+        if (f.done && i === m && j === n) cls = 'ok';
+        html += `<div class="cell ${cls}">${v == null ? '·' : v}</div>`;
+      }
+    }
+    grid.innerHTML = html;
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? (f.lcs ? `✓ LCS = "${f.lcs}" — length ${f.answer}` : '✓ no common subsequence — return 0') : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-a]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-a').value = b.dataset.a;
+      document.getElementById('in-b').value = b.dataset.b;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

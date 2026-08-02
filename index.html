@@ -1,357 +1,564 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Competitive Programming Visualizations</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        .card {
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-        }
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s ease;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -3px rgb(0 0 0 / 0.1);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CP Visualizations — See Algorithms Think</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* ---- hero ---- */
+    .hero { text-align: center; padding: 5.5rem 0 3.5rem; }
+    .hero .eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 1rem; border-radius: 999px;
+      border: 1px solid rgba(129,140,248,.35); background: rgba(129,140,248,.08);
+      color: #c7d2fe; font-size: .78rem; font-weight: 600; letter-spacing: .04em;
+      margin-bottom: 1.6rem;
+    }
+    .hero .eyebrow .pulse {
+      width: 8px; height: 8px; border-radius: 99px; background: var(--ok);
+      box-shadow: 0 0 0 0 rgba(52,211,153,.7); animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(52,211,153,.6); }
+      70% { box-shadow: 0 0 0 8px rgba(52,211,153,0); }
+      100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+    }
+    .hero h1 {
+      font-size: clamp(2.6rem, 6vw, 4.4rem);
+      font-weight: 900; letter-spacing: -0.03em; line-height: 1.06;
+      margin: 0 0 1.2rem;
+    }
+    .hero p.sub {
+      color: var(--text-2); font-size: 1.15rem; line-height: 1.7;
+      max-width: 620px; margin: 0 auto 2.4rem;
+    }
+    .stats { display: flex; justify-content: center; gap: 2.75rem; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat .num { font-family: var(--mono); font-size: 2rem; font-weight: 700; }
+    .stat .lbl { color: var(--text-3); font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; margin-top: .2rem; }
+
+    /* ---- live hero demo: a tiny Two Sum forever finding 2 + 7 = 9 ---- */
+    .hero-demo { margin: 0 auto 2.4rem; max-width: 520px; }
+    .hero-demo .cap {
+      font-family: var(--mono); font-size: .72rem; color: var(--text-3);
+      margin-bottom: .7rem; letter-spacing: .05em;
+    }
+    .hero-demo .cap .fn { color: #86efac; }
+    .hero-demo .row { display: flex; justify-content: center; gap: 8px; }
+    .hcell {
+      width: 46px; height: 46px; border-radius: .65rem;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); background: var(--surface-2);
+      font-family: var(--mono); font-size: .95rem; font-weight: 600; color: var(--text-2);
+      animation: hscan 5.2s ease-in-out infinite;
+      animation-delay: var(--d);
+    }
+    .hcell.hit { animation: hscan 5.2s ease-in-out infinite, hhit 5.2s ease-in-out infinite; animation-delay: var(--d), 0s; }
+    @keyframes hscan {
+      0%, 8.5% { border-color: var(--border); background: var(--surface-2); color: var(--text-2); transform: none; box-shadow: none; }
+      3.5% {
+        border-color: var(--indigo); background: rgba(129,140,248,.22); color: #fff;
+        transform: translateY(-5px); box-shadow: 0 0 0 3px rgba(129,140,248,.2), 0 0 18px rgba(129,140,248,.35);
+      }
+    }
+    @keyframes hhit {
+      0%, 55%, 96%, 100% { border-color: var(--border); background: var(--surface-2); color: var(--text-2); box-shadow: none; }
+      62%, 88% {
+        border-color: var(--ok); background: rgba(52,211,153,.2); color: #a7f3d0;
+        box-shadow: 0 0 0 3px rgba(52,211,153,.22), 0 0 20px rgba(52,211,153,.35);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) { .hcell { animation: none !important; } }
+
+    .kbd-chip {
+      position: absolute; right: .9rem; top: 50%; transform: translateY(-50%);
+      font-family: var(--mono); font-size: .68rem; color: var(--text-3);
+      border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px;
+      padding: 2px 7px; background: var(--surface); pointer-events: none;
+    }
+
+    /* ---- search ---- */
+    .search-wrap { position: relative; max-width: 560px; margin: 0 auto 3.5rem; }
+    .search-wrap svg { position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); color: var(--text-3); }
+    .search-wrap input {
+      width: 100%; padding: 1rem 1.2rem 1rem 3.1rem;
+      border-radius: 1rem; border: 1px solid var(--border);
+      background: rgba(255,255,255,.05); backdrop-filter: blur(12px);
+      color: var(--text-1); font-family: 'Inter', sans-serif; font-size: 1rem;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    .search-wrap input::placeholder { color: var(--text-3); }
+    .search-wrap input:focus { border-color: var(--indigo); box-shadow: 0 0 0 4px rgba(129,140,248,.15), 0 0 40px rgba(129,140,248,.15); }
+
+    /* ---- category grid ---- */
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem; padding-bottom: 5rem; }
+
+    .cat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 1.25rem;
+      backdrop-filter: blur(14px); overflow: hidden;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+    }
+    .cat-card:hover {
+      transform: translateY(-4px);
+      border-color: hsl(var(--h, 235) 75% 68% / .5);
+      box-shadow: 0 18px 50px -18px hsl(var(--h, 235) 75% 60% / .5);
+    }
+
+    .cat-head {
+      display: flex; align-items: center; gap: 1rem; width: 100%;
+      padding: 1.4rem 1.5rem; background: none; border: none; cursor: pointer;
+      text-align: left; color: var(--text-1); font-family: 'Inter', sans-serif;
+    }
+    .cat-icon {
+      width: 48px; height: 48px; border-radius: .9rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+      background: linear-gradient(135deg, hsl(var(--h, 235) 70% 62% / .24), hsl(calc(var(--h, 235) + 30) 70% 60% / .14));
+      border: 1px solid hsl(var(--h, 235) 70% 68% / .35);
+      box-shadow: inset 0 0 18px hsl(var(--h, 235) 70% 60% / .12);
+    }
+    .cat-meta { flex: 1; min-width: 0; }
+    .cat-meta .name { font-weight: 700; font-size: 1.02rem; }
+    .cat-meta .sub { color: var(--text-3); font-size: .78rem; margin-top: .2rem; }
+    .cat-meta .sub .done { color: var(--ok); font-weight: 600; }
+
+    .ring { flex-shrink: 0; position: relative; width: 52px; height: 52px; }
+    .ring svg { transform: rotate(-90deg); }
+    .ring .pct {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: .68rem; font-weight: 700; color: var(--text-2);
+    }
+
+    .chev { color: var(--text-3); transition: transform .25s; flex-shrink: 0; }
+    .cat-card.open .chev { transform: rotate(90deg); }
+
+    .prob-list { display: none; border-top: 1px solid var(--border); padding: .6rem .75rem .9rem; }
+    .cat-card.open .prob-list { display: block; }
+    .prob-list a {
+      display: flex; align-items: center; gap: .65rem;
+      padding: .5rem .75rem; border-radius: .6rem;
+      color: var(--text-2); text-decoration: none; font-size: .86rem;
+      transition: background .15s, color .15s;
+    }
+    .prob-list a:hover { background: rgba(129,140,248,.1); color: var(--text-1); }
+    .prob-list .st { width: 8px; height: 8px; border-radius: 99px; flex-shrink: 0; }
+    .prob-list .st.done { background: var(--ok); box-shadow: 0 0 8px rgba(52,211,153,.7); }
+    .prob-list .st.wip { background: var(--warn); opacity: .7; }
+    .prob-list .dif { margin-left: auto; font-size: .66rem; font-weight: 600; flex-shrink: 0; }
+    .prob-list .dif.easy { color: #6ee7b7; }
+    .prob-list .dif.medium { color: #fcd34d; }
+    .prob-list .dif.hard { color: #fda4af; }
+    .prob-list .lc { font-family: var(--mono); font-size: .68rem; color: var(--text-3); flex-shrink: 0; min-width: 54px; text-align: right; }
+
+    /* search results mode */
+    .cat-card.hidden { display: none; }
+    footer { text-align: center; padding: 0 0 3.5rem; color: var(--text-3); font-size: .82rem; }
+    footer .heart { color: var(--bad); }
+  </style>
 </head>
-<body class="text-gray-800">
-    <div class="container mx-auto px-4 py-8">
-        <header class="text-center mb-12">
-            <h1 class="text-5xl font-bold text-white mb-4">Competitive Programming Visualizations</h1>
-            <p class="text-xl text-blue-100">Interactive Visual Explainers for Complex Algorithms</p>
-            <div class="mt-4 text-blue-200">
-                <span class="text-sm">Created with ❤️ for the coding community</span>
-            </div>
-        </header>
+<body>
 
-        <main class="space-y-16">
-            <!-- Collapsible Category Tree View -->
-            <section id="categories" class="mt-8">
-              <ul id="category-tree" class="max-w-2xl mx-auto bg-white divide-y divide-gray-200 rounded-lg overflow-hidden">
-                <!-- dynamically generated categories -->
-              </ul>
-            </section>
-        </main>
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow"><span class="pulse"></span> NeetCode 150 · Interactive Visualizations</div>
+      <h1>Don't just read algorithms.<br><span class="grad-text">Watch them think.</span></h1>
+      <p class="sub">Step-by-step visual explainers for every classic coding-interview problem — live data structures, synced code execution, and playback you control.</p>
 
-        <footer class="text-center mt-16 text-blue-100">
-            <p class="text-sm">
-                Built with passion for learning and sharing knowledge.
-            </p>
-            <p class="text-xs mt-2 opacity-75">
-                Idea By: Chetan Pachpande | Executed By: Gemini
-            </p>
-        </footer>
+      <div class="hero-demo" aria-hidden="true">
+        <div class="cap">▶ <span class="fn">two_sum</span>(nums, target = 9) — running…</div>
+        <div class="row">
+          <div class="hcell" style="--d:0s">5</div>
+          <div class="hcell hit" style="--d:.38s">2</div>
+          <div class="hcell" style="--d:.76s">8</div>
+          <div class="hcell hit" style="--d:1.14s">7</div>
+          <div class="hcell" style="--d:1.52s">1</div>
+          <div class="hcell" style="--d:1.9s">9</div>
+          <div class="hcell" style="--d:2.28s">4</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="num grad-text" id="stat-problems">–</div><div class="lbl">Problems</div></div>
+        <div class="stat"><div class="num grad-text" id="stat-implemented">–</div><div class="lbl">Interactive</div></div>
+        <div class="stat"><div class="num grad-text" id="stat-categories">–</div><div class="lbl">Categories</div></div>
+      </div>
+    </header>
+
+    <div class="search-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search" type="text" placeholder="Search 150 problems… e.g. “two sum”, “islands”, “LC 121”" autocomplete="off">
+      <span class="kbd-chip">⌘K</span>
     </div>
-    <!-- Build collapsible tree and handle expand/collapse -->
-    <script>
-    const CATEGORIES = {
-      'arrays-hashing': [
-        ['contains_duplicate.html','Contains Duplicate | LC 217'],
-        ['valid_anagram.html','Valid Anagram | LC 242'],
-        ['two_sum.html','Two Sum | LC 1'],
-        ['group_anagrams.html','Group Anagrams | LC 49'],
-        ['top_k_frequent_elements.html','Top K Frequent Elements | LC 347'],
-        ['product_except_self.html','Product of Array Except Self | LC 238'],
-        ['valid_sudoku.html','Valid Sudoku | LC 36'],
-        ['encode_decode_strings.html','Encode and Decode Strings | LC 271 (Premium)'],
-        ['longest_consecutive_sequence.html','Longest Consecutive Sequence | LC 128'],
-      ],
-      'two-pointers': [
-        ['valid_palindrome.html','Valid Palindrome | LC 125'],
-        ['two_sum_ii.html','Two Sum II - Input Array Is Sorted | LC 167'],
-        ['three_sum.html','3Sum | LC 15'],
-        ['container_with_most_water.html','Container With Most Water | LC 11'],
-        ['trapping_rain_water.html','Trapping Rain Water | LC 42'],
-      ],
-      'sliding-window': [
-        ['best_time_buy_sell_stock.html','Best Time to Buy and Sell Stock | LC 121'],
-        ['longest_substring_without_repeating_characters.html','Longest Substring Without Repeating Characters | LC 3'],
-        ['longest_repeating_character_replacement.html','Longest Repeating Character Replacement | LC 424'],
-        ['permutation_in_string.html','Permutation in String | LC 567'],
-        ['minimum_window_substring.html','Minimum Window Substring | LC 76'],
-        ['sliding_window_maximum.html','Sliding Window Maximum | LC 239'],
-      ],
-      'stack': [
-        ['valid_parentheses.html','Valid Parentheses | LC 20'],
-        ['min_stack.html','Min Stack | LC 155'],
-        ['evaluate_reverse_polish_notation.html','Evaluate Reverse Polish Notation | LC 150'],
-        ['generate_parentheses.html','Generate Parentheses | LC 22'],
-        ['daily_temperatures.html','Daily Temperatures | LC 739'],
-        ['car_fleet.html','Car Fleet | LC 853'],
-        ['largest_rectangle_in_histogram.html','Largest Rectangle in Histogram | LC 84'],
-      ],
-      'binary-search': [
-        ['binary_search.html','Binary Search | LC 704'],
-        ['search_2d_matrix.html','Search a 2D Matrix | LC 74'],
-        ['koko_eating_bananas.html','Koko Eating Bananas | LC 875'],
-        ['find_minimum_rotated_sorted_array.html','Find Minimum in Rotated Sorted Array | LC 153'],
-        ['search_in_rotated_sorted_array.html','Search in Rotated Sorted Array | LC 33'],
-        ['time_based_key_value_store.html','Time Based Key-Value Store | LC 981'],
-        ['median_of_two_sorted_arrays.html','Median of Two Sorted Arrays | LC 4'],
-      ],
-      'linked-list': [
-        ['reverse_linked_list.html','Reverse Linked List | LC 206'],
-        ['merge_two_sorted_lists.html','Merge Two Sorted Lists | LC 21'],
-        ['reorder_list.html','Reorder List | LC 143'],
-        ['remove_nth_node_from_end.html','Remove Nth Node From End of List | LC 19'],
-        ['copy_list_with_random_pointer.html','Copy List with Random Pointer | LC 138'],
-        ['add_two_numbers.html','Add Two Numbers | LC 2'],
-        ['linked_list_cycle.html','Linked List Cycle | LC 141'],
-        ['find_duplicate_number.html','Find the Duplicate Number | LC 287'],
-        ['lru_cache.html','LRU Cache | LC 146'],
-        ['merge_k_sorted_lists.html','Merge k Sorted Lists | LC 23'],
-        ['reverse_nodes_k_group.html','Reverse Nodes in k-Group | LC 25'],
-      ],
-      'trees': [
-        ['invert_binary_tree.html','Invert Binary Tree | LC 226'],
-        ['maximum_depth_binary_tree.html','Maximum Depth of Binary Tree | LC 104'],
-        ['diameter_binary_tree.html','Diameter of Binary Tree | LC 543'],
-        ['balanced_binary_tree.html','Balanced Binary Tree | LC 110'],
-        ['same_tree.html','Same Tree | LC 100'],
-        ['subtree_of_another_tree.html','Subtree of Another Tree | LC 572'],
-        ['lowest_common_ancestor_bst.html','Lowest Common Ancestor of a Binary Search Tree | LC 235'],
-        ['binary_tree_level_order_traversal.html','Binary Tree Level Order Traversal | LC 102'],
-        ['binary_tree_right_side_view.html','Binary Tree Right Side View | LC 199'],
-        ['count_good_nodes.html','Count Good Nodes in Binary Tree | LC 1448'],
-        ['validate_bst.html','Validate Binary Search Tree | LC 98'],
-        ['kth_smallest_bst.html','Kth Smallest Element in a BST | LC 230'],
-        ['construct_binary_tree_pre_inorder.html','Construct Binary Tree from Preorder and Inorder Traversal | LC 105'],
-        ['binary_tree_maximum_path_sum.html','Binary Tree Maximum Path Sum | LC 124'],
-        ['serialize_deserialize_binary_tree.html','Serialize and Deserialize Binary Tree | LC 297'],
-      ],
-      'tries': [
-        ['implement_trie.html','Implement Trie (Prefix Tree) | LC 208'],
-        ['design_add_search.html','Design Add and Search Words Data Structure | LC 211'],
-        ['word_search_ii.html','Word Search II | LC 212'],
-      ],
-      'heap': [
-        ['kth_largest_stream.html','Kth Largest Element in a Stream | LC 703'],
-        ['last_stone_weight.html','Last Stone Weight | LC 1046'],
-        ['k_closest_points.html','K Closest Points to Origin | LC 973'],
-        ['kth_largest_array.html','Kth Largest Element in an Array | LC 215'],
-        ['task_scheduler.html','Task Scheduler | LC 621'],
-        ['design_twitter.html','Design Twitter | LC 355'],
-        ['find_median_data_stream.html','Find Median from Data Stream | LC 295'],
-      ],
-      'backtracking': [
-        ['subsets.html','Subsets | LC 78'],
-        ['combination_sum.html','Combination Sum | LC 39'],
-        ['permutations.html','Permutations | LC 46'],
-        ['subsets_ii.html','Subsets II | LC 90'],
-        ['combination_sum_ii.html','Combination Sum II | LC 40'],
-        ['word_search.html','Word Search | LC 79'],
-        ['palindrome_partitioning.html','Palindrome Partitioning | LC 131'],
-        ['letter_combinations_phone_number.html','Letter Combinations of a Phone Number | LC 17'],
-        ['n_queens.html','N-Queens | LC 51'],
-      ],
-      'graphs': [
-        ['number_of_islands.html','Number of Islands | LC 200'],
-        ['clone_graph.html','Clone Graph | LC 133'],
-        ['max_area_of_island.html','Max Area of Island | LC 695'],
-        ['pacific_atlantic_water_flow.html','Pacific Atlantic Water Flow | LC 417'],
-        ['surrounded_regions.html','Surrounded Regions | LC 130'],
-        ['rotting_oranges.html','Rotting Oranges | LC 994'],
-        ['walls_and_gates.html','Walls and Gates | LC 286 (Premium)'],
-        ['course_schedule.html','Course Schedule | LC 207'],
-        ['course_schedule_ii.html','Course Schedule II | LC 210'],
-        ['redundant_connection.html','Redundant Connection | LC 684'],
-        ['num_connected_components.html','Number of Connected Components in an Undirected Graph | LC 323 (Premium)'],
-        ['graph_valid_tree.html','Graph Valid Tree | LC 261 (Premium)'],
-        ['word_ladder.html','Word Ladder | LC 127'],
-      ],
-      'advanced-graphs': [
-        ['reconstruct_itinerary.html','Reconstruct Itinerary | LC 332'],
-        ['min_cost_connect_points.html','Min Cost to Connect All Points | LC 1584'],
-        ['network_delay_time.html','Network Delay Time | LC 743'],
-        ['swim_in_rising_water.html','Swim in Rising Water | LC 778'],
-        ['alien_dictionary.html','Alien Dictionary | LC 269 (Premium)'],
-        ['cheapest_flights_k_stops.html','Cheapest Flights Within K Stops | LC 787'],
-      ],
-      'dp-1d': [
-        ['climbing_stairs.html','Climbing Stairs | LC 70'],
-        ['min_cost_climbing_stairs.html','Min Cost Climbing Stairs | LC 746'],
-        ['house_robber.html','House Robber | LC 198'],
-        ['house_robber_ii.html','House Robber II | LC 213'],
-        ['longest_palindromic_substring.html','Longest Palindromic Substring | LC 5'],
-        ['palindromic_substrings.html','Palindromic Substrings | LC 647'],
-        ['decode_ways.html','Decode Ways | LC 91'],
-        ['coin_change.html','Coin Change | LC 322'],
-        ['maximum_product_subarray.html','Maximum Product Subarray | LC 152'],
-        ['word_break.html','Word Break | LC 139'],
-        ['longest_increasing_subsequence.html','Longest Increasing Subsequence | LC 300'],
-        ['partition_equal_subset_sum.html','Partition Equal Subset Sum | LC 416'],
-      ],
-      'dp-2d': [
-        ['unique_paths.html','Unique Paths | LC 62'],
-        ['longest_common_subsequence.html','Longest Common Subsequence | LC 1143'],
-        ['best_time_buy_sell_stock_cooldown.html','Best Time to Buy and Sell Stock with Cooldown | LC 309'],
-        ['coin_change_2.html','Coin Change 2 | LC 518'],
-        ['target_sum.html','Target Sum | LC 494'],
-        ['interleaving_string.html','Interleaving String | LC 97'],
-        ['longest_increasing_path_matrix.html','Longest Increasing Path in a Matrix | LC 329'],
-        ['distinct_subsequences.html','Distinct Subsequences | LC 115'],
-        ['edit_distance.html','Edit Distance | LC 72'],
-        ['burst_balloons.html','Burst Balloons | LC 312'],
-        ['regular_expression_matching.html','Regular Expression Matching | LC 10'],
-      ],
-      'greedy': [
-        ['maximum_subarray.html','Maximum Subarray | LC 53'],
-        ['jump_game.html','Jump Game | LC 55'],
-        ['jump_game_ii.html','Jump Game II | LC 45'],
-        ['gas_station.html','Gas Station | LC 134'],
-        ['hand_of_straights.html','Hand of Straights | LC 846'],
-        ['merge_triplets.html','Merge Triplets to Form Target Triplet | LC 1899'],
-        ['partition_labels.html','Partition Labels | LC 763'],
-        ['valid_parenthesis_string.html','Valid Parenthesis String | LC 678'],
-      ],
-      'intervals': [
-        ['insert_interval.html','Insert Interval | LC 57'],
-        ['merge_intervals.html','Merge Intervals | LC 56'],
-        ['non_overlapping_intervals.html','Non-overlapping Intervals | LC 435'],
-        ['meeting_rooms.html','Meeting Rooms | LC 252 (Premium)'],
-        ['meeting_rooms_ii.html','Meeting Rooms II | LC 253 (Premium)'],
-        ['minimum_interval_queries.html','Minimum Interval to Include Each Query | LC 1851'],
-      ],
-      'math-geometry': [
-        ['rotate_image.html','Rotate Image | LC 48'],
-        ['spiral_matrix.html','Spiral Matrix | LC 54'],
-        ['set_matrix_zeroes.html','Set Matrix Zeroes | LC 73'],
-        ['happy_number.html','Happy Number | LC 202'],
-        ['plus_one.html','Plus One | LC 66'],
-        ['pow_x_n.html','Pow(x, n) | LC 50'],
-        ['multiply_strings.html','Multiply Strings | LC 43'],
-        ['detect_squares.html','Detect Squares | LC 2013'],
-      ],
-      'bit-manipulation': [
-        ['single_number.html','Single Number | LC 136'],
-        ['number_of_1_bits.html','Number of 1 Bits | LC 191'],
-        ['counting_bits.html','Counting Bits | LC 338'],
-        ['reverse_bits.html','Reverse Bits | LC 190'],
-        ['missing_number.html','Missing Number | LC 268'],
-        ['sum_of_two_integers.html','Sum of Two Integers | LC 371'],
-        ['reverse_integer.html','Reverse Integer | LC 7'],
-      ],
-    };
-    // List of problem files with completed visualizations
-    const IMPLEMENTED = new Set([
-      'two_sum.html',
-      'reverse_linked_list.html',
-      'largest_rectangle_in_histogram.html',
-      'word_search.html',
-      'best_time_buy_sell_stock.html',
-      'permutations.html',
-      'construct_binary_tree_pre_inorder.html',
-      'contains_duplicate.html',
-      'valid_anagram.html',
-      'product_except_self.html',
-      'group_anagrams.html',
-      'top_k_frequent_elements.html',
-      'valid_sudoku.html',
-      'encode_decode_strings.html',
-      'longest_consecutive_sequence.html',
-      'valid_palindrome.html',
-      'two_sum_ii.html',
-      'three_sum.html',
-      'container_with_most_water.html',
-      'trapping_rain_water.html',
-      'subsets.html',
-      'subsets_ii.html',
-      'binary_search.html'
-    ]);
-    document.addEventListener('DOMContentLoaded', () => {
-      const tree = document.getElementById('category-tree');
-      const formatTitle = slug => slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-      Object.entries(CATEGORIES).forEach(([slug, problems]) => {
-        const item = document.createElement('li');
-        // Category button
-        const btn = document.createElement('button');
-        btn.className = 'flex justify-between items-start w-full px-6 py-6 text-left text-gray-900 hover:bg-gray-50 transition';
-        btn.setAttribute('aria-expanded', 'false');
-        const listId = `list-${slug}`;
-        btn.setAttribute('aria-controls', listId);
-        // Calculate implemented vs in-progress counts
-        const implementedCount = problems.filter(([file]) => IMPLEMENTED.has(file)).length;
-        const inProgressCount = problems.length - implementedCount;
-        const completionPercentage = problems.length > 0 ? Math.round((implementedCount / problems.length) * 100) : 0;
-        
-        btn.innerHTML = `
-          <div class="flex flex-col flex-grow">
-            <span class="text-lg font-medium">${formatTitle(slug)}</span>
-            <div class="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-              <span class="flex items-center">
-                <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                ${implementedCount} implemented
+
+    <main id="cat-grid" class="cat-grid"></main>
+
+    <footer>
+      <p>Built with <span class="heart">❤</span> for the coding community — Idea by Chetan Pachpande</p>
+    </footer>
+  </div>
+
+  <script>
+  const CATEGORIES = [
+    { slug: 'arrays-hashing', name: 'Arrays & Hashing', icon: '🧮', problems: [
+      ['contains_duplicate.html','Contains Duplicate','217','Easy'],
+      ['valid_anagram.html','Valid Anagram','242','Easy'],
+      ['two_sum.html','Two Sum','1','Easy'],
+      ['group_anagrams.html','Group Anagrams','49','Medium'],
+      ['top_k_frequent_elements.html','Top K Frequent Elements','347','Medium'],
+      ['product_except_self.html','Product of Array Except Self','238','Medium'],
+      ['valid_sudoku.html','Valid Sudoku','36','Medium'],
+      ['encode_decode_strings.html','Encode and Decode Strings','271','Medium'],
+      ['longest_consecutive_sequence.html','Longest Consecutive Sequence','128','Medium'],
+    ]},
+    { slug: 'two-pointers', name: 'Two Pointers', icon: '👆', problems: [
+      ['valid_palindrome.html','Valid Palindrome','125','Easy'],
+      ['two_sum_ii.html','Two Sum II — Sorted Input','167','Medium'],
+      ['three_sum.html','3Sum','15','Medium'],
+      ['container_with_most_water.html','Container With Most Water','11','Medium'],
+      ['trapping_rain_water.html','Trapping Rain Water','42','Hard'],
+    ]},
+    { slug: 'sliding-window', name: 'Sliding Window', icon: '🪟', problems: [
+      ['best_time_buy_sell_stock.html','Best Time to Buy & Sell Stock','121','Easy'],
+      ['longest_substring_without_repeating_characters.html','Longest Substring Without Repeating Chars','3','Medium'],
+      ['longest_repeating_character_replacement.html','Longest Repeating Character Replacement','424','Medium'],
+      ['permutation_in_string.html','Permutation in String','567','Medium'],
+      ['minimum_window_substring.html','Minimum Window Substring','76','Hard'],
+      ['sliding_window_maximum.html','Sliding Window Maximum','239','Hard'],
+    ]},
+    { slug: 'stack', name: 'Stack', icon: '🥞', problems: [
+      ['valid_parentheses.html','Valid Parentheses','20','Easy'],
+      ['min_stack.html','Min Stack','155','Medium'],
+      ['evaluate_reverse_polish_notation.html','Evaluate Reverse Polish Notation','150','Medium'],
+      ['generate_parentheses.html','Generate Parentheses','22','Medium'],
+      ['daily_temperatures.html','Daily Temperatures','739','Medium'],
+      ['car_fleet.html','Car Fleet','853','Medium'],
+      ['largest_rectangle_in_histogram.html','Largest Rectangle in Histogram','84','Hard'],
+    ]},
+    { slug: 'binary-search', name: 'Binary Search', icon: '🔍', problems: [
+      ['binary_search.html','Binary Search','704','Easy'],
+      ['search_2d_matrix.html','Search a 2D Matrix','74','Medium'],
+      ['koko_eating_bananas.html','Koko Eating Bananas','875','Medium'],
+      ['find_minimum_rotated_sorted_array.html','Find Minimum in Rotated Sorted Array','153','Medium'],
+      ['search_in_rotated_sorted_array.html','Search in Rotated Sorted Array','33','Medium'],
+      ['time_based_key_value_store.html','Time Based Key-Value Store','981','Medium'],
+      ['median_of_two_sorted_arrays.html','Median of Two Sorted Arrays','4','Hard'],
+    ]},
+    { slug: 'linked-list', name: 'Linked List', icon: '🔗', problems: [
+      ['reverse_linked_list.html','Reverse Linked List','206','Easy'],
+      ['merge_two_sorted_lists.html','Merge Two Sorted Lists','21','Easy'],
+      ['reorder_list.html','Reorder List','143','Medium'],
+      ['remove_nth_node_from_end.html','Remove Nth Node From End','19','Medium'],
+      ['copy_list_with_random_pointer.html','Copy List with Random Pointer','138','Medium'],
+      ['add_two_numbers.html','Add Two Numbers','2','Medium'],
+      ['linked_list_cycle.html','Linked List Cycle','141','Easy'],
+      ['find_duplicate_number.html','Find the Duplicate Number','287','Medium'],
+      ['lru_cache.html','LRU Cache','146','Medium'],
+      ['merge_k_sorted_lists.html','Merge k Sorted Lists','23','Hard'],
+      ['reverse_nodes_k_group.html','Reverse Nodes in k-Group','25','Hard'],
+    ]},
+    { slug: 'trees', name: 'Trees', icon: '🌳', problems: [
+      ['invert_binary_tree.html','Invert Binary Tree','226','Easy'],
+      ['maximum_depth_binary_tree.html','Maximum Depth of Binary Tree','104','Easy'],
+      ['diameter_binary_tree.html','Diameter of Binary Tree','543','Easy'],
+      ['balanced_binary_tree.html','Balanced Binary Tree','110','Easy'],
+      ['same_tree.html','Same Tree','100','Easy'],
+      ['subtree_of_another_tree.html','Subtree of Another Tree','572','Easy'],
+      ['lowest_common_ancestor_bst.html','Lowest Common Ancestor of a BST','235','Medium'],
+      ['binary_tree_level_order_traversal.html','Binary Tree Level Order Traversal','102','Medium'],
+      ['binary_tree_right_side_view.html','Binary Tree Right Side View','199','Medium'],
+      ['count_good_nodes.html','Count Good Nodes in Binary Tree','1448','Medium'],
+      ['validate_bst.html','Validate Binary Search Tree','98','Medium'],
+      ['kth_smallest_bst.html','Kth Smallest Element in a BST','230','Medium'],
+      ['construct_binary_tree_pre_inorder.html','Construct Tree from Preorder & Inorder','105','Medium'],
+      ['binary_tree_maximum_path_sum.html','Binary Tree Maximum Path Sum','124','Hard'],
+      ['serialize_deserialize_binary_tree.html','Serialize and Deserialize Binary Tree','297','Hard'],
+    ]},
+    { slug: 'tries', name: 'Tries', icon: '🔤', problems: [
+      ['implement_trie.html','Implement Trie (Prefix Tree)','208','Medium'],
+      ['design_add_search.html','Design Add & Search Words','211','Medium'],
+      ['word_search_ii.html','Word Search II','212','Hard'],
+    ]},
+    { slug: 'heap', name: 'Heap / Priority Queue', icon: '⛰️', problems: [
+      ['kth_largest_stream.html','Kth Largest Element in a Stream','703','Easy'],
+      ['last_stone_weight.html','Last Stone Weight','1046','Easy'],
+      ['k_closest_points.html','K Closest Points to Origin','973','Medium'],
+      ['kth_largest_array.html','Kth Largest Element in an Array','215','Medium'],
+      ['task_scheduler.html','Task Scheduler','621','Medium'],
+      ['design_twitter.html','Design Twitter','355','Medium'],
+      ['find_median_data_stream.html','Find Median from Data Stream','295','Hard'],
+    ]},
+    { slug: 'backtracking', name: 'Backtracking', icon: '🧭', problems: [
+      ['subsets.html','Subsets','78','Medium'],
+      ['combination_sum.html','Combination Sum','39','Medium'],
+      ['permutations.html','Permutations','46','Medium'],
+      ['subsets_ii.html','Subsets II','90','Medium'],
+      ['combination_sum_ii.html','Combination Sum II','40','Medium'],
+      ['word_search.html','Word Search','79','Medium'],
+      ['palindrome_partitioning.html','Palindrome Partitioning','131','Medium'],
+      ['letter_combinations_phone_number.html','Letter Combinations of a Phone Number','17','Medium'],
+      ['n_queens.html','N-Queens','51','Hard'],
+    ]},
+    { slug: 'graphs', name: 'Graphs', icon: '🕸️', problems: [
+      ['number_of_islands.html','Number of Islands','200','Medium'],
+      ['clone_graph.html','Clone Graph','133','Medium'],
+      ['max_area_of_island.html','Max Area of Island','695','Medium'],
+      ['pacific_atlantic_water_flow.html','Pacific Atlantic Water Flow','417','Medium'],
+      ['surrounded_regions.html','Surrounded Regions','130','Medium'],
+      ['rotting_oranges.html','Rotting Oranges','994','Medium'],
+      ['walls_and_gates.html','Walls and Gates','286','Medium'],
+      ['course_schedule.html','Course Schedule','207','Medium'],
+      ['course_schedule_ii.html','Course Schedule II','210','Medium'],
+      ['redundant_connection.html','Redundant Connection','684','Medium'],
+      ['num_connected_components.html','Number of Connected Components','323','Medium'],
+      ['graph_valid_tree.html','Graph Valid Tree','261','Medium'],
+      ['word_ladder.html','Word Ladder','127','Hard'],
+    ]},
+    { slug: 'advanced-graphs', name: 'Advanced Graphs', icon: '🛰️', problems: [
+      ['reconstruct_itinerary.html','Reconstruct Itinerary','332','Hard'],
+      ['min_cost_connect_points.html','Min Cost to Connect All Points','1584','Medium'],
+      ['network_delay_time.html','Network Delay Time','743','Medium'],
+      ['swim_in_rising_water.html','Swim in Rising Water','778','Hard'],
+      ['alien_dictionary.html','Alien Dictionary','269','Hard'],
+      ['cheapest_flights_k_stops.html','Cheapest Flights Within K Stops','787','Medium'],
+    ]},
+    { slug: 'dp-1d', name: '1-D Dynamic Programming', icon: '🪜', problems: [
+      ['climbing_stairs.html','Climbing Stairs','70','Easy'],
+      ['min_cost_climbing_stairs.html','Min Cost Climbing Stairs','746','Easy'],
+      ['house_robber.html','House Robber','198','Medium'],
+      ['house_robber_ii.html','House Robber II','213','Medium'],
+      ['longest_palindromic_substring.html','Longest Palindromic Substring','5','Medium'],
+      ['palindromic_substrings.html','Palindromic Substrings','647','Medium'],
+      ['decode_ways.html','Decode Ways','91','Medium'],
+      ['coin_change.html','Coin Change','322','Medium'],
+      ['maximum_product_subarray.html','Maximum Product Subarray','152','Medium'],
+      ['word_break.html','Word Break','139','Medium'],
+      ['longest_increasing_subsequence.html','Longest Increasing Subsequence','300','Medium'],
+      ['partition_equal_subset_sum.html','Partition Equal Subset Sum','416','Medium'],
+    ]},
+    { slug: 'dp-2d', name: '2-D Dynamic Programming', icon: '🗺️', problems: [
+      ['unique_paths.html','Unique Paths','62','Medium'],
+      ['longest_common_subsequence.html','Longest Common Subsequence','1143','Medium'],
+      ['best_time_buy_sell_stock_cooldown.html','Buy & Sell Stock with Cooldown','309','Medium'],
+      ['coin_change_2.html','Coin Change II','518','Medium'],
+      ['target_sum.html','Target Sum','494','Medium'],
+      ['interleaving_string.html','Interleaving String','97','Medium'],
+      ['longest_increasing_path_matrix.html','Longest Increasing Path in a Matrix','329','Hard'],
+      ['distinct_subsequences.html','Distinct Subsequences','115','Hard'],
+      ['edit_distance.html','Edit Distance','72','Medium'],
+      ['burst_balloons.html','Burst Balloons','312','Hard'],
+      ['regular_expression_matching.html','Regular Expression Matching','10','Hard'],
+    ]},
+    { slug: 'greedy', name: 'Greedy', icon: '🤑', problems: [
+      ['maximum_subarray.html','Maximum Subarray','53','Medium'],
+      ['jump_game.html','Jump Game','55','Medium'],
+      ['jump_game_ii.html','Jump Game II','45','Medium'],
+      ['gas_station.html','Gas Station','134','Medium'],
+      ['hand_of_straights.html','Hand of Straights','846','Medium'],
+      ['merge_triplets.html','Merge Triplets to Form Target','1899','Medium'],
+      ['partition_labels.html','Partition Labels','763','Medium'],
+      ['valid_parenthesis_string.html','Valid Parenthesis String','678','Medium'],
+    ]},
+    { slug: 'intervals', name: 'Intervals', icon: '📅', problems: [
+      ['insert_interval.html','Insert Interval','57','Medium'],
+      ['merge_intervals.html','Merge Intervals','56','Medium'],
+      ['non_overlapping_intervals.html','Non-overlapping Intervals','435','Medium'],
+      ['meeting_rooms.html','Meeting Rooms','252','Easy'],
+      ['meeting_rooms_ii.html','Meeting Rooms II','253','Medium'],
+      ['minimum_interval_queries.html','Minimum Interval to Include Each Query','1851','Hard'],
+    ]},
+    { slug: 'math-geometry', name: 'Math & Geometry', icon: '📐', problems: [
+      ['rotate_image.html','Rotate Image','48','Medium'],
+      ['spiral_matrix.html','Spiral Matrix','54','Medium'],
+      ['set_matrix_zeroes.html','Set Matrix Zeroes','73','Medium'],
+      ['happy_number.html','Happy Number','202','Easy'],
+      ['plus_one.html','Plus One','66','Easy'],
+      ['pow_x_n.html','Pow(x, n)','50','Medium'],
+      ['multiply_strings.html','Multiply Strings','43','Medium'],
+      ['detect_squares.html','Detect Squares','2013','Medium'],
+    ]},
+    { slug: 'bit-manipulation', name: 'Bit Manipulation', icon: '🎛️', problems: [
+      ['single_number.html','Single Number','136','Easy'],
+      ['number_of_1_bits.html','Number of 1 Bits','191','Easy'],
+      ['counting_bits.html','Counting Bits','338','Easy'],
+      ['reverse_bits.html','Reverse Bits','190','Easy'],
+      ['missing_number.html','Missing Number','268','Easy'],
+      ['sum_of_two_integers.html','Sum of Two Integers','371','Medium'],
+      ['reverse_integer.html','Reverse Integer','7','Medium'],
+    ]},
+  ];
+
+  const IMPLEMENTED = new Set([
+    'two_sum.html','reverse_linked_list.html','merge_two_sorted_lists.html','reorder_list.html',
+    'remove_nth_node_from_end.html','copy_list_with_random_pointer.html','add_two_numbers.html',
+    'linked_list_cycle.html','find_duplicate_number.html','lru_cache.html','merge_k_sorted_lists.html',
+    'reverse_nodes_k_group.html',
+	    'word_search.html',
+    'permutations.html','construct_binary_tree_pre_inorder.html','contains_duplicate.html',
+    'valid_anagram.html','product_except_self.html','group_anagrams.html','top_k_frequent_elements.html',
+    'valid_sudoku.html','encode_decode_strings.html','longest_consecutive_sequence.html',
+    'valid_palindrome.html','two_sum_ii.html','three_sum.html','container_with_most_water.html',
+    'trapping_rain_water.html','best_time_buy_sell_stock.html',
+    'longest_substring_without_repeating_characters.html','longest_repeating_character_replacement.html',
+    'permutation_in_string.html','minimum_window_substring.html','sliding_window_maximum.html',
+    'valid_parentheses.html','min_stack.html','evaluate_reverse_polish_notation.html',
+    'generate_parentheses.html','daily_temperatures.html','car_fleet.html',
+    'largest_rectangle_in_histogram.html','subsets.html','subsets_ii.html','combination_sum.html',
+    'combination_sum_ii.html','letter_combinations_phone_number.html','palindrome_partitioning.html',
+    'n_queens.html','binary_search.html','search_2d_matrix.html','koko_eating_bananas.html',
+    'find_minimum_rotated_sorted_array.html','search_in_rotated_sorted_array.html',
+    'time_based_key_value_store.html','median_of_two_sorted_arrays.html',
+    'invert_binary_tree.html','maximum_depth_binary_tree.html','validate_bst.html',
+    'binary_tree_level_order_traversal.html','diameter_binary_tree.html','balanced_binary_tree.html',
+    'same_tree.html','subtree_of_another_tree.html','lowest_common_ancestor_bst.html',
+    'binary_tree_right_side_view.html','count_good_nodes.html','kth_smallest_bst.html',
+    'binary_tree_maximum_path_sum.html','serialize_deserialize_binary_tree.html',
+    'number_of_islands.html','clone_graph.html',
+    'max_area_of_island.html','pacific_atlantic_water_flow.html','surrounded_regions.html',
+    'rotting_oranges.html','walls_and_gates.html','course_schedule.html','course_schedule_ii.html',
+    'redundant_connection.html','num_connected_components.html','graph_valid_tree.html','word_ladder.html',
+    'kth_largest_stream.html','last_stone_weight.html','k_closest_points.html','kth_largest_array.html',
+    'task_scheduler.html','design_twitter.html','find_median_data_stream.html',
+    'implement_trie.html','design_add_search.html','word_search_ii.html',
+    'climbing_stairs.html','house_robber.html',
+    'unique_paths.html','longest_common_subsequence.html','network_delay_time.html',
+    'reconstruct_itinerary.html','min_cost_connect_points.html','swim_in_rising_water.html',
+    'alien_dictionary.html','cheapest_flights_k_stops.html',
+    'rotate_image.html','spiral_matrix.html','set_matrix_zeroes.html','happy_number.html',
+    'plus_one.html','pow_x_n.html','multiply_strings.html','detect_squares.html',
+    'insert_interval.html','merge_intervals.html','non_overlapping_intervals.html',
+    'meeting_rooms.html','meeting_rooms_ii.html','minimum_interval_queries.html',
+    'single_number.html','number_of_1_bits.html','counting_bits.html','reverse_bits.html',
+    'missing_number.html','sum_of_two_integers.html','reverse_integer.html',
+    'min_cost_climbing_stairs.html','house_robber_ii.html','longest_palindromic_substring.html',
+    'palindromic_substrings.html','decode_ways.html','coin_change.html','maximum_product_subarray.html',
+    'word_break.html','longest_increasing_subsequence.html','partition_equal_subset_sum.html',
+    'best_time_buy_sell_stock_cooldown.html','coin_change_2.html','target_sum.html',
+    'interleaving_string.html','longest_increasing_path_matrix.html','distinct_subsequences.html',
+    'edit_distance.html','burst_balloons.html','regular_expression_matching.html',
+    'maximum_subarray.html','jump_game.html','jump_game_ii.html','gas_station.html',
+    'hand_of_straights.html','merge_triplets.html','partition_labels.html','valid_parenthesis_string.html',
+  ]);
+
+  const PAGE_VERSION = '20260717-complete-refresh';
+  const grid = document.getElementById('cat-grid');
+
+  function ring(pct) {
+    const r = 22, c = 2 * Math.PI * r;
+    const off = c * (1 - pct / 100);
+    return `
+      <div class="ring" title="${pct}% interactive">
+        <svg width="52" height="52" viewBox="0 0 52 52">
+          <circle cx="26" cy="26" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/>
+          <circle cx="26" cy="26" r="${r}" fill="none" stroke="url(#ringGrad)" stroke-width="5"
+                  stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/>
+        </svg>
+        <span class="pct">${pct}%</span>
+      </div>`;
+  }
+
+  function render() {
+    let total = 0, done = 0;
+    grid.innerHTML = `
+      <svg width="0" height="0" style="position:absolute"><defs>
+        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#22d3ee"/>
+        </linearGradient>
+      </defs></svg>` +
+      CATEGORIES.map((cat, ci) => {
+        const impl = cat.problems.filter(p => IMPLEMENTED.has(p[0])).length;
+        total += cat.problems.length; done += impl;
+        const pct = Math.round((impl / cat.problems.length) * 100);
+        const hue = 205 + ci * 19; // sweep blue → violet → pink across the catalog
+        const rows = cat.problems.map(([file, title, lc, diff]) => {
+          const isDone = IMPLEMENTED.has(file);
+          const href = isDone ? `categories/${cat.slug}/${file}?v=${PAGE_VERSION}` : `placeholder.html?title=${encodeURIComponent(title + ' | LC ' + lc)}`;
+          return `<a href="${href}" data-search="${(title + ' lc ' + lc + ' ' + cat.name + ' ' + diff).toLowerCase()}">
+            <span class="st ${isDone ? 'done' : 'wip'}"></span>
+            <span>${title}</span>
+            <span class="dif ${diff.toLowerCase()}">${diff}</span>
+            <span class="lc">LC ${lc}</span>
+          </a>`;
+        }).join('');
+        return `
+          <div class="cat-card" data-slug="${cat.slug}" style="--h:${hue}">
+            <button class="cat-head" aria-expanded="false">
+              <span class="cat-icon">${cat.icon}</span>
+              <span class="cat-meta">
+                <div class="name">${cat.name}</div>
+                <div class="sub"><span class="done">${impl} interactive</span> · ${cat.problems.length} problems</div>
               </span>
-              <span class="flex items-center">
-                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
-                ${inProgressCount} in progress
-              </span>
-              <span class="text-gray-400">Total: ${problems.length}</span>
-            </div>
-            <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-300" style="width: ${completionPercentage}%"></div>
-            </div>
-            <div class="text-xs text-gray-500 mt-1">${completionPercentage}% complete</div>
-          </div>
-          <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200 icon flex-shrink-0 ml-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        `;
-        // Problems list
-        const listEl = document.createElement('ul');
-        listEl.className = 'ml-6 mt-2 space-y-1 hidden';
-        listEl.id = listId;
-        problems.forEach(([file, title]) => {
-          const li = document.createElement('li');
-          const link = document.createElement('a');
-          const isImpl = IMPLEMENTED.has(file);
-          // If file path already starts with 'categories/', use as is. Otherwise, prepend 'categories/${slug}/'
-          let href = '';
-          if (isImpl) {
-            href = file.startsWith('categories/') ? file : `categories/${slug}/${file}`;
-            link.textContent = title;
-          } else {
-            href = `placeholder.html?title=${encodeURIComponent(title)}`;
-            link.innerHTML = `${title} <span class="text-yellow-500 ml-1">🚧</span>`;
-          }
-          link.href = href;
-          link.className = 'text-blue-700 hover:underline';
-          li.appendChild(link);
-          listEl.appendChild(li);
-        });
-        // Toggle on click
-        // toggle list and rotate icon on click
-        btn.addEventListener('click', () => {
-          const isExpanded = listEl.classList.contains('hidden');
-          listEl.classList.toggle('hidden');
-          const icon = btn.querySelector('.icon');
-          if (icon) icon.classList.toggle('rotate-90');
-          btn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
-        });
-        item.append(btn, listEl);
-        tree.appendChild(item);
+              ${ring(pct)}
+              <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="prob-list">${rows}</div>
+          </div>`;
+      }).join('');
+
+    countUp('stat-problems', total);
+    countUp('stat-implemented', done);
+    countUp('stat-categories', CATEGORIES.length);
+  }
+
+  // animate a stat from 0 to its value over ~900ms, eased
+  function countUp(id, target) {
+    const el = document.getElementById(id);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.textContent = target;
+      return;
+    }
+    const t0 = performance.now();
+    (function tick(now) {
+      const p = Math.min(1, (now - t0) / 900);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+    // rAF is throttled to zero in backgrounded tabs — guarantee the final value
+    setTimeout(() => { el.textContent = target; }, 1000);
+  }
+
+  render();
+
+  // ⌘K / Ctrl+K focuses search
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      document.getElementById('search').focus();
+    }
+  });
+
+  grid.addEventListener('click', e => {
+    const head = e.target.closest('.cat-head');
+    if (!head) return;
+    const card = head.closest('.cat-card');
+    card.classList.toggle('open');
+    head.setAttribute('aria-expanded', card.classList.contains('open'));
+  });
+
+  // search: filter problem rows, auto-expand matching cards
+  const search = document.getElementById('search');
+  search.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    document.querySelectorAll('.cat-card').forEach(card => {
+      if (!q) {
+        card.classList.remove('hidden', 'open');
+        card.querySelectorAll('.prob-list a').forEach(a => a.style.display = '');
+        return;
+      }
+      let any = false;
+      card.querySelectorAll('.prob-list a').forEach(a => {
+        const hit = a.dataset.search.includes(q);
+        a.style.display = hit ? '' : 'none';
+        if (hit) any = true;
       });
+      card.classList.toggle('hidden', !any);
+      card.classList.toggle('open', any);
     });
-    </script>
+  });
+  </script>
 </body>
 </html>

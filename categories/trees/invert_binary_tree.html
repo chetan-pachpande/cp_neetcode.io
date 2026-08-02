@@ -1,21 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invert Binary Tree | LC 226 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invert Binary Tree — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Invert Binary Tree | LC 226</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Trees</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 226</span>
+      <span class="chip easy">Easy</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Invert Binary Tree</h1>
+      <div class="chips">
+        <span class="chip accent">Recursive Swap</span>
+        <span class="chip">⏱ O(n) time</span>
+        <span class="chip">💾 O(h) space — call stack</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Given the root of a binary tree, <strong>invert it</strong> — every node's left and right children are swapped, recursively — and return the root.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">root = [4,2,7,1,3,6,9]</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">[4,7,2,9,6,3,1]</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Inverting the whole tree is just <strong>swapping the children of every single node</strong>. There's no clever trick — the recursion does all the work.</p>
+          <p>At each node: swap <code>left</code> and <code>right</code>, then invert whatever ended up on each side. The base case is a <code>null</code> node — nothing to swap, so just return. Because every node is visited exactly once, this is linear in the number of nodes; the recursion depth matches the tree's height.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Time — visit every node once</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(h)</div><div class="lbl">Space — recursion stack, h = height</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div class="field"><label for="in-tree">tree — level-order, "null" for missing</label><input id="in-tree" value="4, 2, 7, 1, 3, 6, 9"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-tree="4, 2, 7, 1, 3, 6, 9">[4,2,7,1,3,6,9]</button>
+          <button class="preset-btn" data-tree="2, 1, 3">[2,1,3]</button>
+          <button class="preset-btn" data-tree="1">[1]</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Tree — updates live as inversion proceeds</div>
+          <div id="stage-tree" class="tree-stage"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>Inverting a binary tree means mirroring it: every node's left subtree and right subtree swap places, all the way down. We handle this with straightforward recursion. If the current node is null, there's nothing to invert, so we simply return null — that's our base case.</p>
+        <p>Otherwise we swap the node's left and right pointers using a temporary variable, then recursively invert whatever is now on the left and whatever is now on the right. Because the swap happens first, the recursive calls naturally descend into the correct mirrored subtrees. Every node in the tree is visited exactly once, giving linear time, and the recursion depth never exceeds the height of the tree.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public TreeNode invertTree(TreeNode root) {
+        if (root == null) return null;
+
+        TreeNode temp = root.left;
+        root.left = root.right;
+        root.right = temp;
+
+        invertTree(root.left);
+        invertTree(root.right);
+
+        return root;
+    }
+}`;
+
+  function parseTree() {
+    return document.getElementById('in-tree').value
+      .split(',').map(s => s.trim())
+      .map(s => (s === '' || s.toLowerCase() === 'null') ? null : parseInt(s, 10));
+  }
+
+  function buildFrames() {
+    const values = parseTree();
+    const { root } = Viz.buildTree(values);
+    const F = [];
+    const doneIds = [];
+
+    const snap = (activeId) => {
+      const clone = Viz.cloneTree(cur);
+      const nodes = Viz.layoutTree(clone);
+      return { root: clone, nodes, activeId, doneIds: doneIds.slice() };
+    };
+
+    let cur = Viz.cloneTree(root);
+    F.push(Object.assign({ line: 3, msg: root ? 'Start at the root.' : 'Empty tree — nothing to invert.' }, snap(cur ? cur.id : null)));
+
+    function invert(node) {
+      if (!node) {
+        F.push(Object.assign({ line: 3, msg: 'Reached a null child — base case, return.' }, snap(null)));
+        return;
+      }
+      F.push(Object.assign({ line: [5, 6, 7], msg: `Visit node ${node.val}: swap its left and right children.` }, snap(node.id)));
+      const t = node.left;
+      node.left = node.right;
+      node.right = t;
+      doneIds.push(node.id);
+      F.push(Object.assign({ line: [5, 6, 7], msg: `Swapped — node ${node.val}'s children are now flipped.` }, snap(node.id)));
+
+      invert(node.left);
+      invert(node.right);
+    }
+
+    invert(cur);
+
+    F.push(Object.assign({ line: 12, msg: 'Every node has been visited — the tree is fully mirrored.', done: 'ok' }, snap(null)));
+    return F;
+  }
+
+  function render(f) {
+    Viz.renderTree(
+      document.getElementById('stage-tree'),
+      { root: f.root, nodes: f.nodes },
+      (n) => (n.id === f.activeId ? 'active' : f.doneIds.includes(n.id) ? 'ok' : '')
+    );
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? '✓ tree inverted' : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-tree]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-tree').value = b.dataset.tree;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

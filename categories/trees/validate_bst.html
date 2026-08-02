@@ -1,21 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validate Binary Search Tree | LC 98 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validate Binary Search Tree — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .range-row { display: flex; align-items: center; justify-content: center; gap: .6rem; font-family: var(--mono); font-size: 1rem; font-weight: 700; }
+    .range-row .op { color: var(--text-3); font-weight: 400; }
+    .range-box { min-width: 64px; height: 40px; display:flex; align-items:center; justify-content:center; border-radius:.6rem; border:1px solid var(--border); background: var(--surface-2); }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Validate Binary Search Tree | LC 98</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Trees</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 98</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Validate Binary Search Tree</h1>
+      <div class="chips">
+        <span class="chip accent">Bounds Propagation</span>
+        <span class="chip">⏱ O(n) time</span>
+        <span class="chip">💾 O(h) space — call stack</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Given the root of a binary tree, determine if it is a <strong>valid binary search tree</strong>: every node's left subtree contains only values <em>less than</em> it, every right subtree only values <em>greater than</em> it — and this must hold for <strong>every node</strong>, not just its immediate children.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">root = [10,5,15,null,null,6,20]</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">false &nbsp;(node 6 passes its local check against parent 15, but 6 &lt; 10 breaks the whole-subtree rule)</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Checking a node only against its direct parent isn't enough — a node deep in a right subtree must still be greater than every ancestor it descended from on the left. So each node needs a valid <strong>range <code>(lower, upper)</code></strong>, not just a single comparison.</p>
+          <p>Start the root with range <code>(−∞, ∞)</code>. Descending left <strong>tightens the upper bound</strong> to the parent's value; descending right <strong>tightens the lower bound</strong>. If any node's value falls outside its inherited range, the tree is invalid — immediately, no need to look further.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Time — every node visited once</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(h)</div><div class="lbl">Space — recursion stack, h = height</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div class="field"><label for="in-tree">tree — level-order, "null" for missing</label><input id="in-tree" value="10, 5, 15, null, null, 6, 20"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-tree="10, 5, 15, null, null, 6, 20">[10,5,15,·,·,6,20] invalid</button>
+          <button class="preset-btn" data-tree="2, 1, 3">[2,1,3] valid</button>
+          <button class="preset-btn" data-tree="5">[5] valid</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Tree</div>
+          <div id="stage-tree" class="tree-stage"></div>
+          <div class="stage-label" style="margin-top:.5rem;">Active node's valid range</div>
+          <div id="stage-range" class="range-row"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>A common mistake is checking each node only against its immediate parent, but that misses violations from higher ancestors. The correct approach threads a valid range through the recursion: every node is checked against a lower bound and an upper bound inherited from all of its ancestors combined, not just its direct parent.</p>
+        <p>The root starts with an unbounded range, negative infinity to positive infinity. Recursing into a left child tightens the upper bound to the current node's value, since everything in a left subtree must be smaller. Recursing right tightens the lower bound the same way. If a node's value ever falls outside its inherited range, we've found a violation and can return false immediately — the recursion doesn't need to check anything else. If every node passes its check, the tree is a valid binary search tree.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public boolean isValidBST(TreeNode root) {
+        return valid(root, null, null);
+    }
+
+    private boolean valid(TreeNode node, Integer lower, Integer upper) {
+        if (node == null) {
+            return true;
+        }
+        if ((lower != null && node.val <= lower) ||
+            (upper != null && node.val >= upper)) {
+            return false;
+        }
+
+        return valid(node.left, lower, node.val) &&
+               valid(node.right, node.val, upper);
+    }
+}`;
+
+  function parseTree() {
+    return document.getElementById('in-tree').value
+      .split(',').map(s => s.trim())
+      .map(s => (s === '' || s.toLowerCase() === 'null' || s === '·') ? null : parseInt(s, 10));
+  }
+
+  function fmt(v) { return v === null ? '−∞' : v === undefined ? '∞' : String(v); }
+
+  function buildFrames() {
+    const values = parseTree();
+    const { root, nodes } = Viz.buildTree(values);
+    const F = [];
+    const okIds = [];
+    let badId = null;
+    let invalidFound = false;
+
+    const snap = (activeId, lower, upper) => ({ root, nodes, activeId, lower, upper, okIds: okIds.slice(), badId });
+
+    function valid(node, lower, upper) {
+      if (invalidFound) return true;
+
+      if (!node) {
+        F.push(Object.assign({ line: [7, 8], msg: 'Null node — trivially valid, return true.' }, snap(null, lower, upper)));
+        return true;
+      }
+
+      F.push(Object.assign({
+        line: 6,
+        msg: `Visit node ${node.val}. Its valid range is (${fmt(lower)}, ${fmt(upper)}).`,
+      }, snap(node.id, lower, upper)));
+
+      const violated = (lower !== null && lower !== undefined && node.val <= lower) ||
+                        (upper !== null && upper !== undefined && node.val >= upper);
+
+      if (violated) {
+        invalidFound = true;
+        badId = node.id;
+        F.push(Object.assign({
+          line: [10, 11, 12],
+          msg: `${node.val} is not strictly between ${fmt(lower)} and ${fmt(upper)} — invalid! Return false.`,
+          done: 'bad',
+        }, snap(node.id, lower, upper)));
+        return false;
+      }
+
+      okIds.push(node.id);
+      F.push(Object.assign({
+        line: [15, 16],
+        msg: `${node.val} is within range — recurse left with upper = ${node.val}, then right with lower = ${node.val}.`,
+      }, snap(node.id, lower, upper)));
+
+      const leftOk = valid(node.left, lower, node.val);
+      const rightOk = valid(node.right, node.val, upper);
+      return leftOk && rightOk;
+    }
+
+    valid(root, null, undefined);
+
+    if (!invalidFound) {
+      F.push(Object.assign({ line: 3, msg: 'Every node satisfies its inherited range — valid BST. Return true.', done: 'ok' }, snap(null, null, undefined)));
+    }
+    return F;
+  }
+
+  function render(f) {
+    Viz.renderTree(
+      document.getElementById('stage-tree'),
+      { root: f.root, nodes: f.nodes },
+      (n) => {
+        if (n.id === f.badId) return 'bad';
+        if (n.id === f.activeId) return 'active';
+        if (f.okIds.includes(n.id)) return 'ok';
+        return '';
+      }
+    );
+
+    const rangeEl = document.getElementById('stage-range');
+    if (f.activeId != null) {
+      rangeEl.innerHTML = `
+        <div class="range-box">${fmt(f.lower)}</div>
+        <span class="op">&lt;</span>
+        <div class="range-box active" style="border-color:var(--indigo);color:#c7d2fe;">node</div>
+        <span class="op">&lt;</span>
+        <div class="range-box">${fmt(f.upper)}</div>`;
+    } else {
+      rangeEl.innerHTML = '<span style="color:var(--text-3);font-size:.85rem;">—</span>';
+    }
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ` show ${f.done}` : '');
+    res.textContent = f.done === 'ok' ? '✓ return true — valid BST' : f.done === 'bad' ? '✗ return false — BST property violated' : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-tree]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-tree').value = b.dataset.tree;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

@@ -1,21 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maximum Depth of Binary Tree | LC 104 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maximum Depth of Binary Tree — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Maximum Depth of Binary Tree | LC 104</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Trees</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 104</span>
+      <span class="chip easy">Easy</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Maximum Depth of Binary Tree</h1>
+      <div class="chips">
+        <span class="chip accent">Post-order Recursion</span>
+        <span class="chip">⏱ O(n) time</span>
+        <span class="chip">💾 O(h) space — call stack</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Given the root of a binary tree, return its <strong>maximum depth</strong> — the number of nodes along the longest path from the root down to the farthest leaf.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">root = [3,9,20,null,null,15,7]</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">3</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>The depth of any node is just <strong>1 + the deeper of its two subtrees</strong>. That's a recursive definition, so we let recursion compute it directly: a <code>null</code> node has depth <code>0</code>, and every other node's depth is <code>1 + max(left depth, right depth)</code>.</p>
+          <p>We compute this <strong>bottom-up</strong> — post-order: find the left subtree's depth, find the right subtree's depth, then combine. By the time we return from the root call, we've touched every node exactly once.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Time — every node visited once</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(h)</div><div class="lbl">Space — recursion stack, h = height</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div class="field"><label for="in-tree">tree — level-order, "null" for missing</label><input id="in-tree" value="3, 9, 20, null, null, 15, 7"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-tree="3, 9, 20, null, null, 15, 7">[3,9,20,null,null,15,7]</button>
+          <button class="preset-btn" data-tree="1, null, 2, null, 3, null, 4">right chain [1,·,2,·,3,·,4]</button>
+          <button class="preset-btn" data-tree="1">[1]</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Tree — subscript shows depth once resolved</div>
+          <div id="stage-tree" class="tree-stage"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>The depth of a tree rooted at any node is one more than the deeper of its two children's depths. A null node contributes a depth of zero, which is exactly the base case we need to make the recursion bottom out cleanly at the leaves.</p>
+        <p>For every node we first recurse into the left child and the right child to get their depths, and only after both return do we combine them: one plus the larger of the two. This is a post-order computation — we need the children's answers before we can produce our own. Since every node is visited exactly once and does constant work combining its children's results, the whole algorithm runs in linear time, with recursion depth bounded by the height of the tree.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int maxDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        int left = maxDepth(root.left);
+        int right = maxDepth(root.right);
+
+        return 1 + Math.max(left, right);
+    }
+}`;
+
+  function parseTree() {
+    return document.getElementById('in-tree').value
+      .split(',').map(s => s.trim())
+      .map(s => (s === '' || s.toLowerCase() === 'null' || s === '·') ? null : parseInt(s, 10));
+  }
+
+  function buildFrames() {
+    const values = parseTree();
+    const { root, nodes } = Viz.buildTree(values);
+    const F = [];
+    const depths = {}; // id -> resolved depth
+
+    const snap = (activeId) => ({ root, nodes, activeId, depths: Object.assign({}, depths) });
+
+    F.push(Object.assign({ line: 3, msg: root ? 'Start at the root — recurse to find each subtree\'s depth first.' : 'Empty tree — depth is 0.' }, snap(root ? root.id : null)));
+
+    function dfs(node) {
+      if (!node) {
+        F.push(Object.assign({ line: [3, 4], msg: 'Null node — its depth is 0 (base case).' }, snap(null)));
+        return 0;
+      }
+      F.push(Object.assign({ line: 7, msg: `Visit node ${node.val} — recurse left first.` }, snap(node.id)));
+      const left = dfs(node.left);
+      F.push(Object.assign({ line: 8, msg: `Back at node ${node.val} — left depth is ${left}. Now recurse right.` }, snap(node.id)));
+      const right = dfs(node.right);
+      const depth = 1 + Math.max(left, right);
+      depths[node.id] = depth;
+      F.push(Object.assign({
+        line: 10,
+        msg: `Node ${node.val}: left = ${left}, right = ${right} → depth = 1 + max(${left}, ${right}) = ${depth}.`,
+      }, snap(node.id)));
+      return depth;
+    }
+
+    const total = root ? dfs(root) : 0;
+
+    // highlight the winning root-to-leaf path
+    const pathIds = [];
+    let cursor = root;
+    while (cursor) {
+      pathIds.push(cursor.id);
+      const ld = cursor.left ? depths[cursor.left.id] : 0;
+      const rd = cursor.right ? depths[cursor.right.id] : 0;
+      cursor = ld >= rd ? cursor.left : cursor.right;
+    }
+
+    F.push(Object.assign({
+      line: 10,
+      msg: `Every node resolved — maximum depth of the tree is ${total}. Return ${total}.`,
+      done: 'ok', pathIds, total,
+    }, snap(null)));
+    return F;
+  }
+
+  function render(f) {
+    Viz.renderTree(
+      document.getElementById('stage-tree'),
+      { root: f.root, nodes: f.nodes },
+      (n) => {
+        if (n.id === f.activeId) return 'active';
+        if (f.pathIds) return f.pathIds.includes(n.id) ? 'ok' : 'dim';
+        return f.depths[n.id] !== undefined ? 'ok' : '';
+      },
+      { sub: (n) => (f.depths[n.id] !== undefined ? `d=${f.depths[n.id]}` : null) }
+    );
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? `✓ return ${f.total}` : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-tree]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-tree').value = b.dataset.tree;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

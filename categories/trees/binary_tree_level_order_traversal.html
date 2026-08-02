@@ -1,21 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binary Tree Level Order Traversal | LC 102 Visualizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binary Tree Level Order Traversal — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .level-row {
+      display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+      padding: .55rem .8rem; border-radius: .8rem;
+      border: 1px dashed var(--border-strong); background: rgba(255,255,255,.02);
+      margin-bottom: .5rem;
+    }
+    .level-row .lvl-tag { font-family: var(--mono); font-size: .7rem; color: var(--text-3); min-width: 46px; }
+    .cell.small { min-width: 44px; height: 40px; font-size: .9rem; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="container mx-auto p-8">
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold">Binary Tree Level Order Traversal | LC 102</h1>
-      <p class="mt-2 text-gray-600">Placeholder page - Coming Soon</p>
+<body>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Trees</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 102</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Binary Tree Level Order Traversal</h1>
+      <div class="chips">
+        <span class="chip accent">BFS with a Queue</span>
+        <span class="chip">⏱ O(n) time</span>
+        <span class="chip">💾 O(n) space</span>
+      </div>
     </header>
-    <main class="text-center">
-      <p>This visualization is not yet implemented.</p>
-      <a href="../index.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded">Back to Home</a>
-    </main>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Given the root of a binary tree, return the values of its nodes as a list of <strong>levels</strong> — grouped left to right, level by level, top to bottom.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">root = [3,9,20,null,null,15,7]</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">[[3], [9,20], [15,7]]</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>"Level by level" is exactly what <strong>breadth-first search</strong> gives you for free, as long as you know where each level ends. A plain queue processes nodes in level order, but doesn't naturally tell you the boundary between one level and the next.</p>
+          <p>The fix: before draining the queue for a level, <strong>snapshot its current size</strong>. That size is exactly how many nodes belong to this level. Pop exactly that many, collect their values, and enqueue their children — which land after everything already queued, ready to form the next level.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Time — every node enqueued & dequeued once</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Space — queue + result</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div class="field"><label for="in-tree">tree — level-order, "null" for missing</label><input id="in-tree" value="3, 9, 20, null, null, 15, 7"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-tree="3, 9, 20, null, null, 15, 7">[3,9,20,·,·,15,7]</button>
+          <button class="preset-btn" data-tree="1, 2, 3, 4, 5, 6, 7">complete [1..7]</button>
+          <button class="preset-btn" data-tree="1">[1]</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Tree</div>
+          <div id="stage-tree" class="tree-stage"></div>
+
+          <div class="stage-label" style="margin-top:1rem;">Queue (front → back)</div>
+          <div id="stage-queue" class="cell-row" style="justify-content:flex-start;min-height:44px;"></div>
+
+          <div class="stage-label" style="margin-top:1rem;">Current level being built</div>
+          <div id="stage-level" class="cell-row" style="justify-content:flex-start;min-height:44px;"></div>
+
+          <div class="stage-label" style="margin-top:1rem;">Result — levels</div>
+          <div id="stage-result" style="min-height:44px;"></div>
+
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
+    </div>
+
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>We do a standard breadth first search using a queue, starting with just the root inside it. The trick to grouping nodes by level is to record the queue's size at the very start of each round — that count tells us exactly how many nodes belong to the level we're about to process, because every node currently in the queue was enqueued during the previous level's processing.</p>
+        <p>We then dequeue exactly that many nodes, one at a time, adding each one's value to the current level's list and enqueuing its children as we go. Because children are always added to the back of the queue, they never get mixed into the level currently being drained — they patiently wait to form the next level. Once we've dequeued the recorded count, that level list is complete and gets appended to the result, and the process repeats until the queue is empty.</p>
+      </div>
+    </section>
+
   </div>
+
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            List<Integer> level = new ArrayList<>();
+
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+
+                if (node.left != null) queue.offer(node.left);
+                if (node.right != null) queue.offer(node.right);
+            }
+
+            result.add(level);
+        }
+
+        return result;
+    }
+}`;
+
+  function parseTree() {
+    return document.getElementById('in-tree').value
+      .split(',').map(s => s.trim())
+      .map(s => (s === '' || s.toLowerCase() === 'null' || s === '·') ? null : parseInt(s, 10));
+  }
+
+  function buildFrames() {
+    const values = parseTree();
+    const { root, nodes } = Viz.buildTree(values);
+    const F = [];
+    const visited = [];
+    const result = [];
+
+    const snap = (activeId, queue, level) => ({
+      root, nodes, activeId,
+      queueIds: queue.map(n => n.id),
+      level: level.slice(),
+      result: result.map(l => l.slice()),
+      visited: visited.slice(),
+    });
+
+    if (!root) {
+      F.push(Object.assign({ line: 4, msg: 'Empty tree — return an empty list.', done: 'ok' }, snap(null, [], [])));
+      return F;
+    }
+
+    let queue = [root];
+    F.push(Object.assign({ line: [6, 7], msg: `Enqueue the root (${root.val}).` }, snap(null, queue, [])));
+
+    while (queue.length) {
+      const size = queue.length;
+      F.push(Object.assign({ line: 10, msg: `This level has ${size} node(s) currently queued.` }, snap(null, queue, [])));
+
+      const level = [];
+      for (let i = 0; i < size; i++) {
+        const node = queue.shift();
+        F.push(Object.assign({ line: 14, msg: `Dequeue ${node.val}.` }, snap(node.id, queue, level)));
+
+        level.push(node.val);
+        visited.push(node.id);
+        F.push(Object.assign({ line: 15, msg: `Add ${node.val} to this level → [${level.join(', ')}].` }, snap(node.id, queue, level)));
+
+        if (node.left) {
+          queue.push(node.left);
+          F.push(Object.assign({ line: 17, msg: `${node.val} has a left child (${node.left.val}) — enqueue it.` }, snap(node.id, queue, level)));
+        }
+        if (node.right) {
+          queue.push(node.right);
+          F.push(Object.assign({ line: 18, msg: `${node.val} has a right child (${node.right.val}) — enqueue it.` }, snap(node.id, queue, level)));
+        }
+      }
+
+      result.push(level);
+      F.push(Object.assign({ line: 21, msg: `Level complete: [${level.join(', ')}] → append to result.` }, snap(null, queue, [])));
+    }
+
+    F.push(Object.assign({
+      line: 24,
+      msg: `Queue empty — BFS done. Return [${result.map(l => `[${l.join(',')}]`).join(', ')}].`,
+      done: 'ok',
+    }, snap(null, [], [])));
+    return F;
+  }
+
+  function render(f) {
+    Viz.renderTree(
+      document.getElementById('stage-tree'),
+      { root: f.root, nodes: f.nodes },
+      (n) => (n.id === f.activeId ? 'active' : f.visited.includes(n.id) ? 'ok' : f.queueIds.includes(n.id) ? 'warn' : '')
+    );
+
+    const queueVals = f.queueIds.map(id => (f.nodes.find(n => n.id === id) || {}).val);
+    document.getElementById('stage-queue').innerHTML = queueVals.length
+      ? Viz.cells(queueVals.map((v, idx) => ({ v, cls: idx === 0 ? 'warn' : '' })))
+      : '<span style="color:var(--text-3);font-size:.8rem;align-self:center;">empty</span>';
+
+    document.getElementById('stage-level').innerHTML = f.level.length
+      ? Viz.cells(f.level.map(v => ({ v, cls: 'active' })))
+      : '<span style="color:var(--text-3);font-size:.8rem;align-self:center;">—</span>';
+
+    document.getElementById('stage-result').innerHTML = f.result.length
+      ? f.result.map((lvl, i) => `
+          <div class="level-row">
+            <span class="lvl-tag">L${i}</span>
+            ${lvl.map(v => `<div class="cell small ok">${v}</div>`).join('')}
+          </div>`).join('')
+      : '<span style="color:var(--text-3);font-size:.8rem;">no levels yet</span>';
+
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ' show ok' : '');
+    res.textContent = f.done ? `✓ [${f.result.map(l => `[${l.join(',')}]`).join(', ')}]` : '';
+  }
+
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-tree]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-tree').value = b.dataset.tree;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

@@ -76,12 +76,12 @@ window.BinarySearchPage = (function () {
       let l = 0, r = a.length - 1, discard = [];
       const snap = (line, msg, mid, extra) => F.push(Object.assign({ line, msg, values: a, l, r, mid, discard: discard.slice(), metricA: target, metricB: 'target' }, extra || {}));
       while (l <= r) {
-        const m = Math.floor((l + r) / 2); snap(5, `Check middle index ${m}, value ${a[m]}.`, m);
-        if (a[m] === target) { snap(6, `${target} found at index ${m}.`, m, { answer: m, done: 'ok', result: `✓ index ${m}` }); return F; }
-        if (a[m] < target) { discard.push(...range(l, m)); l = m + 1; snap(7, `${a[m]} is too small; discard the left half.`, m); }
-        else { discard.push(...range(m, r)); r = m - 1; snap(8, `${a[m]} is too large; discard the right half.`, m); }
+        const m = Math.floor((l + r) / 2); snap(5, `Inspect the middle index ${m} in the current search range [${l}, ${r}]. The middle element is ${a[m]} — compare it against the target ${target} to decide which half to discard.`, m);
+        if (a[m] === target) { snap(6, `The target ${target} matches the middle element at index ${m}. Immediately return the index.`, m, { answer: m, done: 'ok', result: `✓ index ${m}` }); return F; }
+        if (a[m] < target) { discard.push(...range(l, m)); l = m + 1; snap(7, `The middle value ${a[m]} is smaller than the target ${target}, so the target must be to the right. Discard everything from the left boundary up to and including the middle, then continue searching the right half.`, m); }
+        else { discard.push(...range(m, r)); r = m - 1; snap(8, `The middle value ${a[m]} is larger than the target ${target}, so the target must be to the left. Discard everything from the middle to the right boundary, then continue searching the left half.`, m); }
       }
-      snap(10, 'Range is empty; target is absent.', null, { done: 'bad', result: '✗ -1' });
+      snap(10, 'The search range is now empty (left > right) — the target was never found in the array. Return -1.', null, { done: 'bad', result: '✗ -1' });
       return F;
     });
 
@@ -116,12 +116,12 @@ window.BinarySearchPage = (function () {
       let l = 0, r = flat.length - 1, discard = [];
       const snap = (line, msg, mid, extra) => F.push(Object.assign({ line, msg, matrix, l, r, mid, discard: discard.slice(), metricA: target, metricB: 'target' }, extra || {}));
       while (l <= r) {
-        const m = Math.floor((l + r) / 2); snap(6, `Flat mid ${m} maps to value ${flat[m]}.`, m);
-        if (flat[m] === target) { snap(8, `Found ${target}.`, m, { answer: m, done: 'ok', result: '✓ true' }); return F; }
-        if (flat[m] < target) { discard.push(...range(l, m)); l = m + 1; snap(9, 'Discard smaller flat prefix.', m); }
-        else { discard.push(...range(m, r)); r = m - 1; snap(10, 'Discard larger flat suffix.', m); }
+        const m = Math.floor((l + r) / 2); snap(6, `Treat the matrix as one sorted flat array. The middle flat index ${m} maps to matrix value ${flat[m]} — compare it against the target ${target}. This is valid because each row starts where the previous row ended, so the flat array is fully sorted.`, m);
+        if (flat[m] === target) { snap(8, `The matrix cell at flat index ${m} holds the target ${target}. The target is present in the matrix.`, m, { answer: m, done: 'ok', result: '✓ true' }); return F; }
+        if (flat[m] < target) { discard.push(...range(l, m)); l = m + 1; snap(9, `The value ${flat[m]} is smaller than ${target}, so the target must be to the right (higher indices). Discard the left half including the middle.`, m); }
+        else { discard.push(...range(m, r)); r = m - 1; snap(10, `The value ${flat[m]} is larger than ${target}, so the target must be to the left (lower indices). Discard the right half including the middle.`, m); }
       }
-      snap(12, 'No matrix cell matched target.', null, { done: 'bad', result: '✗ false' });
+      snap(12, `No flat index yielded the target — the matrix does not contain ${target}.`, null, { done: 'bad', result: '✗ false' });
       return F;
     });
 
@@ -155,11 +155,11 @@ window.BinarySearchPage = (function () {
       const hours = k => piles.reduce((s, p) => s + Math.ceil(p / k), 0);
       const snap = (line, msg, mid, extra) => F.push(Object.assign({ line, msg, values: speeds, l: l - 1, r: r - 1, mid: mid - 1, discard: discard.map(x => x - 1), metricA: ans, metricB: 'best speed', items: [`hours ${mid ? hours(mid) : '-'}`, `limit ${h}`] }, extra || {}));
       while (l < r) {
-        const m = Math.floor((l + r) / 2), need = hours(m); snap(6, `Try speed ${m}; total hours ${need}.`, m);
-        if (need <= h) { ans = m; discard.push(...range(m + 1, r)); r = m; snap(7, `${m} works, so search for a slower valid speed.`, m); }
-        else { discard.push(...range(l, m)); l = m + 1; snap(8, `${m} is too slow, so raise the lower bound.`, m); }
+        const m = Math.floor((l + r) / 2), need = hours(m); snap(6, `Try eating speed ${m} bananas per hour. The total time required for all piles at this speed is ${need} hours. Compare this against the deadline of ${h} hours.`, m);
+        if (need <= h) { ans = m; discard.push(...range(m + 1, r)); r = m; snap(7, `At speed ${m}, Koko finishes within the deadline (${need} ≤ ${h}). This speed works, but there might be a slower (smaller) speed that still works. Eliminate faster speeds and search the lower half.`, m); }
+        else { discard.push(...range(l, m)); l = m + 1; snap(8, `At speed ${m}, Koko takes too long (${need} > ${h}). This speed is too slow — eating faster is the only way to meet the deadline. Eliminate slower speeds and search the upper half.`, m); }
       }
-      snap(10, `Minimum working speed is ${l}.`, l, { answer: l - 1, done: 'ok', result: `✓ k = ${l}` });
+      snap(10, `The search converged to speed ${l}. This is the minimum eating speed that allows Koko to finish all piles within ${h} hours.`, l, { answer: l - 1, done: 'ok', result: `✓ k = ${l}` });
       return F;
     });
 
@@ -190,11 +190,11 @@ window.BinarySearchPage = (function () {
       const a = nums('in-arr'), F = []; let l = 0, r = a.length - 1, discard = [];
       const snap = (line, msg, mid, extra) => F.push(Object.assign({ line, msg, values: a, l, r, mid, discard: discard.slice(), metricA: a[r], metricB: 'right value' }, extra || {}));
       while (l < r) {
-        const m = Math.floor((l + r) / 2); snap(5, `Compare mid ${a[m]} with right ${a[r]}.`, m);
-        if (a[m] > a[r]) { discard.push(...range(l, m)); l = m + 1; snap(6, 'Mid is in the left sorted part; minimum is to the right.', m); }
-        else { discard.push(...range(m + 1, r)); r = m; snap(7, 'Mid may be the minimum; keep left side including mid.', m); }
+        const m = Math.floor((l + r) / 2); snap(5, `Compare the middle element ${a[m]} with the right edge element ${a[r]}. In a rotated sorted array, if mid > right, then the rotation pivot (where the array "breaks") must be to the right of mid. If mid ≤ right, the pivot is at mid or to its left.`, m);
+        if (a[m] > a[r]) { discard.push(...range(l, m)); l = m + 1; snap(6, `Since ${a[m]} > ${a[r]}, the minimum value must be in the right half — the rotation point is somewhere between mid and right. Discard the left half including mid itself.`, m); }
+        else { discard.push(...range(m + 1, r)); r = m; snap(7, `Since ${a[m]} ≤ ${a[r]}, either mid is the minimum or the minimum is to the left. Keep the left half including mid in the search range, and continue narrowing.`, m); }
       }
-      snap(9, `Minimum is ${a[l]}.`, l, { answer: l, done: 'ok', result: `✓ min = ${a[l]}` });
+      snap(9, `The search converged to index ${l}, where the minimum element of the rotated array is ${a[l]}.`, l, { answer: l, done: 'ok', result: `✓ min = ${a[l]}` });
       return F;
     });
 
@@ -231,15 +231,15 @@ window.BinarySearchPage = (function () {
       const a = nums('in-arr'), target = parseInt(document.getElementById('in-target').value, 10), F = []; let l = 0, r = a.length - 1, discard = [];
       const snap = (line, msg, mid, extra) => F.push(Object.assign({ line, msg, values: a, l, r, mid, discard: discard.slice(), metricA: target, metricB: 'target' }, extra || {}));
       while (l <= r) {
-        const m = Math.floor((l + r) / 2); snap(5, `Check ${a[m]} at mid ${m}.`, m);
-        if (a[m] === target) { snap(6, `Found target at ${m}.`, m, { answer: m, done: 'ok', result: `✓ index ${m}` }); return F; }
+        const m = Math.floor((l + r) / 2); snap(5, `Inspect the middle element ${a[m]} at index ${m}. In a rotated sorted array, at least one half (left or right of mid) must be properly sorted without a rotation. Use that sorted half to determine where the target must be.`, m);
+        if (a[m] === target) { snap(6, `The target ${target} is at index ${m} — search complete.`, m, { answer: m, done: 'ok', result: `✓ index ${m}` }); return F; }
         if (a[l] <= a[m]) {
-          if (a[l] <= target && target < a[m]) { discard.push(...range(m, r)); r = m - 1; snap(8, 'Left half is sorted and target lies inside it.', m); }
-          else { discard.push(...range(l, m)); l = m + 1; snap(9, 'Target is not in the sorted left half.', m); }
-        } else if (a[m] < target && target <= a[r]) { discard.push(...range(l, m)); l = m + 1; snap(11, 'Right half is sorted and target lies inside it.', m); }
-        else { discard.push(...range(m, r)); r = m - 1; snap(12, 'Target is not in the sorted right half.', m); }
+          if (a[l] <= target && target < a[m]) { discard.push(...range(m, r)); r = m - 1; snap(8, `The left half is sorted (ascending from ${a[l]} to ${a[m]}), and the target ${target} falls within this range. Discard the right half and continue searching left.`, m); }
+          else { discard.push(...range(l, m)); l = m + 1; snap(9, `The left half is sorted, but the target ${target} is not in the range [${a[l]}, ${a[m]}) — it must be in the right half. Discard the left half and continue searching right.`, m); }
+        } else if (a[m] < target && target <= a[r]) { discard.push(...range(l, m)); l = m + 1; snap(11, `The right half is sorted (ascending from ${a[m]} to ${a[r]}), and the target ${target} falls within this range. Discard the left half and continue searching right.`, m); }
+        else { discard.push(...range(m, r)); r = m - 1; snap(12, `The right half is sorted, but the target ${target} is not in the range (${a[m]}, ${a[r]}] — it must be in the left half. Discard the right half and continue searching left.`, m); }
       }
-      snap(15, 'Target is absent.', null, { done: 'bad', result: '✗ -1' });
+      snap(15, `The search range is empty — the target ${target} was never found in the rotated array. Return -1.`, null, { done: 'bad', result: '✗ -1' });
       return F;
     });
 
@@ -275,18 +275,18 @@ window.BinarySearchPage = (function () {
       let l = 0, r = hist.length - 1, ans = '', ansIdx = null, discard = [];
       const snap = (line, msg, mid, extra) => F.push(Object.assign({ line, msg, values, l, r, mid, answer: ansIdx, discard: discard.slice(), metricA: q, metricB: 'query time', items: [`answer "${ans}"`] }, extra || {}));
       while (l <= r) {
-        const m = Math.floor((l + r) / 2); snap(8, `Check timestamp ${hist[m].t}.`, m);
-        if (hist[m].t <= q) { ans = hist[m].v; ansIdx = m; discard.push(...range(l, m - 1)); l = m + 1; snap(9, `${hist[m].t} is allowed; save "${ans}" and search later.`, m); }
-        else { discard.push(...range(m, r)); r = m - 1; snap(10, `${hist[m].t} is too late; search earlier.`, m); }
+        const m = Math.floor((l + r) / 2); snap(8, `Inspect the timestamp at history index ${m}: ${hist[m].t}. We want the LATEST timestamp that is ≤ the query time ${q}.`, m);
+        if (hist[m].t <= q) { ans = hist[m].v; ansIdx = m; discard.push(...range(l, m - 1)); l = m + 1; snap(9, `Timestamp ${hist[m].t} is at or before the query time (≤ ${q}), so this entry is valid. Save its value "${ans}" as a candidate, then continue searching for an even later timestamp that still meets the deadline.`, m); }
+        else { discard.push(...range(m, r)); r = m - 1; snap(10, `Timestamp ${hist[m].t} is after the query time (> ${q}), so this entry is too recent. The correct answer must use a timestamp before this one — discard this and all later timestamps, then continue searching earlier.`, m); }
       }
-      snap(12, ans ? `Return "${ans}".` : 'No timestamp at or before query.', ansIdx, { done: ans ? 'ok' : 'bad', result: ans ? `✓ "${ans}"` : '✗ ""' });
+      snap(12, ans ? `The latest valid timestamp at or before ${q} is ${hist[ansIdx].t}, whose value is "${ans}".` : `No timestamp exists at or before ${q} in the history — return empty string.`, ansIdx, { done: ans ? 'ok' : 'bad', result: ans ? `✓ "${ans}"` : '✗ ""' });
       return F;
     });
 
   CONFIGS.median_of_two_sorted_arrays = base('median_of_two_sorted_arrays', 'Median of Two Sorted Arrays', '4', 'Hard',
     ['Partition Search', 'O(log min(m,n))', 'O(1) space'],
-    'Return the median of two sorted arrays.',
-    'Binary-search the cut in the smaller array. The correct cut has every left-side value <= every right-side value.',
+    'Given two sorted arrays nums1 and nums2 of size m and n, return the median of the combined sorted array — without actually merging them. The overall run time must be O(log(m+n)).',
+    "Merging both arrays and reading off the middle would work, but that takes O(m+n) time — too slow for the required logarithmic bound. Instead, binary search for a PARTITION: a cut point i in one array and a matching cut point j in the other, chosen so the combined left side of both cuts holds exactly half of all elements (rounding up if the total is odd), and every element on the left of both cuts is ≤ every element on the right of both cuts. Once that partition is found, the median reads directly off the four values touching the cuts — no merge required. Fixing j = half − i (half being the required left-side size) means only i ever needs to be searched, and searching it over the SMALLER of the two arrays bounds the work to O(log(min(m,n))). At each candidate i: if the left side of the first cut is bigger than the right side of the second cut, that cut let in a value too large for the other side to accept, so it must move left; if the left side of the second cut is bigger than the right side of the first, the first cut isn't taking enough elements yet, so it must move right. Treating a cut at the very start or end of an array as bordering -infinity / +infinity, instead of a real neighbor, makes these comparisons work uniformly even at the edges.",
     [{ id: 'in-a', label: 'nums1', value: '1,3' }, { id: 'in-b', label: 'nums2', value: '2' }],
     [
       { label: 'odd', values: { 'in-a': '1,3', 'in-b': '2' } },
@@ -296,18 +296,31 @@ window.BinarySearchPage = (function () {
       { label: 'duplicates', values: { 'in-a': '1,2,2', 'in-b': '2,2,3' } }
     ],
     `class Solution {
-    public double findMedianSortedArrays(int[] A, int[] B) {
-        if (A.length > B.length) return findMedianSortedArrays(B, A);
-        int total = A.length + B.length, half = (total + 1) / 2;
-        int left = 0, right = A.length;
-        while (left <= right) {
-            int i = left + (right - left) / 2;
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        int[] A = nums1, B = nums2;
+        if (A.length > B.length) { A = nums2; B = nums1; }
+        int m = A.length, n = B.length;
+        int total = m + n, half = (total + 1) / 2;
+        int lo = 0, hi = m;
+        while (lo <= hi) {
+            int i = lo + (hi - lo) / 2;
             int j = half - i;
-            if (Aleft <= Bright && Bleft <= Aright) return median;
-            else if (Aleft > Bright) right = i - 1;
-            else left = i + 1;
+            int leftA  = (i == 0) ? Integer.MIN_VALUE : A[i - 1];
+            int rightA = (i == m) ? Integer.MAX_VALUE : A[i];
+            int leftB  = (j == 0) ? Integer.MIN_VALUE : B[j - 1];
+            int rightB = (j == n) ? Integer.MAX_VALUE : B[j];
+            if (leftA <= rightB && leftB <= rightA) {
+                if (total % 2 == 0) {
+                    return (Math.max(leftA, leftB) + Math.min(rightA, rightB)) / 2.0;
+                }
+                return Math.max(leftA, leftB);
+            } else if (leftA > rightB) {
+                hi = i - 1;
+            } else {
+                lo = i + 1;
+            }
         }
-        return 0;
+        return -1.0; // unreachable for valid input
     }
 }`,
     function () {
@@ -319,12 +332,12 @@ window.BinarySearchPage = (function () {
       while (l <= r) {
         const i = Math.floor((l + r) / 2), j = half - i;
         const Al = val(A[i - 1], -Infinity), Ar = val(A[i], Infinity), Bl = val(B[j - 1], -Infinity), Br = val(B[j], Infinity);
-        snap(7, `Try cut A=${i}, B=${j}. Left max candidates ${Al}, ${Bl}; right min candidates ${Ar}, ${Br}.`, i);
+        snap([9, 10, 11, 12, 13, 14], `Try cutting the smaller array after index ${i - 1} (${i} element${i === 1 ? '' : 's'} on its left). Since the left side of the combined partition must hold exactly ${half} element${half === 1 ? '' : 's'} total, the other array's cut is forced to j = ${half} − ${i} = ${j}. Left-side boundary candidates: ${Al === -Infinity ? '−∞' : Al} (A) and ${Bl === -Infinity ? '−∞' : Bl} (B). Right-side boundary candidates: ${Ar === Infinity ? '∞' : Ar} (A) and ${Br === Infinity ? '∞' : Br} (B).`, i);
         if (Al <= Br && Bl <= Ar) {
           const med = total % 2 ? Math.max(Al, Bl) : (Math.max(Al, Bl) + Math.min(Ar, Br)) / 2;
-          snap(9, `Partition is valid. Median is ${med}.`, i, { answer: i, done: 'ok', result: `✓ median = ${med}` }); return F;
-        } else if (Al > Br) { discard.push(...range(i, r)); r = i - 1; snap(10, 'A cut is too far right; move left.', i); }
-        else { discard.push(...range(l, i)); l = i + 1; snap(11, 'A cut is too far left; move right.', i); }
+          snap([15, 16, 17, 18, 19], `Every left-side value is ≤ every right-side value (${Al === -Infinity ? '−∞' : Al} ≤ ${Br === Infinity ? '∞' : Br} and ${Bl === -Infinity ? '−∞' : Bl} ≤ ${Ar === Infinity ? '∞' : Ar}) — this is the correct partition. ${total % 2 ? `With an odd total of ${total} elements, the median is simply the larger of the two left-side values: max(${Al === -Infinity ? '−∞' : Al}, ${Bl === -Infinity ? '−∞' : Bl}) = ${med}.` : `With an even total of ${total} elements, the median is the average of the largest left value and the smallest right value: (max(${Al === -Infinity ? '−∞' : Al}, ${Bl === -Infinity ? '−∞' : Bl}) + min(${Ar === Infinity ? '∞' : Ar}, ${Br === Infinity ? '∞' : Br})) / 2 = ${med}.`}`, i, { answer: i, done: 'ok', result: `✓ median = ${med}` }); return F;
+        } else if (Al > Br) { discard.push(...range(i, r)); r = i - 1; snap([20, 21], `Left-of-A value ${Al === -Infinity ? '−∞' : Al} is bigger than right-of-B value ${Br === Infinity ? '∞' : Br} — A's cut let in a value too large for B's side to accept, so A's cut sits too far to the right. Narrow the search to smaller i.`, i); }
+        else { discard.push(...range(l, i)); l = i + 1; snap([22, 23], `Left-of-B value ${Bl === -Infinity ? '−∞' : Bl} is bigger than right-of-A value ${Ar === Infinity ? '∞' : Ar} — B's cut let in a value too large for A's side to accept, meaning A's cut hasn't taken enough elements yet. Widen the search to larger i.`, i); }
       }
       return F;
     });

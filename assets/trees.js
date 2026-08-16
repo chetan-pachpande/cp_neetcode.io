@@ -90,17 +90,17 @@ window.TreeStoryPage = (function () {
       let best = 0;
       const snap = (line, msg, activeId, extra) => F.push(Object.assign({ line, msg, ...cloneLayout(root), activeId, okIds: okIds.slice(), labels: Object.assign({}, labels), metricA: best, metricB: 'diameter' }, extra || {}));
       function height(n) {
-        if (!n) { snap(7, 'Null child contributes height 0.', null); return 0; }
-        snap(8, `Visit node ${n.val}; measure left and right heights.`, n.id);
+        if (!n) { snap(7, 'This child is null — a null subtree contributes a height of 0 to any path calculations, since there is no descent through it at all.', null); return 0; }
+        snap(8, `Descend into node ${n.val} — the diameter calculation treats every node like a potential "bridge" between two of its subtrees. Recursively measure the height of the left subtree and the height of the right subtree first.`, n.id);
         const left = height(n.left), right = height(n.right);
         best = Math.max(best, left + right);
         labels[n.id] = `h${1 + Math.max(left, right)}`;
         okIds.push(n.id);
-        snap([10, 11], `Node ${n.val}: left ${left} + right ${right} gives candidate diameter ${left + right}. Best is ${best}.`, n.id);
+        snap([10, 11], `Back at node ${n.val}: the longest path that bends through this node uses its left height (${left}) plus its right height (${right}) = ${left + right} edges. This is a candidate for the global diameter. The best path found so far is ${best}.`, n.id);
         return 1 + Math.max(left, right);
       }
       height(root);
-      snap(4, `Return diameter ${best}.`, null, { done: 'ok', result: `✓ diameter = ${best}` });
+      snap(4, `Every node has been visited. The path that spanned the widest through some node in the tree is the diameter — the longest possible path between any two nodes. Return ${best}.`, null, { done: 'ok', result: `✓ diameter = ${best}` });
       return F;
     }
   );
@@ -128,14 +128,14 @@ window.TreeStoryPage = (function () {
       const snap = (line, msg, activeId, extra) => F.push(Object.assign({ line, msg, ...cloneLayout(root), activeId, okIds: okIds.slice(), badIds: badIds.slice(), labels: Object.assign({}, labels), metricA: badIds.length ? 'false' : 'true', metricB: 'balanced?' }, extra || {}));
       function height(n) {
         if (!n) return 0;
-        snap(6, `Check node ${n.val}.`, n.id);
+        snap(6, `Inspect node ${n.val} — it is balanced if and only if both its subtrees are balanced AND the height difference between them is at most 1.`, n.id);
         const l = height(n.left), r = height(n.right);
-        if (l === -1 || r === -1 || Math.abs(l - r) > 1) { badIds.push(n.id); labels[n.id] = 'bad'; snap(9, `Node ${n.val} is imbalanced: left ${l}, right ${r}.`, n.id); return -1; }
-        labels[n.id] = `h${1 + Math.max(l, r)}`; okIds.push(n.id); snap(10, `Node ${n.val} is balanced with height ${labels[n.id]}.`, n.id);
+        if (l === -1 || r === -1 || Math.abs(l - r) > 1) { badIds.push(n.id); labels[n.id] = 'bad'; snap(9, `Node ${n.val} fails the balance check: its left subtree has height ${l === -1 ? 'invalid (imbalanced)' : l} and right subtree has height ${r === -1 ? 'invalid (imbalanced)' : r}. When one subtree is already imbalanced, or when the two sides differ by more than 1, this node and all its ancestors are imbalanced. Return -1 to signal the failure upward.`, n.id); return -1; }
+        labels[n.id] = `h${1 + Math.max(l, r)}`; okIds.push(n.id); snap(10, `Node ${n.val} is balanced: both children are balanced, and the height difference is ${Math.abs(l - r)} (within the allowed 1). Its own height is ${labels[n.id]}.`, n.id);
         return 1 + Math.max(l, r);
       }
       const ok = height(root) !== -1;
-      snap(3, ok ? 'Every subtree is balanced.' : 'At least one subtree is imbalanced.', null, { done: ok ? 'ok' : 'bad', result: ok ? '✓ balanced' : '✗ not balanced' });
+      snap(3, ok ? 'The entire tree is balanced: every node has subtrees with height difference at most 1, and no node failed the check.' : 'The tree is not balanced: at least one node has subtrees differing in height by more than 1, or a child subtree is already imbalanced.', null, { done: ok ? 'ok' : 'bad', result: ok ? '✓ balanced' : '✗ not balanced' });
       return F;
     }
   );
@@ -169,16 +169,16 @@ window.TreeStoryPage = (function () {
       const q = root ? [root] : [];
       while (q.length) {
         const size = q.length;
-        snap(7, `Start a level with ${size} node${size === 1 ? '' : 's'}.`, q[0].id);
+        snap(7, `Process level ${Math.floor(Math.log2(Math.max(1, items.length + 1)))} with ${size} node${size === 1 ? '' : 's'} currently in the queue — only the last node visited on this level is visible from the right.`, q[0].id);
         for (let i = 0; i < size; i++) {
           const n = q.shift();
-          snap(9, `Visit node ${n.val}.`, n.id);
-          if (i === size - 1) { items.push(n.val); okIds.push(n.id); snap(10, `${n.val} is the rightmost node on this level.`, n.id); }
+          snap(9, `Dequeue node ${n.val}. Add its children to the back of the queue for the next level (if they exist).`, n.id);
+          if (i === size - 1) { items.push(n.val); okIds.push(n.id); snap(10, `Node ${n.val} is the last (rightmost) node dequeued from this level — when viewed from the right side of the tree, this is the only node from this depth that would be visible, since all its siblings to the left are hidden behind it.`, n.id); }
           if (n.left) q.push(n.left);
           if (n.right) q.push(n.right);
         }
       }
-      snap(15, `Return right side view ${arr(items)}.`, null, { done: 'ok', result: `✓ ${arr(items)}` });
+      snap(15, `Every level has been processed. The nodes we collected are those visible when looking at the tree from the right side: ${arr(items)}.`, null, { done: 'ok', result: `✓ ${arr(items)}` });
       return F;
     }
   );
@@ -206,13 +206,13 @@ window.TreeStoryPage = (function () {
       const snap = (line, msg, activeId, extra) => F.push(Object.assign({ line, msg, ...cloneLayout(root), activeId, okIds: okIds.slice(), metricA: count, metricB: 'good' }, extra || {}));
       function dfs(n, max) {
         if (!n) return;
-        snap(6, `Path max is ${max === -Infinity ? '-∞' : max}; inspect ${n.val}.`, n.id);
-        if (n.val >= max) { count++; okIds.push(n.id); snap(7, `${n.val} is visible from the root, so it is good.`, n.id); }
+        snap(6, `Visit node ${n.val}. The largest value seen anywhere on the path from root down to here is ${max === -Infinity ? '-∞ (nothing yet)' : max}. A node is "good" if its value is at least that maximum — meaning no ancestor was ever larger.`, n.id);
+        if (n.val >= max) { count++; okIds.push(n.id); snap(7, `Node ${n.val} ≥ ${max === -Infinity ? '-∞' : max}, so no ancestor is larger — this node qualifies as good. Increment the count to ${count}.`, n.id); }
         dfs(n.left, Math.max(max, n.val));
         dfs(n.right, Math.max(max, n.val));
       }
       dfs(root, -Infinity);
-      snap(3, `Return ${count} good node${count === 1 ? '' : 's'}.`, null, { done: 'ok', result: `✓ ${count} good nodes` });
+      snap(3, `Every path from root to a leaf has been explored. Total good nodes discovered: ${count}.`, null, { done: 'ok', result: `✓ ${count} good nodes` });
       return F;
     }
   );
@@ -242,12 +242,12 @@ window.TreeStoryPage = (function () {
         const snap = (line, msg, activeId, extra) => F.push(Object.assign({ line, msg, ...cloneLayout(root), activeId, okIds: okIds.slice(), metricA: `${p}, ${q}`, metricB: 'targets' }, extra || {}));
         let cur = root;
         while (cur) {
-          snap(4, `Stand at ${cur.val}. Compare both targets with this split point.`, cur.id);
-          if (p < cur.val && q < cur.val) { snap(5, `${p} and ${q} are both left of ${cur.val}.`, cur.id); cur = cur.left; }
-          else if (p > cur.val && q > cur.val) { snap(6, `${p} and ${q} are both right of ${cur.val}.`, cur.id); cur = cur.right; }
-          else { okIds.push(cur.id); snap(7, `${cur.val} is where the paths split, so it is the lowest common ancestor.`, cur.id, { done: 'ok', result: `✓ LCA = ${cur.val}` }); break; }
+          snap(4, `Inspect node ${cur.val}. In a binary search tree, this single node acts as a "split point" — everything to its left is smaller, everything to the right is larger. Use that to determine where both targets must lie.`, cur.id);
+          if (p < cur.val && q < cur.val) { snap(5, `Both targets ${p} and ${q} are strictly less than ${cur.val}, so both must be in the left subtree. The LCA must be in the left branch, because the right branch contains only values larger than both targets.`, cur.id); cur = cur.left; }
+          else if (p > cur.val && q > cur.val) { snap(6, `Both targets ${p} and ${q} are strictly greater than ${cur.val}, so both must be in the right subtree. The LCA cannot be at this node or in its left subtree — it must be further right.`, cur.id); cur = cur.right; }
+          else { okIds.push(cur.id); snap(7, `Node ${cur.val} is the lowest common ancestor: one target is on the left and one is on the right (or one is exactly this node). This node is the unique point where the paths to both targets must diverge. It is lower than the root because at least one target required walking down the tree, and it is lower than the targets themselves because they lie in different subtrees from here.`, cur.id, { done: 'ok', result: `✓ LCA = ${cur.val}` }); break; }
         }
-        if (!cur) snap(10, 'Targets were not both reachable in this BST.', null, { done: 'bad', result: 'not found' });
+        if (!cur) snap(10, 'One or both targets were not found in the tree structure.', null, { done: 'bad', result: 'not found' });
         return F;
       }
     ),
@@ -290,16 +290,16 @@ window.TreeStoryPage = (function () {
         const snap = (line, msg, activeId, extra) => F.push(Object.assign({ line, msg, ...cloneLayout(root), activeId, okIds: okIds.slice(), items: items.slice(), metricA: `${items.length}/${k}`, metricB: 'seen' }, extra || {}));
         function inorder(n) {
           if (!n || answer !== null) return;
-          snap(8, `From ${n.val}, go left before counting this node.`, n.id);
+          snap(8, `Inorder traversal visits subtrees in the order: left, then this node, then right. By visiting the left subtree first, we encounter smaller values before larger ones — that is what makes inorder traversal of a BST produce values in ascending sorted order.`, n.id);
           inorder(n.left);
           if (answer !== null) return;
           items.push(n.val); okIds.push(n.id);
-          snap(10, `Inorder visits ${n.val}; sorted position is ${items.length}.`, n.id);
-          if (items.length === k) { answer = n.val; snap(10, `${n.val} is the ${k}${k === 1 ? 'st' : k === 2 ? 'nd' : k === 3 ? 'rd' : 'th'} smallest value.`, n.id, { done: 'ok', result: `✓ ${answer}` }); return; }
+          snap(10, `Visit node ${n.val} in inorder sequence. It is the ${items.length}${items.length === 1 ? 'st' : items.length === 2 ? 'nd' : items.length === 3 ? 'rd' : 'th'} smallest node encountered so far, because inorder visits nodes in ascending order.`, n.id);
+          if (items.length === k) { answer = n.val; snap(10, `Node ${n.val} is the kth = ${k}${k === 1 ? 'st' : k === 2 ? 'nd' : k === 3 ? 'rd' : 'th'} smallest value overall in the tree. Stop traversing and return this value.`, n.id, { done: 'ok', result: `✓ ${answer}` }); return; }
           inorder(n.right);
         }
         inorder(root);
-        if (answer === null) snap(5, `The tree has fewer than ${k} nodes.`, null, { done: 'bad', result: 'k too large' });
+        if (answer === null) snap(5, `Inorder traversal finished, but we never reached k = ${k} nodes. The tree must have fewer than ${k} nodes total.`, null, { done: 'bad', result: 'k too large' });
         return F;
       }
     ),
@@ -316,8 +316,8 @@ window.TreeStoryPage = (function () {
   CONFIGS.binary_tree_maximum_path_sum = basicTreeConfig(
     'binary_tree_maximum_path_sum', 'Binary Tree Maximum Path Sum', '124', 'Hard',
     ['Postorder Gain', '⏱ O(n) time', '💾 O(h) stack'],
-    'Find the maximum path sum where a path can start and end at any nodes.',
-    'Each node may join its best left gain and best right gain into a full path, but it can only return one side upward.',
+    'Given the root of a binary tree, find the maximum sum of any path through it. A path is a sequence of nodes connected by edges where no node repeats — it does not need to pass through the root, and it does not need to start or end at a leaf. Return the maximum sum over every possible path.',
+    "Think about the best path that bends AT a specific node: it can use up to two branches out of it, one going down-left and one going down-right, forming an upside-down V. That gives node.val + best gain from the left subtree + best gain from the right subtree — a candidate for the global answer. But here is the subtlety that trips most people up: when this node needs to hand a usable value UP to its own parent, it can only offer ONE branch, not both — a path is a single unbranching line, and if the parent tried to extend through this node using both children at once, the path would fork into a Y-shape, which is no longer a valid path. So every node computes two different things: the best 'full path' bending here (using both children, only ever a candidate for the answer, never passed upward), and the best 'extendable gain' handed up to the parent (this node's value plus the LARGER of its two child gains, not both). One more detail: if a child's best gain is negative, using it would only shrink the sum, so clamp it to 0 — meaning 'do not extend into that subtree at all.' Track the best full-path value seen at any node as the traversal proceeds; that running best is the final answer.",
     `class Solution {
     int best = Integer.MIN_VALUE;
     public int maxPathSum(TreeNode root) {
@@ -339,18 +339,20 @@ window.TreeStoryPage = (function () {
       const snap = (line, msg, activeId, extra) => F.push(Object.assign({ line, msg, ...cloneLayout(root), activeId, okIds: okIds.slice(), labels: Object.assign({}, labels), metricA: best === -Infinity ? '-∞' : best, metricB: 'best' }, extra || {}));
       function gain(n) {
         if (!n) return 0;
-        snap(8, `Enter ${n.val}; negative child gains will be ignored.`, n.id);
+        snap([9, 10], `Visit node ${n.val} — recurse into its left and right children first to learn each one's best "extendable gain" (the most it could add to a path continuing through it from below). Any negative gain gets clamped to 0, since using it would only shrink whatever path it's attached to.`, n.id);
         const left = Math.max(0, gain(n.left));
         const right = Math.max(0, gain(n.right));
         const full = n.val + left + right;
+        const improved = full > best;
         best = Math.max(best, full);
+        snap(11, `Back at ${n.val}: the best path that BENDS here uses both children at once — ${n.val} + left gain ${left} + right gain ${right} = ${full}. This full path is only a candidate for the global answer (the path doesn't have to pass through the root or end at a leaf).${improved ? ` It beats the previous best, so best updates to ${best}.` : ` It doesn't beat the current best of ${best}, so best stays put.`}`, n.id);
         const up = n.val + Math.max(left, right);
         labels[n.id] = `↑${up}`; okIds.push(n.id);
-        snap(10, `${n.val} can make full path ${n.val} + ${left} + ${right} = ${full}. Best is ${best}.`, n.id);
+        snap(12, `${n.val} can only report ONE usable branch up to its parent, not both — a path can't fork through two children and still be a single line. So it hands up ${n.val} + max(${left}, ${right}) = ${up}, keeping whichever side extends further, and silently discarding the other.`, n.id);
         return up;
       }
       gain(root);
-      snap(4, `Return maximum path sum ${best}.`, null, { done: 'ok', result: `✓ max path = ${best}` });
+      snap(4, `Every node has been visited. The full-path candidate that produced the best value along the way is the answer, whether or not it happened to pass through the root: maximum path sum = ${best}.`, null, { done: 'ok', result: `✓ max path = ${best}` });
       return F;
     }
   );
@@ -358,8 +360,8 @@ window.TreeStoryPage = (function () {
   CONFIGS.serialize_deserialize_binary_tree = basicTreeConfig(
     'serialize_deserialize_binary_tree', 'Serialize and Deserialize Binary Tree', '297', 'Hard',
     ['Preorder with Nulls', '⏱ O(n) time', '💾 O(n) data'],
-    'Encode a binary tree into a string and decode it back to the same structure.',
-    'Write each node in preorder and keep explicit null markers. Those markers are the missing branches needed to rebuild the exact shape.',
+    'Design an algorithm that serializes a binary tree into a single string, and deserializes that string back into a tree with the exact same structure — same values in the same positions, including exactly where children are missing. The tree may contain duplicate values, so values alone are never enough to reconstruct the shape; the structure itself must be encoded.',
+    "A plain traversal that only records real node values loses information: given just a sequence of numbers, there's no way to tell where one subtree ends and the next begins, or where a child was missing versus simply not yet visited — the same sequence could match multiple different tree shapes. The fix is to write an explicit marker (here, the character '#') every time the traversal reaches a missing child, instead of silently skipping over it. Because the traversal is preorder — a node is always written before either of its children — decoding can rebuild the tree with a simple recursive process: read the next token; if it's '#', that subtree is empty and decoding returns immediately; otherwise it's a real value, so create that node, then recursively decode its left subtree, then its right subtree, consuming tokens from the same stream in the exact order they were written. Because every null is explicit, there is never any ambiguity about where one subtree's tokens end and the next one's begin.",
     `public class Codec {
     public String serialize(TreeNode root) {
         List<String> out = new ArrayList<>();
@@ -378,12 +380,12 @@ window.TreeStoryPage = (function () {
       const F = [], items = [], okIds = [];
       const snap = (line, msg, activeId, extra) => F.push(Object.assign({ line, msg, ...cloneLayout(root), activeId, okIds: okIds.slice(), items: items.slice(), metricA: items.length, metricB: 'tokens' }, extra || {}));
       function dfs(n) {
-        if (!n) { items.push('#'); snap(8, 'Write # for a missing child so the shape can be rebuilt.', null); return; }
-        items.push(n.val); okIds.push(n.id); snap(9, `Write ${n.val}, then serialize left and right children.`, n.id);
+        if (!n) { items.push('#'); snap(8, 'This branch is empty — write the explicit marker "#" instead of just skipping it. Without a marker here, decoding would have no way to know a child was missing at this exact position versus simply not reached yet.', null); return; }
+        items.push(n.val); okIds.push(n.id); snap(9, `Write node ${n.val} BEFORE its children — that's what makes this preorder. Decoding will read this value first, immediately know a real node belongs here, and only then recurse to consume its left subtree's tokens, followed by its right subtree's tokens, in this exact order.`, n.id);
         dfs(n.left); dfs(n.right);
       }
       dfs(root);
-      snap(4, `Serialized stream is ${items.join(',')}.`, null, { done: 'ok', result: `✓ ${items.join(',')}` });
+      snap(4, `Serialized stream: ${items.join(',')}. Every real value and every "#" null-marker appears in preorder, so decode() can walk this exact sequence token by token and rebuild an identical tree shape with zero ambiguity.`, null, { done: 'ok', result: `✓ ${items.join(',')}` });
       return F;
     }
   );
@@ -422,19 +424,19 @@ window.TreeStoryPage = (function () {
           F.push(Object.assign({ line, msg, root: clone.root, nodes: clone.nodes, activeId, items: items.slice(), metricA: pre, metricB: 'pre index' }, extra || {}));
         };
         function build(left, right) {
-          if (left > right) { snap(9, `No inorder values in [${left}, ${right}], so this child is null.`, null); return null; }
+          if (left > right) { snap(9, `The inorder range [${left}, ${right}] is empty (left > right), meaning there are no more values to assign to this subtree — return null.`, null); return null; }
           const val = preorder[pre++], node = { id: nextId++, val, left: null, right: null };
           if (!root) root = node;
           items.push(`root ${val}`);
-          snap(10, `Preorder gives ${val} as the next root.`, node.id);
+          snap(10, `Preorder visits roots first, so the next unprocessed value in preorder is ${val} — it must be the root of the current subtree. Create a node with value ${val}.`, node.id);
           const mid = idx.get(val);
-          snap(11, `${val} splits inorder at index ${mid}: left [${left}, ${mid - 1}], right [${mid + 1}, ${right}].`, node.id);
+          snap(11, `In inorder, ${val} appears at index ${mid}. Everything to its left (inorder indices [${left}, ${mid - 1}]) must belong to the left subtree, and everything to its right (inorder indices [${mid + 1}, ${right}]) must belong to the right subtree. This split is absolute and unambiguous — once we know which node is root and its position in inorder, the subtree boundaries are determined.`, node.id);
           node.left = build(left, mid - 1);
           node.right = build(mid + 1, right);
           return node;
         }
         root = build(0, inorder.length - 1);
-        snap(5, 'All preorder roots consumed; reconstructed tree is complete.', null, { done: 'ok', result: '✓ tree built' });
+        snap(5, 'All nodes have been constructed by consuming preorder values in sequence and splitting inorder ranges. The tree structure has been completely reconstructed: same values in the same positions as the original tree.', null, { done: 'ok', result: '✓ tree built' });
         return F;
       }
     ),
@@ -476,15 +478,15 @@ window.TreeStoryPage = (function () {
       const F = [], okA = [], okB = [], badA = [], badB = [];
       const snap = (line, msg, a, b, extra) => F.push(Object.assign({ line, msg, ...cloneLayout(A.root), ...Object.fromEntries(Object.entries(cloneLayout(B.root)).map(([k, v]) => [k === 'root' ? 'root2' : 'nodes2', v])), activeA: a ? a.id : null, activeB: b ? b.id : null, okA: okA.slice(), okB: okB.slice(), badA: badA.slice(), badB: badB.slice(), metricA: okA.length, metricB: 'matched' }, extra || {}));
       function same(a, b) {
-        snap(2, `Compare ${a ? a.val : 'null'} with ${b ? b.val : 'null'}.`, a, b);
+        snap(2, `Compare node from p (${a ? `value ${a.val}` : 'null'}) with node from q (${b ? `value ${b.val}` : 'null'}). Both must match structurally and by value at every position for the trees to be identical.`, a, b);
         if (!a && !b) return true;
-        if (!a || !b) { if (a) badA.push(a.id); if (b) badB.push(b.id); snap(4, 'One side is missing, so the structure differs.', a, b); return false; }
-        if (a.val !== b.val) { badA.push(a.id); badB.push(b.id); snap(5, `${a.val} does not equal ${b.val}.`, a, b); return false; }
-        okA.push(a.id); okB.push(b.id); snap(6, `${a.val} matches. Recurse into both children.`, a, b);
+        if (!a || !b) { if (a) badA.push(a.id); if (b) badB.push(b.id); snap(4, `One tree has a null at this position while the other has a node — the structures diverge, so the trees cannot be identical.`, a, b); return false; }
+        if (a.val !== b.val) { badA.push(a.id); badB.push(b.id); snap(5, `Both positions have nodes, but node from p has value ${a.val} while the node from q has value ${b.val} — the values differ, so the trees are not identical.`, a, b); return false; }
+        okA.push(a.id); okB.push(b.id); snap(6, `Nodes match: both have value ${a.val}. Now recursively check both the left subtrees and the right subtrees — if those match, then these two nodes and all their descendants match.`, a, b);
         return same(a.left, b.left) && same(a.right, b.right);
       }
       const ans = same(A.root, B.root);
-      snap(6, ans ? 'Both trees matched all the way down.' : 'A mismatch stops the comparison.', null, null, { done: ans ? 'ok' : 'bad', result: ans ? '✓ true' : '✗ false' });
+      snap(6, ans ? 'Both trees are structurally identical with matching values at every node. Every subtree matched, including empty subtrees.' : 'A structural or value mismatch was found, so the trees are not identical.', null, null, { done: ans ? 'ok' : 'bad', result: ans ? '✓ true' : '✗ false' });
       return F;
     },
     render: (f) => renderDual(f, n => n.id === f.activeA ? 'active' : f.okA.includes(n.id) ? 'ok' : f.badA.includes(n.id) ? 'bad' : '', n => n.id === f.activeB ? 'active' : f.okB.includes(n.id) ? 'ok' : f.badB.includes(n.id) ? 'bad' : '')
@@ -527,20 +529,20 @@ window.TreeStoryPage = (function () {
       function same(a, b) {
         if (!a && !b) return true;
         if (!a || !b || a.val !== b.val) return false;
-        okA.push(a.id); okB.push(b.id); snap(8, `Pair ${a.val} with ${b.val}; children must also match.`, a, b);
+        okA.push(a.id); okB.push(b.id); snap(8, `Both nodes have value ${a.val} — they match. Now recursively check if all descendants match: the left subtree of the main tree must match the left subtree of the subroot, and the right must match the right. If all descendants match, then the structure rooted at ${a.val} is identical to the entire subRoot.`, a, b);
         return same(a.left, b.left) && same(a.right, b.right);
       }
       function search(n) {
         if (!n) return false;
-        snap(3, `Try node ${n.val} as the possible subtree root.`, n, B.root);
+        snap(3, `Inspect node ${n.val} in the main tree — is this node a possible root of the subRoot? Use the "same tree" check to compare the subtree starting at ${n.val} with the entire subRoot.`, n, B.root);
         const beforeA = okA.length, beforeB = okB.length;
-        if (same(n, B.root)) { snap(4, `${n.val} anchors a complete match.`, n, B.root, { done: 'ok', result: '✓ true' }); return true; }
+        if (same(n, B.root)) { snap(4, `Node ${n.val} and its subtree match the entire subRoot perfectly — all node values and the entire structure are identical. The subRoot exists as a subtree in the main tree.`, n, B.root, { done: 'ok', result: '✓ true' }); return true; }
         okA.splice(beforeA); okB.splice(beforeB); badA.push(n.id);
-        snap(5, `${n.val} failed; keep searching lower in the main tree.`, n, B.root);
+        snap(5, `The subtree rooted at ${n.val} does not match the subRoot — either a structure diverges or a value differs. Try other nodes in the main tree: search the left and right children of ${n.val}.`, n, B.root);
         return search(n.left) || search(n.right);
       }
       const ans = search(A.root);
-      if (!ans) snap(5, 'No node in root matched subRoot exactly.', null, null, { done: 'bad', result: '✗ false' });
+      if (!ans) snap(5, 'Every node in the main tree was tested as a potential subtree root, but none of them matched the subRoot. The subRoot does not appear as a subtree anywhere in the main tree.', null, null, { done: 'bad', result: '✗ false' });
       return F;
     }
   });

@@ -1,642 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Two Sum II - Input Array Is Sorted - LeetCode 167</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .problem-description {
-            background-color: #ecf0f1;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        .visualization-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .array-section {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border: 2px solid #dee2e6;
-        }
-        .array-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            min-height: 80px;
-        }
-        .array-element {
-            min-width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #e9ecef;
-            border: 2px solid #adb5bd;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        .array-element.left-pointer {
-            background-color: #28a745;
-            border-color: #1e7e34;
-            color: white;
-            transform: scale(1.1);
-        }
-        .array-element.right-pointer {
-            background-color: #dc3545;
-            border-color: #c82333;
-            color: white;
-            transform: scale(1.1);
-        }
-        .array-element.both-pointers {
-            background-color: #6f42c1;
-            border-color: #5a2d91;
-            color: white;
-            transform: scale(1.15);
-            animation: pulse 1s infinite;
-        }
-        .array-element.target-found {
-            background-color: #fef3c7;
-            border-color: #ff9800;
-            color: black;
-            transform: scale(1.2);
-            animation: bounce 0.5s ease-in-out;
-        }
-        .pointer-label {
-            position: absolute;
-            top: -30px;
-            font-size: 12px;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: white;
-        }
-        .left-label {
-            background-color: #28a745;
-        }
-        .right-label {
-            background-color: #dc3545;
-        }
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .play-btn {
-            background-color: #28a745;
-            color: white;
-        }
-        .play-btn:hover {
-            background-color: #218838;
-        }
-        .pause-btn {
-            background-color: #f8f9fa;
-            color: black;
-        }
-        .pause-btn:hover {
-            background-color: #e0a800;
-        }
-        .reset-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-        .reset-btn:hover {
-            background-color: #c82333;
-        }
-        .step-btn {
-            background-color: #17a2b8;
-            color: white;
-        }
-        .step-btn:hover {
-            background-color: #138496;
-        }
-        .algorithm-steps {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border: 2px solid #dee2e6;
-            margin-bottom: 20px;
-        }
-        .step {
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            border-left: 4px solid #dee2e6;
-        }
-        .step.active {
-            background-color: #f8f9fa;
-            border-left-color: #ffc107;
-        }
-        .step.completed {
-            background-color: #d4edda;
-            border-left-color: #28a745;
-        }
-        .state-info {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-family: monospace;
-        }
-        .sample-inputs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .sample-input {
-            padding: 10px;
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .sample-input:hover {
-            background-color: #5a6268;
-        }
-        .complexity-info {
-            background-color: #d1ecf1;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #17a2b8;
-            margin-bottom: 20px;
-        }
-        .legend {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            border: 2px solid #adb5bd;
-        }
-        .input-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            align-items: end;
-        }
-        .input-group {
-            flex: 1;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 8px;
-            border: 2px solid #dee2e6;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .run-btn {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            height: fit-content;
-        }
-        .run-btn:hover {
-            background-color: #0056b3;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1.15); }
-            50% { transform: scale(1.25); }
-        }
-        @keyframes bounce {
-            0%, 100% { transform: scale(1.2); }
-            50% { transform: scale(1.3); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Two Sum II — Interactive Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    .ptr-tag {
+      position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+      font-family: var(--mono); font-size: .62rem; font-weight: 700;
+      padding: 1px 6px; border-radius: 4px; white-space: nowrap;
+    }
+    .ptr-tag.lo { background: rgba(34,211,238,.18); color: #67e8f9; }
+    .ptr-tag.hi { background: rgba(192,132,252,.18); color: #d8b4fe; }
+    .cell-row.has-ptr { margin-top: 26px; }
+    .formula {
+      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      font-family: var(--mono); font-size: 1.1rem; font-weight: 700;
+    }
+    .formula .op { color: var(--text-3); }
+  </style>
 </head>
 <body>
-    <!-- Header Section -->
-    <div class="text-center mb-8 px-4">
-        <h1 class="text-4xl font-bold text-white mb-2">Two Sum II - Input Array Is Sorted - LeetCode 167</h1>
-        <p class="text-xl text-blue-100 mb-2">An Interactive Visual Explainer</p>
-        <p class="text-sm text-blue-200">Idea By: Chetan Pachpande | Executed By: Claude</p>
+
+  <nav class="topbar">
+    <a class="back-link" href="../../index.html">← All Problems</a>
+    <span style="color:var(--text-3);font-size:.85rem;">Two Pointers</span>
+    <span style="margin-left:auto;display:flex;gap:.5rem;">
+      <span class="chip accent">LC 167</span>
+      <span class="chip medium">Medium</span>
+    </span>
+  </nav>
+
+  <div class="pwrap">
+
+    <header class="phero">
+      <h1 class="grad-text">Two Sum II — Input Array Is Sorted</h1>
+      <div class="chips">
+        <span class="chip accent">Converging Pointers</span>
+        <span class="chip">⏱ O(n) time</span>
+        <span class="chip">💾 O(1) space</span>
+      </div>
+    </header>
+
+    <div class="grid2">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Problem</h2>
+        <div class="prose-dark">
+          <p>Given a <strong>1-indexed</strong>, ascending-sorted array <code>numbers</code>, find two numbers that add up to <code>target</code>. Return their indices <code>[i, j]</code> with <code>i &lt; j</code>. Exactly one solution exists, and you may not reuse an element.</p>
+          <div class="example-box">
+            <div><span class="lbl">Input:&nbsp;&nbsp;</span><span class="val">numbers = [2,7,11,15], target = 9</span></div>
+            <div><span class="lbl">Output:</span> <span class="val">[1, 2]</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Intuition</h2>
+        <div class="prose-dark">
+          <p>Because the array is <strong>sorted</strong>, the HashMap trick from Two Sum isn't even the fastest option — two pointers use the ordering directly, with zero extra space.</p>
+          <p>Start <code>lo</code> at the left, <code>hi</code> at the right. Their sum is either exactly the target (done), <strong>too big</strong> (the largest value is too heavy — pull <code>hi</code> inward, since increasing <code>lo</code> could only make things worse), or <strong>too small</strong> (push <code>lo</code> inward). Each comparison eliminates one candidate, so the pointers converge in a single pass.</p>
+          <div class="complexity-grid">
+            <div class="complexity-item"><div class="big grad-text">O(n)</div><div class="lbl">Time — pointers cross once</div></div>
+            <div class="complexity-item"><div class="big grad-text">O(1)</div><div class="lbl">Space — no map needed</div></div>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <!-- Navigation -->
-    <div class="mb-6 px-4">
-        <a href="../../index.html" class="inline-block bg-white bg-opacity-20 text-white px-6 py-2 rounded-lg hover:bg-opacity-30 transition duration-300 backdrop-blur-sm border border-white border-opacity-30">
-            ← Back to Home
-        </a>
+    <div class="gridmain">
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Solution — synced with playback</h2>
+        <div id="code-panel" class="code-panel"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title"><span class="dot"></span>Live Visualization</h2>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:.75rem;">
+          <div class="field"><label for="in-nums">numbers (sorted, comma-separated)</label><input id="in-nums" value="2, 7, 11, 15"></div>
+          <div class="field"><label for="in-target">target</label><input id="in-target" type="number" value="9"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap;">
+          <button id="run-btn" class="btn-primary">▶ Run</button>
+          <span style="color:var(--text-3);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Presets</span>
+          <button class="preset-btn" data-nums="2, 7, 11, 15" data-target="9">[2,7,11,15] · 9</button>
+          <button class="preset-btn" data-nums="2, 3, 4" data-target="6">[2,3,4] · 6</button>
+          <button class="preset-btn" data-nums="-1, 0" data-target="-1">[-1,0] · -1</button>
+        </div>
+
+        <div id="step-msg" class="step-msg" style="margin-top:1rem;"></div>
+
+        <div class="viz-stage" style="margin-top:1rem;">
+          <div class="stage-label">Array — 1-indexed per the problem, 0-indexed labels shown for the code</div>
+          <div id="stage-array" class="cell-row has-ptr" style="margin-top:26px;"></div>
+          <div class="stage-label" style="margin-top:1.25rem;">Sum check</div>
+          <div id="stage-formula" class="formula"></div>
+          <div id="result" class="result-banner"></div>
+        </div>
+
+        <div id="viz-controls" class="viz-controls"></div>
+      </section>
     </div>
 
-    <div class="container">
-        <h1>Two Sum II - Input Array Is Sorted - LeetCode 167</h1>
-        
-        <div class="problem-description">
-            <h3>Problem Description:</h3>
-            <p>Given a <strong>1-indexed</strong> array of integers <code>numbers</code> that is already <strong>sorted in non-decreasing order</strong>, find two numbers such that they add up to a specific <code>target</code> number.</p>
-            <p>Let these two numbers be <code>numbers[index1]</code> and <code>numbers[index2]</code> where <code>1 ≤ index1 < index2 ≤ numbers.length</code>.</p>
-            <p>Return the indices of the two numbers, <code>index1</code> and <code>index2</code>, <strong>added by one</strong> as an integer array <code>[index1, index2]</code> of length 2.</p>
-            <p><strong>Example:</strong> Input: numbers = [2,7,11,15], target = 9 → Output: [1,2] (2 + 7 = 9)</p>
-        </div>
+    <section class="card section-gap">
+      <h2 class="card-title"><span class="dot"></span>Execution Log</h2>
+      <div id="log-panel" class="log-panel"></div>
+    </section>
 
-        <div class="complexity-info">
-            <h4>Algorithm Complexity:</h4>
-            <p><strong>Time Complexity:</strong> O(n) - Single pass with two pointers</p>
-            <p><strong>Space Complexity:</strong> O(1) - Only using two pointer variables</p>
-        </div>
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0;"><span class="dot"></span>Full Explanation</h2>
+        <button id="narrate-btn" class="preset-btn" title="Read aloud">🔊 Narrate</button>
+      </div>
+      <div id="narration" class="prose-dark">
+        <p>Sorted order lets us reason about the sum of the two extreme pointers directly. Start one pointer at the very first element and the other at the very last. Their sum tells us exactly what to do next: if it equals the target we're done, if it's too large the right pointer is contributing too much and must move inward — since the array is sorted, no other pairing with that same right element could possibly work either — and if it's too small the left pointer must move inward for the symmetric reason.</p>
+        <p>Every step strictly shrinks the window between the two pointers, and since the problem guarantees exactly one solution, this converges to it in a single linear pass with no extra memory, beating even the HashMap approach used when the array isn't sorted.</p>
+      </div>
+    </section>
 
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #e9ecef; border-color: #adb5bd;"></div>
-                <span>Unprocessed</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #28a745; border-color: #1e7e34;"></div>
-                <span>Left Pointer</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #dc3545; border-color: #c82333;"></div>
-                <span>Right Pointer</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #f8f9fa; border-color: #ff9800;"></div>
-                <span>Target Found</span>
-            </div>
-        </div>
+  </div>
 
-        <div class="input-section">
-            <div class="input-group">
-                <label for="arrayInput">Array (comma-separated, sorted):</label>
-                <input type="text" id="arrayInput" value="2,7,11,15" placeholder="e.g., 2,7,11,15">
-            </div>
-            <div class="input-group">
-                <label for="targetInput">Target:</label>
-                <input type="number" id="targetInput" value="9" placeholder="e.g., 9">
-            </div>
-            <button class="run-btn" onclick="startVisualization()">Run</button>
-        </div>
+  <script src="../../assets/engine.js"></script>
+  <script>
+  const JAVA = `class Solution {
+    public int[] twoSum(int[] numbers, int target) {
+        int lo = 0, hi = numbers.length - 1;
 
-        <div class="sample-inputs">
-            <button class="sample-input" onclick="loadSample([2,7,11,15], 9)">Sample 1: [2,7,11,15], target=9</button>
-            <button class="sample-input" onclick="loadSample([2,3,4], 6)">Sample 2: [2,3,4], target=6</button>
-            <button class="sample-input" onclick="loadSample([-1,0], -1)">Sample 3: [-1,0], target=-1</button>
-            <button class="sample-input" onclick="loadSample([1,2,3,4,4,9,56,90], 8)">Sample 4: [1,2,3,4,4,9,56,90], target=8</button>
-        </div>
-
-        <div class="visualization-container">
-            <div class="array-section">
-                <h3>Sorted Array with Two Pointers</h3>
-                <div class="array-container" id="arrayContainer"></div>
-            </div>
-        </div>
-
-        <div class="state-info" id="stateInfo"></div>
-
-        <div class="controls">
-            <button class="play-btn" id="playBtn" onclick="playAnimation()">Play</button>
-            <button class="pause-btn" id="pauseBtn" onclick="pauseAnimation()" style="display: none;">Pause</button>
-            <button class="step-btn" onclick="stepForward()">Step Forward</button>
-            <button class="step-btn" onclick="stepBackward()">Step Backward</button>
-            <button class="reset-btn" onclick="resetAnimation()">Reset</button>
-        </div>
-
-        <div class="algorithm-steps">
-            <h3>Algorithm Steps:</h3>
-            <div class="step" id="step0">1. Initialize left pointer at start (index 0) and right pointer at end (index n-1)</div>
-            <div class="step" id="step1">2. Calculate sum = numbers[left] + numbers[right]</div>
-            <div class="step" id="step2">3. If sum > target, move right pointer left (decrease sum)</div>
-            <div class="step" id="step3">4. If sum < target, move left pointer right (increase sum)</div>
-            <div class="step" id="step4">5. If sum == target, return [left+1, right+1] (1-indexed)</div>
-        </div>
-    </div>
-
-    <script>
-        let numbers = [2, 7, 11, 15];
-        let target = 9;
-        let left = 0;
-        let right = 0;
-        let isPlaying = false;
-        let animationId = null;
-        let step = 0;
-        let steps = [];
-        let found = false;
-        let result = [];
-
-        function loadSample(sampleArray, sampleTarget) {
-            numbers = [...sampleArray];
-            target = sampleTarget;
-            document.getElementById('arrayInput').value = numbers.join(',');
-            document.getElementById('targetInput').value = target;
-            resetAnimation();
-        }
-
-        function initializeVisualization() {
-            steps = [];
-            left = 0;
-            right = numbers.length - 1;
-            found = false;
-            result = [];
-            
-            // Initial step
-            steps.push({
-                type: 'init',
-                left: left,
-                right: right,
-                sum: numbers[left] + numbers[right],
-                description: `Initialize: left=0, right=${right}, sum=${numbers[left]}+${numbers[right]}=${numbers[left] + numbers[right]}`
-            });
-            
-            // Algorithm steps
-            while (left < right && !found) {
-                const sum = numbers[left] + numbers[right];
-                
-                if (sum > target) {
-                    steps.push({
-                        type: 'sum_greater',
-                        left: left,
-                        right: right,
-                        sum: sum,
-                        description: `Sum ${sum} > target ${target}, move right pointer left`
-                    });
-                    right--;
-                    if (left < right) {
-                        steps.push({
-                            type: 'move_right',
-                            left: left,
-                            right: right,
-                            sum: numbers[left] + numbers[right],
-                            description: `Right pointer moved to ${right}, new sum=${numbers[left]}+${numbers[right]}=${numbers[left] + numbers[right]}`
-                        });
-                    }
-                } else if (sum < target) {
-                    steps.push({
-                        type: 'sum_less',
-                        left: left,
-                        right: right,
-                        sum: sum,
-                        description: `Sum ${sum} < target ${target}, move left pointer right`
-                    });
-                    left++;
-                    if (left < right) {
-                        steps.push({
-                            type: 'move_left',
-                            left: left,
-                            right: right,
-                            sum: numbers[left] + numbers[right],
-                            description: `Left pointer moved to ${left}, new sum=${numbers[left]}+${numbers[right]}=${numbers[left] + numbers[right]}`
-                        });
-                    }
-                } else {
-                    steps.push({
-                        type: 'found',
-                        left: left,
-                        right: right,
-                        sum: sum,
-                        description: `Found! ${numbers[left]} + ${numbers[right]} = ${target}. Return [${left+1}, ${right+1}]`
-                    });
-                    found = true;
-                    result = [left + 1, right + 1];
-                    break;
-                }
-            }
-            
-            updateVisualization();
-        }
-
-        function updateVisualization() {
-            updateArrayDisplay();
-            updateStateInfo();
-            updateSteps();
-        }
-
-        function updateArrayDisplay() {
-            const container = document.getElementById('arrayContainer');
-            container.innerHTML = '';
-            
-            numbers.forEach((num, index) => {
-                const element = document.createElement('div');
-                element.className = 'array-element';
-                element.textContent = num;
-                
-                if (step > 0 && steps[step-1]) {
-                    const currentStep = steps[step-1];
-                    if (currentStep.left === index && currentStep.right === index) {
-                        element.classList.add('both-pointers');
-                        const label = document.createElement('div');
-                        label.className = 'pointer-label';
-                        label.textContent = 'L,R';
-                        label.style.backgroundColor = '#6f42c1';
-                        element.appendChild(label);
-                    } else if (currentStep.left === index) {
-                        element.classList.add('left-pointer');
-                        const label = document.createElement('div');
-                        label.className = 'pointer-label left-label';
-                        label.textContent = 'L';
-                        element.appendChild(label);
-                    } else if (currentStep.right === index) {
-                        element.classList.add('right-pointer');
-                        const label = document.createElement('div');
-                        label.className = 'pointer-label right-label';
-                        label.textContent = 'R';
-                        element.appendChild(label);
-                    }
-                    
-                    if (currentStep.type === 'found' && (index === currentStep.left || index === currentStep.right)) {
-                        element.classList.add('target-found');
-                    }
-                }
-                
-                container.appendChild(element);
-            });
-        }
-
-        function updateStateInfo() {
-            const stateInfo = document.getElementById('stateInfo');
-            
-            if (step === 0) {
-                stateInfo.innerHTML = `
-                    <strong>Algorithm State:</strong><br>
-                    Array: [${numbers.join(', ')}]<br>
-                    Target: ${target}<br>
-                    Left Pointer: not set<br>
-                    Right Pointer: not set<br>
-                    Current Sum: not calculated<br>
-                    Status: Ready to start
-                `;
-            } else if (step > 0 && steps[step-1]) {
-                const currentStep = steps[step-1];
-                stateInfo.innerHTML = `
-                    <strong>Algorithm State:</strong><br>
-                    Array: [${numbers.join(', ')}]<br>
-                    Target: ${target}<br>
-                    Left Pointer: ${currentStep.left} (value: ${numbers[currentStep.left]})<br>
-                    Right Pointer: ${currentStep.right} (value: ${numbers[currentStep.right]})<br>
-                    Current Sum: ${currentStep.sum}<br>
-                    Status: ${currentStep.type === 'found' ? 'FOUND!' : 'Searching...'}<br>
-                    ${currentStep.type === 'found' ? `Result: [${result[0]}, ${result[1]}]` : ''}
-                `;
+        while (lo < hi) {
+            int sum = numbers[lo] + numbers[hi];
+            if (sum == target) {
+                return new int[] { lo + 1, hi + 1 };
+            } else if (sum > target) {
+                hi--;
+            } else {
+                lo++;
             }
         }
+        return new int[0]; // no solution
+    }
+}`;
 
-        function updateSteps() {
-            for (let i = 0; i < 5; i++) {
-                const stepElement = document.getElementById(`step${i}`);
-                stepElement.classList.remove('active', 'completed');
-                
-                if (step === 0 && i === 0) {
-                    stepElement.classList.add('active');
-                } else if (step > 0 && steps[step-1]) {
-                    const currentStep = steps[step-1];
-                    if (currentStep.type === 'init' && i === 0) {
-                        stepElement.classList.add('completed');
-                    } else if ((currentStep.type === 'sum_greater' || currentStep.type === 'sum_less' || currentStep.type === 'move_left' || currentStep.type === 'move_right') && i === 1) {
-                        stepElement.classList.add('active');
-                    } else if (currentStep.type === 'sum_greater' && i === 2) {
-                        stepElement.classList.add('active');
-                    } else if (currentStep.type === 'sum_less' && i === 3) {
-                        stepElement.classList.add('active');
-                    } else if (currentStep.type === 'found' && i === 4) {
-                        stepElement.classList.add('active');
-                    } else if (i < getCurrentStepNumber()) {
-                        stepElement.classList.add('completed');
-                    }
-                }
-            }
-        }
+  function buildFrames() {
+    const nums = document.getElementById('in-nums').value
+      .split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+    const target = parseInt(document.getElementById('in-target').value, 10) || 0;
+    const F = [];
+    let lo = 0, hi = nums.length - 1;
 
-        function getCurrentStepNumber() {
-            if (step === 0) return 0;
-            const currentStep = steps[step-1];
-            switch (currentStep.type) {
-                case 'init': return 1;
-                case 'sum_greater': case 'sum_less': case 'move_left': case 'move_right': return 2;
-                case 'found': return 5;
-                default: return 1;
-            }
-        }
+    F.push({ line: 3, msg: `lo = 0, hi = ${hi}. Looking for two numbers summing to ${target}.`, nums, lo, hi, target });
 
-        function playAnimation() {
-            if (!isPlaying) {
-                isPlaying = true;
-                document.getElementById('playBtn').style.display = 'none';
-                document.getElementById('pauseBtn').style.display = 'inline-block';
-                
-                animationId = setInterval(() => {
-                    if (step >= steps.length) {
-                        pauseAnimation();
-                        return;
-                    }
-                    stepForward();
-                }, 1500);
-            }
-        }
+    while (lo < hi) {
+      const sum = nums[lo] + nums[hi];
+      F.push({ line: 6, msg: `sum = nums[${lo}] + nums[${hi}] = ${nums[lo]} + ${nums[hi]} = ${sum}.`, nums, lo, hi, target, sum });
 
-        function pauseAnimation() {
-            isPlaying = false;
-            document.getElementById('playBtn').style.display = 'inline-block';
-            document.getElementById('pauseBtn').style.display = 'none';
-            
-            if (animationId) {
-                clearInterval(animationId);
-                animationId = null;
-            }
-        }
+      if (sum === target) {
+        F.push({ line: 7, msg: `${sum} == ${target} — found it! Return 1-indexed [${lo + 1}, ${hi + 1}].`, nums, lo, hi, target, sum, done: 'ok', answer: [lo + 1, hi + 1] });
+        return F;
+      } else if (sum > target) {
+        F.push({ line: [8, 9], msg: `${sum} > ${target} — too big. Pull hi inward: hi = ${hi - 1}.`, nums, lo, hi, target, sum, tooBig: true });
+        hi--;
+      } else {
+        F.push({ line: [10, 11], msg: `${sum} < ${target} — too small. Push lo inward: lo = ${lo + 1}.`, nums, lo, hi, target, sum, tooSmall: true });
+        lo++;
+      }
+    }
 
-        function stepForward() {
-            if (step < steps.length) {
-                step++;
-                updateVisualization();
-            }
-        }
+    F.push({ line: 14, msg: 'Pointers crossed without finding a match.', nums, lo, hi, target, done: 'bad' });
+    return F;
+  }
 
-        function stepBackward() {
-            if (step > 0) {
-                step--;
-                updateVisualization();
-            }
-        }
+  function render(f) {
+    const answer = f.answer || [];
+    document.getElementById('stage-array').innerHTML = Viz.cells(
+      f.nums.map((v, idx) => {
+        let cls = (idx < f.lo || idx > f.hi) ? 'dim' : '';
+        if (answer.includes(idx + 1)) cls = 'ok';
+        else if (idx === f.lo || idx === f.hi) cls = f.tooBig && idx === f.hi ? 'bad' : f.tooSmall && idx === f.lo ? 'bad' : 'active';
+        return { v, idx, cls };
+      })
+    );
+    document.querySelectorAll('#stage-array .cell').forEach((el, idx) => {
+      const tags = [];
+      if (idx === f.lo) tags.push('<span class="ptr-tag lo">lo</span>');
+      if (idx === f.hi) tags.push('<span class="ptr-tag hi">hi</span>');
+      el.style.position = 'relative';
+      el.insertAdjacentHTML('beforeend', tags.join(''));
+    });
 
-        function resetAnimation() {
-            pauseAnimation();
-            step = 0;
-            initializeVisualization();
-        }
+    const fx = document.getElementById('stage-formula');
+    if (f.sum != null) {
+      fx.innerHTML = `
+        <div class="cell active" style="height:40px;min-width:40px;">${f.nums[f.lo]}</div>
+        <span class="op">+</span>
+        <div class="cell active" style="height:40px;min-width:40px;">${f.nums[f.hi]}</div>
+        <span class="op">=</span>
+        <div class="cell ${f.done === 'ok' ? 'ok' : ''}" style="height:40px;min-width:40px;">${f.sum}</div>
+        <span class="op">${f.done === 'ok' ? '==' : f.sum > f.target ? '>' : '<'}</span>
+        <div class="cell" style="height:40px;min-width:40px;">${f.target}</div>`;
+    } else {
+      fx.innerHTML = `<span style="color:var(--text-3);font-size:.85rem;">target = ${f.target}</span>`;
+    }
 
-        function startVisualization() {
-            const arrayInput = document.getElementById('arrayInput').value;
-            const targetInput = parseInt(document.getElementById('targetInput').value);
-            
-            try {
-                numbers = arrayInput.split(',').map(n => parseInt(n.trim()));
-                target = targetInput;
-                
-                if (numbers.length < 2) {
-                    alert('Array must have at least 2 elements');
-                    return;
-                }
-                
-                if (isNaN(target)) {
-                    alert('Please enter a valid target number');
-                    return;
-                }
-                
-                resetAnimation();
-            } catch (error) {
-                alert('Invalid input format. Please use comma-separated numbers.');
-            }
-        }
+    const res = document.getElementById('result');
+    res.className = 'result-banner' + (f.done ? ` show ${f.done}` : '');
+    res.textContent = f.done === 'ok' ? `✓ return [${answer.join(', ')}]` : f.done === 'bad' ? '✗ no solution found' : '';
+  }
 
-        // Initialize the visualization
-        resetAnimation();
-    </script>
+  const viz = Viz.init({ code: JAVA, buildFrames, render });
+
+  document.getElementById('run-btn').addEventListener('click', () => viz.run());
+  document.querySelectorAll('.preset-btn[data-nums]').forEach(b =>
+    b.addEventListener('click', () => {
+      document.getElementById('in-nums').value = b.dataset.nums;
+      document.getElementById('in-target').value = b.dataset.target;
+      viz.run();
+    })
+  );
+
+  document.getElementById('narrate-btn').addEventListener('click', function () {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); this.textContent = '🔊 Narrate'; return; }
+    const u = new SpeechSynthesisUtterance(document.getElementById('narration').innerText);
+    u.onend = () => (this.textContent = '🔊 Narrate');
+    this.textContent = '⏹ Stop';
+    speechSynthesis.speak(u);
+  });
+
+  viz.run();
+  </script>
 </body>
 </html>

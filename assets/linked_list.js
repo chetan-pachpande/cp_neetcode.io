@@ -288,18 +288,62 @@ window.LinkedListPage = (function () {
     });
 
   CONFIGS.lru_cache = base('lru_cache', 'LRU Cache', '146', 'Medium',
-    ['Map + Doubly List', '⏱ O(1) ops', '💾 O(capacity)'],
-    'Design an LRU cache with O(1) get and put.',
-    'A map finds nodes. A doubly linked list keeps most-recent at the front and evicts from the tail.',
+    ['Map + Doubly Linked List', '⏱ O(1) ops', '💾 O(capacity)'],
+    'Design an LRU cache with O(1) get and put. Evict the least recently used key when capacity is exceeded.',
+    'A HashMap gives O(1) lookup by key, but by itself it can’t tell you usage order. A doubly linked list fixes that: keep the most-recently-used node right after a dummy head, and the least-recently-used node right before a dummy tail. Every touch — a get or a put — unlinks the node from wherever it sits and relinks it at the front. Both unlink and relink are O(1) because each node holds direct prev/next pointers, no scanning required. When the map grows past capacity, the node just before the tail sentinel is, by construction, the LRU one — evict it in O(1) too.',
     [{ id: 'in-cap', label: 'capacity', value: '2' }, { id: 'in-ops', label: 'operations', value: 'put 1 1,put 2 2,get 1,put 3 3,get 2,put 4 4,get 1,get 3,get 4' }],
     [{ label: 'classic', values: { 'in-cap': '2', 'in-ops': 'put 1 1,put 2 2,get 1,put 3 3,get 2,put 4 4,get 1,get 3,get 4' } }, { label: 'capacity 3', values: { 'in-cap': '3', 'in-ops': 'put 1 1,put 2 2,put 3 3,get 1,put 4 4' } }],
     `class LRUCache {
-    Map<Integer, Node> map = new HashMap<>();
-    int capacity;
-    public int get(int key) { Node n = map.get(key); moveToFront(n); return n.val; }
+    class Node {
+        int key, val;
+        Node prev, next;
+        Node(int key, int val) { this.key = key; this.val = val; }
+    }
+
+    private final int capacity;
+    private final Map<Integer, Node> map = new HashMap<>();
+    private final Node head = new Node(0, 0);
+    private final Node tail = new Node(0, 0);
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        head.next = tail;
+        tail.prev = head;
+    }
+
+    public int get(int key) {
+        if (!map.containsKey(key)) return -1;
+        Node node = map.get(key);
+        remove(node);
+        insertFront(node);
+        return node.val;
+    }
+
     public void put(int key, int value) {
-        if (map.containsKey(key)) updateExisting(key, value);
-        else { addFront(key, value); if (map.size() > capacity) evictTail(); }
+        if (map.containsKey(key)) {
+            remove(map.get(key));
+        }
+        Node node = new Node(key, value);
+        map.put(key, node);
+        insertFront(node);
+
+        if (map.size() > capacity) {
+            Node lru = tail.prev;
+            remove(lru);
+            map.remove(lru.key);
+        }
+    }
+
+    private void remove(Node node) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+    }
+
+    private void insertFront(Node node) {
+        node.next = head.next;
+        node.prev = head;
+        head.next.prev = node;
+        head.next = node;
     }
 }`,
     function () {
@@ -308,10 +352,28 @@ window.LinkedListPage = (function () {
       const snap = (line, msg, i, extra) => F.push(Object.assign({ line, msg, values: order.map(k => `${k}:${map.get(k)}`), active: 0, items: [`op ${ops[i] || 'done'}`, `keys ${arr([...map.keys()])}`], metricA: `${order.length}/${cap}`, metricB: 'size' }, extra || {}));
       ops.forEach((op, i) => {
         const [name, kRaw, vRaw] = op.split(/\s+/); const k = parseInt(kRaw, 10);
-        if (name === 'get') { if (map.has(k)) { front(k); snap(4, `get(${k}) hits; move it to most-recent front.`, i); } else snap(4, `get(${k}) misses and returns -1.`, i, { bad: [0] }); }
-        else { map.set(k, parseInt(vRaw, 10)); front(k); snap(7, `put(${k}, ${vRaw}) at the front.`, i); if (order.length > cap) { const ev = order.pop(); map.delete(ev); snap(7, `Capacity exceeded; evict least-recent key ${ev}.`, i); } }
+        if (name === 'get') {
+          if (map.has(k)) {
+            snap(21, `get(${k}) hits. Unlink node ${k} from its current spot…`, i);
+            front(k);
+            snap([23, 24], `…and relink it right after head — it's now the most-recently-used. Return ${map.get(k)}.`, i, { done: false });
+          } else {
+            snap(20, `get(${k}) misses — not in the map. Return -1 without touching the list.`, i);
+          }
+        } else {
+          if (map.has(k)) {
+            snap([28, 29], `put(${k}, ${vRaw}) updates an existing key — unlink its old node first.`, i);
+          }
+          map.set(k, parseInt(vRaw, 10));
+          front(k);
+          snap([31, 32, 33], `Insert ${k} right after head — it's the new most-recently-used.`, i);
+          if (order.length > cap) {
+            const ev = order.pop(); map.delete(ev);
+            snap([35, 36, 37, 38], `Capacity exceeded — tail.prev is key ${ev}, the LRU. Unlink and remove it from the map.`, i);
+          }
+        }
       });
-      snap(8, 'Cache operations complete.', ops.length, { done: 'ok', result: '✓ cache simulated' });
+      snap(53, 'Cache operations complete — head→…→tail always stays MRU→…→LRU order.', ops.length, { done: 'ok', result: '✓ cache simulated' });
       return F;
     });
 

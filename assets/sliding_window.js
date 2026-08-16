@@ -71,15 +71,15 @@ window.SlidingWindowPage = (function () {
       const a = nums('in-arr'), F = [];
       let buy = 0, best = 0, bestPair = [];
       const snap = (line, msg, sell, extra) => F.push(Object.assign({ line, msg, values: a, l: buy, r: sell, active: sell, metricA: best, metricB: `buy ${buy}`, items: bestPair.length ? [`buy ${bestPair[0]}`, `sell ${bestPair[1]}`] : [] }, extra || {}));
-      snap(3, 'Start with the first day as the cheapest buy.', 0);
+      snap(3, 'Track the minimum price seen so far as the cheapest buying opportunity. Each subsequent price is a potential sell day.', 0);
       for (let sell = 1; sell < a.length; sell++) {
-        snap(4, `Try selling at day ${sell} for price ${a[sell]}.`, sell);
-        if (a[sell] < a[buy]) { buy = sell; snap(5, `${a[sell]} is cheaper, so move the buy day here.`, sell); }
+        snap(4, `Inspect day ${sell} with price ${a[sell]} as a potential selling day. Calculate profit if we sold here.`, sell);
+        if (a[sell] < a[buy]) { buy = sell; snap(5, `The price ${a[sell]} is lower than the current min of ${a[buy]}, so this is now the new cheapest buying day we've encountered.`, sell); }
         const profit = a[sell] - a[buy];
         if (profit > best) { best = profit; bestPair = [buy, sell]; }
-        snap(6, `Profit is ${a[sell]} - ${a[buy]} = ${profit}. Best is ${best}.`, sell);
+        snap(6, `If we buy at day ${buy} (price ${a[buy]}) and sell at day ${sell} (price ${a[sell]}), profit = ${profit}. The best profit so far is ${best}.`, sell);
       }
-      snap(8, `Return max profit ${best}.`, null, { done: 'ok', result: `✓ profit = ${best}` });
+      snap(8, `Every price has been checked as a potential sell day against the cheapest buy day seen before it. The maximum profit possible is ${best}.`, null, { done: 'ok', result: `✓ profit = ${best}` });
       return F;
     }
   );
@@ -112,12 +112,12 @@ window.SlidingWindowPage = (function () {
       let l = 0, best = 0;
       const snap = (line, msg, r, extra) => F.push(Object.assign({ line, msg, values: a, l, r, active: r, windowBad: extra && extra.bad, metricA: best, metricB: `left ${l}`, items: [...seen] }, extra || {}));
       for (let r = 0; r < a.length; r++) {
-        snap(5, `Read "${a[r]}" at right ${r}.`, r);
-        while (seen.has(a[r])) { snap(6, `"${a[r]}" already exists, so remove "${a[l]}" from the left.`, r, { bad: true }); seen.delete(a[l++]); }
+        snap(5, `Advance right to index ${r} and try to include character "${a[r]}" in the window.`, r);
+        while (seen.has(a[r])) { snap(6, `Character "${a[r]}" is already in the current window, creating a duplicate. Contract from the left by removing characters one at a time until "${a[r]}" is no longer in the window.`, r, { bad: true }); seen.delete(a[l++]); }
         seen.add(a[r]); best = Math.max(best, r - l + 1);
-        snap(8, `Window "${a.slice(l, r + 1).join('')}" is unique. Best length is ${best}.`, r);
+        snap(8, `The window [${l}, ${r}] contains "${a.slice(l, r + 1).join('')}" with all unique characters. The length is ${r - l + 1}, and the best length so far is ${best}.`, r);
       }
-      snap(10, `Return ${best}.`, null, { done: 'ok', result: `✓ length = ${best}` });
+      snap(10, `Every character has been processed. The longest substring without repeating characters has length ${best}.`, null, { done: 'ok', result: `✓ length = ${best}` });
       return F;
     }
   );
@@ -152,11 +152,11 @@ window.SlidingWindowPage = (function () {
       const snap = (line, msg, r, extra) => F.push(Object.assign({ line, msg, values: a, l, r, active: r, windowBad: extra && extra.bad, metricA: best, metricB: `max ${maxFreq}`, items: top() }, extra || {}));
       for (let r = 0; r < a.length; r++) {
         cnt[a[r]] = (cnt[a[r]] || 0) + 1; maxFreq = Math.max(maxFreq, cnt[a[r]]);
-        snap(6, `Add ${a[r]}. Need ${(r - l + 1) - maxFreq} replacement(s).`, r);
-        while (r - l + 1 - maxFreq > k) { snap(7, `Too expensive for k=${k}; shrink past ${a[l]}.`, r, { bad: true }); cnt[a[l++]]--; }
-        best = Math.max(best, r - l + 1); snap(8, `Valid window length ${r - l + 1}; best is ${best}.`, r);
+        snap(6, `Include character "${a[r]}" — it now appears ${cnt[a[r]]} times in the window. The most frequent character appears ${maxFreq} times, so we need ${(r - l + 1) - maxFreq} replacement(s) to make the window all one character.`, r);
+        while (r - l + 1 - maxFreq > k) { snap(7, `The window needs ${(r - l + 1) - maxFreq} replacements to make all characters the same, but we only have k=${k}. Shrink from the left by removing "${a[l]}".`, r, { bad: true }); cnt[a[l++]]--; }
+        best = Math.max(best, r - l + 1); snap(8, `The window [${l}, ${r}] (length ${r - l + 1}) is valid — we can make all characters the same with at most k replacements. Best length so far is ${best}.`, r);
       }
-      snap(10, `Return ${best}.`, null, { done: 'ok', result: `✓ length = ${best}` });
+      snap(10, `Every character has been processed. The longest substring that can become a single repeated character with at most ${k} replacement(s) has length ${best}.`, null, { done: 'ok', result: `✓ length = ${best}` });
       return F;
     }
   );
@@ -193,10 +193,10 @@ window.SlidingWindowPage = (function () {
         win[a[r]] = (win[a[r]] || 0) + 1;
         if (r >= s1.length) win[a[r - s1.length]]--;
         const l = Math.max(0, r - s1.length + 1);
-        F.push({ line: 5, msg: `Window "${a.slice(l, r + 1).join('')}" carries current counts.`, values: a, l, r, active: r, metricA: `${r - l + 1}/${s1.length}`, metricB: 'size', items: show() });
-        if (same()) { F.push({ line: 7, msg: 'Counts match exactly, so this window is a permutation.', values: a, l, r, active: r, metricA: 'true', metricB: 'match', items: show(), done: 'ok', result: '✓ true' }); return F; }
+        F.push({ line: 5, msg: `Slide the fixed window of size ${s1.length} to positions [${l}, ${r}], containing the substring "${a.slice(l, r + 1).join('')}". Count each character in this window and compare against the character counts required by s1.`, values: a, l, r, active: r, metricA: `${r - l + 1}/${s1.length}`, metricB: 'size', items: show() });
+        if (same()) { F.push({ line: 7, msg: `The character counts in this window exactly match the counts in s1 — this window is a permutation (anagram) of s1.`, values: a, l, r, active: r, metricA: 'true', metricB: 'match', items: show(), done: 'ok', result: '✓ true' }); return F; }
       }
-      F.push({ line: 9, msg: 'No fixed window matched the needed counts.', values: a, l: null, r: null, metricA: 'false', metricB: 'match', items: show(), done: 'bad', result: '✗ false' });
+      F.push({ line: 9, msg: `Every fixed-size window of s2 has been checked, but none have character counts matching s1. Therefore, s2 contains no permutation of s1.`, values: a, l: null, r: null, metricA: 'false', metricB: 'match', items: show(), done: 'bad', result: '✗ false' });
       return F;
     }
   );

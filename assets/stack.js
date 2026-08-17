@@ -69,15 +69,15 @@ window.StackPage = (function () {
       const a = [...str('in-s')], stack = [], F = [], pairs = { ')': '(', ']': '[', '}': '{' };
       const snap = (line, msg, i, extra) => F.push(Object.assign({ line, msg, values: a, active: i, items: stack.slice(), metricA: stack.length, metricB: 'stack' }, extra || {}));
       for (let i = 0; i < a.length; i++) {
-        const c = a[i]; snap(4, `Read ${c}.`, i);
-        if ('([{'.includes(c)) { stack.push(c); snap(5, `Push opener ${c}.`, i); }
+        const c = a[i]; snap(4, `Read '${c}' — check whether it opens a new bracket or closes one that's already waiting.`, i);
+        if ('([{'.includes(c)) { stack.push(c); snap(5, `'${c}' is an opening bracket, so push it onto the stack — it now sits there waiting for its matching closer to show up later.`, i); }
         else {
-          if (!stack.length || stack.pop() !== pairs[c]) { snap(6, `${c} does not match the stack top.`, i, { done: 'bad', result: '✗ false', badIds: [i] }); return F; }
-          snap(6, `${c} matches the most recent opener.`, i, { okIds: [i] });
+          if (!stack.length || stack.pop() !== pairs[c]) { snap(6, `'${c}' is a closing bracket, but the stack is empty or its top isn't the matching opener — there's nothing valid for '${c}' to close. The string can't be valid, so return false immediately.`, i, { done: 'bad', result: '✗ false', badIds: [i] }); return F; }
+          snap(6, `'${c}' correctly closes the most recent unmatched opener — pop it off, since that pair is now fully resolved and out of the way.`, i, { okIds: [i] });
         }
       }
       const ok = stack.length === 0;
-      snap(8, ok ? 'Stack is empty, all brackets matched.' : 'Openers remain unmatched.', null, { done: ok ? 'ok' : 'bad', result: ok ? '✓ true' : '✗ false' });
+      snap(8, ok ? 'Every character has been read and the stack is empty — each opener found its matching closer in the correct order, so the string is valid.' : `Every character has been read, but ${stack.length} opener(s) are still sitting on the stack with no closer — the string is missing brackets, so it's invalid.`, null, { done: ok ? 'ok' : 'bad', result: ok ? '✓ true' : '✗ false' });
       return F;
     }
   );
@@ -109,12 +109,12 @@ window.StackPage = (function () {
       const snap = (line, msg, i, extra) => F.push(Object.assign({ line, msg, values: ops, active: i, items: [`stack ${arr(st)}`, `mins ${arr(mins)}`], metricA: st.length ? st[st.length - 1] : '-', metricB: mins.length ? mins[mins.length - 1] : '-' }, extra || {}));
       ops.forEach((op, i) => {
         const [name, raw] = op.split(/\s+/);
-        if (name === 'push') { const v = parseInt(raw, 10); st.push(v); mins.push(mins.length ? Math.min(v, mins[mins.length - 1]) : v); snap(4, `Push ${v}; mirror min is ${mins[mins.length - 1]}.`, i); }
-        else if (name === 'pop') { st.pop(); mins.pop(); snap(7, 'Pop both stacks to keep depths aligned.', i); }
-        else if (name === 'top') snap(8, `Top is ${st[st.length - 1]}.`, i);
-        else if (name === 'getMin') snap(9, `Current minimum is ${mins[mins.length - 1]}.`, i);
+        if (name === 'push') { const v = parseInt(raw, 10); st.push(v); mins.push(mins.length ? Math.min(v, mins[mins.length - 1]) : v); snap(4, `push(${v}): store it on the main stack, and also push min(${v}, previous min) = ${mins[mins.length - 1]} onto a second "mirror" stack — this remembers the minimum as it stood at this exact depth, not just the overall minimum.`, i); }
+        else if (name === 'pop') { st.pop(); mins.pop(); snap(7, "pop(): remove the top of both stacks together. Since they were pushed in lockstep, popping both keeps the mirror stack's top equal to the minimum of whatever remains on the main stack — no rescanning needed.", i); }
+        else if (name === 'top') snap(8, `top(): just peek — the main stack's top element is ${st[st.length - 1]}, nothing is removed or changed.`, i);
+        else if (name === 'getMin') snap(9, `getMin(): peek the mirror stack instead of scanning the main one — its top, ${mins[mins.length - 1]}, was already computed as the running minimum back when it was pushed, so this is O(1).`, i);
       });
-      snap(9, 'Operations complete.', null, { done: 'ok', result: `✓ min = ${mins.length ? mins[mins.length - 1] : '-'}` });
+      snap(9, 'All operations replayed. Because every push recorded its own running minimum alongside it, getMin never has to scan the stack — it stays O(1) no matter how deep the stack gets.', null, { done: 'ok', result: `✓ min = ${mins.length ? mins[mins.length - 1] : '-'}` });
       return F;
     }
   );
@@ -147,10 +147,10 @@ window.StackPage = (function () {
       const calc = (x, y, op) => op === '+' ? x + y : op === '-' ? x - y : op === '*' ? x * y : Math.trunc(x / y);
       const snap = (line, msg, i, extra) => F.push(Object.assign({ line, msg, values: a, active: i, items: st.slice(), metricA: st.length, metricB: 'stack' }, extra || {}));
       a.forEach((t, i) => {
-        if ('+-*/'.includes(t) && t.length === 1) { const b = st.pop(), a0 = st.pop(), v = calc(a0, b, t); snap(6, `${t} consumes ${a0} and ${b}.`, i); st.push(v); snap(7, `Push result ${v}.`, i); }
-        else { st.push(parseInt(t, 10)); snap(8, `Push number ${t}.`, i); }
+        if ('+-*/'.includes(t) && t.length === 1) { const b = st.pop(), a0 = st.pop(), v = calc(a0, b, t); snap(6, `'${t}' is an operator — pop the two most recent operands. They come off in reverse order (${b} first, then ${a0}), so the expression being evaluated is ${a0} ${t} ${b}.`, i); st.push(v); snap(7, `Compute ${a0} ${t} ${b} = ${v} and push it back onto the stack — it now stands in for both operands it just consumed, ready for whatever operator needs it next.`, i); }
+        else { st.push(parseInt(t, 10)); snap(8, `'${t}' is a plain number, not an operator — push it onto the stack to wait until some later operator needs it as an operand.`, i); }
       });
-      snap(10, `Return ${st[0]}.`, null, { done: 'ok', result: `✓ ${st[0]}` });
+      snap(10, `Every token has been consumed and exactly one value remains on the stack — that's the fully-reduced result of the expression. Return ${st[0]}.`, null, { done: 'ok', result: `✓ ${st[0]}` });
       return F;
     }
   );
@@ -182,13 +182,13 @@ window.StackPage = (function () {
       const n = parseInt(document.getElementById('in-n').value, 10), F = [], path = [], out = [];
       const snap = (line, msg, extra) => F.push(Object.assign({ line, msg, values: path.length ? path : ['∅'], active: path.length - 1, items: out.slice(-8), metricA: `${out.length}`, metricB: `${path.length}/${2 * n}` }, extra || {}));
       function dfs(open, close) {
-        snap(7, `Path "${path.join('')}". open=${open}, close=${close}.`);
-        if (path.length === 2 * n) { out.push(path.join('')); snap(8, `Complete string ${path.join('')}.`); return; }
-        if (open < n) { path.push('('); snap(9, 'Add an opener.'); dfs(open + 1, close); path.pop(); }
-        if (close < open) { path.push(')'); snap(10, 'Add a closer that keeps balance.'); dfs(open, close + 1); path.pop(); }
+        snap(7, `At path "${path.join('') || '∅'}" with ${open} opener(s) and ${close} closer(s) placed so far — decide what can legally come next.`);
+        if (path.length === 2 * n) { out.push(path.join('')); snap(8, `Path "${path.join('')}" has used all ${2 * n} characters and every opener has been closed — this is a complete, well-formed combination. Record it, then backtrack to explore other branches.`); return; }
+        if (open < n) { path.push('('); snap(9, `Only ${open} of ${n} openers have been used — there's still room, so try adding '(' and recurse deeper before undoing it.`); dfs(open + 1, close); path.pop(); }
+        if (close < open) { path.push(')'); snap(10, `${close} closer(s) are placed against ${open} opener(s), so close < open — adding ')' here still leaves a prefix that could legally continue, so try it and recurse.`); dfs(open, close + 1); path.pop(); }
       }
       dfs(0, 0);
-      snap(5, `Return ${out.length} strings.`, { done: 'ok', result: `✓ ${out.length} combinations`, items: out });
+      snap(5, `Every legal placement of openers and closers has been explored — found ${out.length} distinct well-formed combinations using ${n} pair(s).`, { done: 'ok', result: `✓ ${out.length} combinations`, items: out });
       return F;
     }
   );
@@ -222,11 +222,11 @@ window.StackPage = (function () {
       const a = nums('in-arr'), st = [], ans = Array(a.length).fill(0), F = [];
       const snap = (line, msg, i, extra) => F.push(Object.assign({ line, msg, values: a, active: i, stackIds: st.slice(), okIds: ans.map((v, idx) => v ? idx : -1).filter(i => i >= 0), items: [`stack ${arr(st)}`, `ans ${arr(ans)}`], metricA: st.length, metricB: 'waiting' }, extra || {}));
       for (let i = 0; i < a.length; i++) {
-        snap(5, `Day ${i} is ${a[i]} degrees.`, i);
-        while (st.length && a[i] > a[st[st.length - 1]]) { const p = st.pop(); ans[p] = i - p; snap(7, `${a[i]} warms day ${p}; wait ${ans[p]} day(s).`, i); }
-        st.push(i); snap(10, `Push day ${i} as unresolved.`, i);
+        snap(5, `Day ${i} is ${a[i]}° — compare it against whichever colder day is currently waiting on top of the stack.`, i);
+        while (st.length && a[i] > a[st[st.length - 1]]) { const p = st.pop(); ans[p] = i - p; snap(7, `${a[i]}° is warmer than day ${p}'s temperature, so day ${p} finally has its answer: wait ${ans[p]} day(s). Pop it and keep checking — this same warm day might resolve several colder days waiting beneath it.`, i); }
+        st.push(i); snap(10, `No day left on the stack is colder than day ${i} (or the stack is now empty) — push day ${i}; it becomes the new "waiting for warmth" day for whatever colder day comes next.`, i);
       }
-      snap(12, `Return ${arr(ans)}.`, null, { done: 'ok', result: `✓ ${arr(ans)}` });
+      snap(12, `Every day has been processed. Days that never found a warmer day ahead were never popped, so they keep their default wait of 0. Return ${arr(ans)}.`, null, { done: 'ok', result: `✓ ${arr(ans)}` });
       return F;
     }
   );
@@ -262,11 +262,12 @@ window.StackPage = (function () {
       let fleets = 0, last = 0;
       const snap = (line, msg, i, extra) => F.push(Object.assign({ line, msg, values: labels, active: i, items: [`last ${last.toFixed(2)}`, `fleets ${fleets}`], metricA: fleets, metricB: 'fleets' }, extra || {}));
       cars.forEach((c, i) => {
-        snap(7, `Car at ${c.pos} reaches in ${c.time.toFixed(2)} hours.`, i);
-        if (c.time > last) { fleets++; last = c.time; snap(8, 'It cannot catch the fleet ahead, so it forms a new fleet.', i, { okIds: [i] }); }
-        else snap(8, 'It catches the slower fleet ahead and merges.', i, { stackIds: [i] });
+        const prevLast = last;
+        snap(7, `Car starting at position ${c.pos} (speed ${c.speed}) would take ${c.time.toFixed(2)} hours to reach the target on its own — compare that against the slowest fleet already ahead of it (closer to the target) to see if it can catch up.`, i);
+        if (c.time > prevLast) { fleets++; last = c.time; snap(8, `${c.time.toFixed(2)}h is slower than the fleet ahead of it (${i === 0 ? 'no fleet yet — it is the first car' : prevLast.toFixed(2) + 'h'}) — this car can never catch up before the target, so it arrives on its own schedule and becomes a brand-new fleet.`, i, { okIds: [i] }); }
+        else snap(8, `${c.time.toFixed(2)}h is not slower than the fleet ahead of it (${prevLast.toFixed(2)}h) — this car would reach that point at or before the fleet ahead, so it's forced to slow down and bunch up behind it instead of passing. It merges into that fleet rather than forming its own.`, i, { stackIds: [i] });
       });
-      snap(10, `Return ${fleets}.`, null, { done: 'ok', result: `✓ fleets = ${fleets}` });
+      snap(10, `Every car has been processed from closest to the target to farthest — each one either started a new fleet or merged into the one immediately ahead. ${fleets} distinct fleet(s) arrive. Return ${fleets}.`, null, { done: 'ok', result: `✓ fleets = ${fleets}` });
       return F;
     }
   );
@@ -304,15 +305,15 @@ window.StackPage = (function () {
       const snap = (line, msg, i, extra) => F.push(Object.assign({ line, msg, values: a, active: i < a.length ? i : null, stackIds: st.filter(x => x < a.length), items: [`stack ${arr(st)}`, `best ${best}`], metricA: best, metricB: 'area' }, extra || {}));
       for (let i = 0; i <= a.length; i++) {
         const cur = i === a.length ? 0 : a[i];
-        snap(5, i === a.length ? 'Sentinel bar clears the stack.' : `Process bar ${i} height ${cur}.`, i);
+        snap(5, i === a.length ? 'Add an imaginary sentinel bar of height 0 past the end — this forces every bar still on the stack to finally be resolved, since nothing is left that could extend their rectangles further.' : `Bar ${i} has height ${cur} — while it's shorter than the bar on top of the stack, that taller bar can't extend any further right, so its rectangle's width is now fully determined.`, i);
         while (st.length && cur < a[st[st.length - 1]]) {
           const top = st.pop(), h = a[top], w = st.length ? i - st[st.length - 1] - 1 : i, area = h * w;
           best = Math.max(best, area);
-          snap(9, `Pop ${top}: height ${h}, width ${w}, area ${area}. Best ${best}.`, i, { okIds: [top] });
+          snap(9, `Pop bar ${top} (height ${h}): its rectangle's right edge stops just before ${i}, and its left edge is bounded by whatever bar is now exposed on the stack (or the very start, if the stack is empty) — width = ${w}. Area = ${h} × ${w} = ${area}. Best so far: ${best}.`, i, { okIds: [top] });
         }
-        st.push(i); snap(12, `Push index ${i}.`, i);
+        st.push(i); snap(12, `Bar ${i} is not shorter than the stack's current top — push it. Keeping the stack in increasing height order means every bar's eventual left boundary is exactly the nearest bar to its left that's shorter than it.`, i);
       }
-      snap(14, `Return ${best}.`, null, { done: 'ok', result: `✓ area = ${best}` });
+      snap(14, `The sentinel forced every remaining bar to be resolved — the largest rectangle found has area ${best}. Return ${best}.`, null, { done: 'ok', result: `✓ area = ${best}` });
       return F;
     }
   );

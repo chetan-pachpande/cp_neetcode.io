@@ -92,6 +92,19 @@ window.Viz = (function () {
       )
       .join('');
 
+    // A "what's happening right now" note directly under the code listing.
+    // The main #step-msg banner lives in the viz card, which can be far
+    // from the code on wide layouts — this keeps the explanation right
+    // where the reader's eyes already are while they step through lines.
+    // Lives outside the scrollable code panel so it never scrolls out of view.
+    let codeMsgMount = document.getElementById('code-step-msg');
+    if (!codeMsgMount) {
+      codeMsgMount = document.createElement('div');
+      codeMsgMount.id = 'code-step-msg';
+      codeMsgMount.className = 'step-msg code-step-msg';
+      codeMount.insertAdjacentElement('afterend', codeMsgMount);
+    }
+
     // --- render controls ---
     controlsMount.innerHTML = `
       <div class="ctrl-row">
@@ -153,6 +166,7 @@ window.Viz = (function () {
       }
 
       if (msgMount) msgMount.textContent = f.msg || '';
+      codeMsgMount.textContent = f.msg || '';
       scrub.max = frames.length - 1;
       scrub.value = idx;
       counter.textContent = `${idx + 1} / ${frames.length}`;

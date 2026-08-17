@@ -347,6 +347,15 @@ body::before {
   min-height: 48px;
 }
 
+/* The copy attached directly under the code panel — same language as
+   .step-msg, just pulled snug against the code so it reads as one unit:
+   "here's the line, here's what it's doing." */
+.code-step-msg {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
 /* ---------- code panel ---------- */
 .code-panel {
   font-family: var(--mono);

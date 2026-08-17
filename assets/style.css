@@ -19,6 +19,8 @@
   --warn: #fbbf24;
   --bad: #fb7185;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Apple's signature deceleration curve — confident settle, no toy-like bounce */
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * { box-sizing: border-box; }
@@ -27,11 +29,13 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, sans-serif;
+  /* San Francisco on Mac/iOS first — Inter is a close-enough understudy elsewhere */
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
   color: var(--text-1);
   background: var(--bg-0);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.006em;
 }
 
 /* Ambient background glow */
@@ -63,8 +67,8 @@ body::before {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 1.25rem;
-  padding: 1.75rem;
+  border-radius: 1.5rem;
+  padding: 2rem;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -93,7 +97,7 @@ body::before {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.3rem 0.75rem;
+  padding: 0.35rem 0.85rem;
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -101,6 +105,7 @@ body::before {
   background: var(--surface);
   color: var(--text-2);
   white-space: nowrap;
+  transition: border-color 0.2s var(--ease-apple), background 0.2s var(--ease-apple);
 }
 
 .chip.easy   { color: #6ee7b7; border-color: rgba(52, 211, 153, 0.35); background: rgba(52, 211, 153, 0.08); }
@@ -135,7 +140,7 @@ body::before {
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface);
-  transition: all 0.2s;
+  transition: all 0.3s var(--ease-apple);
 }
 
 .back-link:hover { color: var(--text-1); border-color: var(--border-strong); transform: translateX(-2px); }
@@ -179,24 +184,24 @@ body::before {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.65rem 1.4rem;
-  border-radius: 0.75rem;
+  padding: 0.7rem 1.6rem;
+  border-radius: 999px;
   border: none;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: inherit;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
   color: white;
   background: linear-gradient(135deg, #6366f1, #a855f7);
-  box-shadow: 0 8px 24px -8px rgba(99, 102, 241, 0.7);
-  transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+  box-shadow: 0 6px 20px -8px rgba(99, 102, 241, 0.6);
+  transition: transform 0.35s var(--ease-apple), box-shadow 0.35s var(--ease-apple), filter 0.35s var(--ease-apple);
 }
 
-.btn-primary:hover { transform: translateY(-1px); filter: brightness(1.1); }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:hover { transform: translateY(-1px); filter: brightness(1.08); box-shadow: 0 10px 26px -8px rgba(99, 102, 241, 0.7); }
+.btn-primary:active { transform: translateY(0) scale(0.98); }
 
 .preset-btn {
-  padding: 0.35rem 0.8rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -204,10 +209,10 @@ body::before {
   font-family: var(--mono);
   font-size: 0.75rem;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.25s var(--ease-apple);
 }
 
-.preset-btn:hover { color: var(--text-1); border-color: var(--indigo); background: rgba(129, 140, 248, 0.1); }
+.preset-btn:hover { color: var(--text-1); border-color: var(--indigo); background: rgba(129, 140, 248, 0.1); transform: translateY(-1px); }
 
 /* ---------- visualization cells ---------- */
 .viz-stage {
@@ -237,14 +242,14 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.7rem;
+  border-radius: 0.85rem;
   border: 1px solid var(--border);
   background: var(--surface-2);
   font-family: var(--mono);
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--text-1);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.35s var(--ease-apple);
 }
 
 .cell .idx {
@@ -262,7 +267,7 @@ body::before {
 .cell.active {
   border-color: var(--indigo);
   background: rgba(129, 140, 248, 0.18);
-  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25), 0 0 24px rgba(129, 140, 248, 0.35);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2), 0 0 18px rgba(129, 140, 248, 0.26);
   transform: translateY(-6px) scale(1.06);
   z-index: 5;
 }
@@ -270,7 +275,7 @@ body::before {
 .cell.ok {
   border-color: var(--ok);
   background: rgba(52, 211, 153, 0.16);
-  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.22), 0 0 24px rgba(52, 211, 153, 0.3);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.18), 0 0 18px rgba(52, 211, 153, 0.22);
   color: #a7f3d0;
 }
 
@@ -283,17 +288,17 @@ body::before {
 .cell.bad {
   border-color: var(--bad);
   background: rgba(251, 113, 133, 0.16);
-  box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.22), 0 0 24px rgba(251, 113, 133, 0.3);
+  box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.18), 0 0 18px rgba(251, 113, 133, 0.22);
   color: #fecdd3;
   animation: shake 0.4s;
 }
 
 .cell.dim { opacity: 0.32; }
 
-.cell.pop { animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.cell.pop { animation: pop-in 0.4s var(--ease-apple); }
 
 @keyframes pop-in {
-  0% { transform: scale(0.5); opacity: 0; }
+  0% { transform: scale(0.85); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 
@@ -325,7 +330,7 @@ body::before {
 .kv.ok { border-color: var(--ok); background: rgba(52, 211, 153, 0.14); }
 .kv.warn { border-color: var(--warn); background: rgba(251, 191, 36, 0.12); }
 .kv.bad { border-color: var(--bad); background: rgba(251, 113, 133, 0.14); }
-.kv.pop { animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.kv.pop { animation: pop-in 0.35s var(--ease-apple); }
 
 /* status banner above the stage */
 .step-msg {
@@ -349,7 +354,7 @@ body::before {
   line-height: 1.7;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   padding: 0.9rem 0;
   overflow: auto;
   max-height: 560px;
@@ -407,7 +412,7 @@ body::before {
   background: var(--surface);
   color: var(--text-2);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.25s var(--ease-apple);
 }
 
 .ctrl-btn:hover { color: var(--text-1); border-color: var(--border-strong); background: var(--surface-2); }
@@ -506,7 +511,7 @@ body::before {
   line-height: 1.8;
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   padding: 1rem 1.25rem;
   height: 230px;
   overflow-y: auto;
@@ -575,13 +580,13 @@ body::before {
 }
 
 /* ---------- problem page layout ---------- */
-.pwrap { max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem 4.5rem; }
+.pwrap { max-width: 1280px; margin: 0 auto; padding: 2.75rem 1.5rem 5rem; }
 
-.phero { text-align: center; padding: 1.5rem 0 2.25rem; }
+.phero { text-align: center; padding: 1.5rem 0 2.75rem; }
 .phero h1 {
   font-size: clamp(2rem, 4.5vw, 3rem);
   font-weight: 900;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   margin: 0 0 0.9rem;
 }
 .phero .chips { display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
@@ -616,7 +621,7 @@ body::before {
   text-align: center;
   display: none;
 }
-.result-banner.show { display: block; animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.result-banner.show { display: block; animation: pop-in 0.35s var(--ease-apple); }
 .result-banner.ok { border: 1px solid rgba(52, 211, 153, 0.4); background: rgba(52, 211, 153, 0.1); color: #6ee7b7; }
 .result-banner.bad { border: 1px solid rgba(251, 113, 133, 0.4); background: rgba(251, 113, 133, 0.1); color: #fda4af; }
 
@@ -629,7 +634,7 @@ body::before {
   fill: var(--surface-2);
   stroke: var(--border);
   stroke-width: 2;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.3s var(--ease-apple);
 }
 
 .tree-node text {
@@ -1108,17 +1113,19 @@ body::before {
    ============================================================ */
 
 /* Faint dot-matrix texture over the whole canvas — adds craft
-   without competing with content. */
+   without competing with content. Kept very quiet: Apple's own
+   surfaces are close to flat, so this should read as "material,"
+   not "pattern." */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 26px 26px;
-  mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35) 40%, rgba(0,0,0,.7));
-  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.35) 40%, rgba(0,0,0,.7));
+  background-image: radial-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,.2) 40%, rgba(0,0,0,.5));
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,.2) 40%, rgba(0,0,0,.5));
 }
 
 /* Cards: gradient hairline across the top — the "machined edge". */
@@ -1167,11 +1174,13 @@ body::after {
   border-bottom: 1px solid var(--border);
 }
 
-/* Viz stage: faint blueprint grid — this is the lab bench. */
+/* Viz stage: faint blueprint grid — this is the lab bench, dialed
+   down so it reads as texture, not a technical drawing. */
 .viz-stage {
+  border-radius: 1.25rem;
   background:
-    linear-gradient(rgba(129, 140, 248, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(129, 140, 248, 0.045) 1px, transparent 1px),
+    linear-gradient(rgba(129, 140, 248, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(129, 140, 248, 0.025) 1px, transparent 1px),
     rgba(0, 0, 0, 0.28);
   background-size: 30px 30px, 30px 30px, auto;
 }
@@ -1194,15 +1203,15 @@ body::after {
 }
 @keyframes cursor-blink { 50% { opacity: 0; } }
 
-/* Play button: slow breathing glow while idle. */
-.ctrl-btn.play { animation: play-breathe 3.2s ease-in-out infinite; }
+/* Play button: slow breathing glow while idle — a calm pulse, not a strobe. */
+.ctrl-btn.play { animation: play-breathe 3.6s var(--ease-apple) infinite; }
 @keyframes play-breathe {
-  0%, 100% { box-shadow: 0 8px 24px -6px rgba(99, 102, 241, 0.8); }
-  50% { box-shadow: 0 8px 34px -4px rgba(168, 85, 247, 0.95), 0 0 18px rgba(99, 102, 241, 0.35); }
+  0%, 100% { box-shadow: 0 6px 18px -6px rgba(99, 102, 241, 0.65); }
+  50% { box-shadow: 0 8px 26px -6px rgba(168, 85, 247, 0.75), 0 0 14px rgba(99, 102, 241, 0.25); }
 }
 
-/* Hero title on problem pages: soft glow behind the gradient text. */
-.phero h1 { text-shadow: 0 0 70px rgba(129, 140, 248, 0.45); }
+/* Hero title on problem pages: a whisper of glow, not a neon sign. */
+.phero h1 { text-shadow: 0 0 40px rgba(129, 140, 248, 0.22); }
 
 /* Result banner: light sweep when it appears. */
 .result-banner.show {
